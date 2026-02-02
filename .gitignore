@@ -1,0 +1,50 @@
+# Build output
+_book/
+_book.old/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Test / cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Agent workspace
+.agent/
+
+# Temporary scripts
+*.pyc
+audit_python.py
+check_headers.py
+check_links.py
+comprehensive_check.py
+detailed_audit.py
+detailed_check.py
+final_audit.sh
+final_check.py
+.git.old/
