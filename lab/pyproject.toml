@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mini_harness"
+version = "0.1.0"
+description = "A minimal but complete Harness system for AI Agents"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "CC-BY-NC-SA-4.0"}
+authors = [
+    {name = "yeasy", email = "yangbaohua@gmail.com"}
+]
+
+dependencies = [
+    "pydantic>=2.0",
+    "httpx>=0.24.0",
+    "python-dotenv>=1.0",
+    "anthropic>=0.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0",
+    "pylint>=2.17.0",
+    "mypy>=1.0",
+    "isort>=5.12.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yeasy/harness_engineering_guide"
+Documentation = "https://yeasy.gitbook.io/harness_engineering_guide/"
+
+[tool.setuptools]
+packages = ["mini_harness"]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+asyncio_mode = "auto"
