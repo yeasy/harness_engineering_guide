@@ -1,0 +1,44 @@
+"""智能体接口定义"""
+
+from typing import Optional, Dict, Any
+from dataclasses import dataclass
+from enum import Enum
+
+
+class AgentState(str, Enum):
+    """智能体状态"""
+    IDLE = "idle"
+    INITIALIZING = "initializing"
+    EXECUTING = "executing"
+    PAUSED = "paused"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
+@dataclass
+class ExecutionResult:
+    """执行结果"""
+    status: str  # "success", "error", "timeout"
+    output: Optional[str] = None
+    error: Optional[str] = None
+    metadata: Dict[str, Any] = None
+
+    def __post_init__(self):
+        if self.metadata is None:
+            self.metadata = {}
+
+
+@dataclass
+class Agent:
+    """Agent定义"""
+    agent_id: str
+    name: str
+    description: str
+    system_prompt: str
+    model_name: str = "claude-sonnet-4-20250514"
+    max_steps: int = 10
+    metadata: Dict[str, Any] = None
+
+    def __post_init__(self):
+        if self.metadata is None:
+            self.metadata = {}
