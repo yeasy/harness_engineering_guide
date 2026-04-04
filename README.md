@@ -153,7 +153,7 @@ mdpress serve
 ## 约定
 
 - **代码示例** 使用 Python，实战项目 MiniHarness 为完整的 Python 实现。
-- **参考实现** 主要引用 Claude Code（TypeScript）和 OpenClaw（TypeScript/Gateway 架构）的源码，用于说明生产级系统的设计决策。
+- **参考实现** 主要引用 Codex CLI（Rust）、Claude Code（TypeScript）和 OpenClaw（TypeScript/Gateway 架构）的源码，用于说明生产级系统的设计决策。
 - **术语处理**：非常见术语首次出现时给出中英文对照和解释，后续直接使用。
 - **架构图**：使用 Mermaid 绘制，辅以文字说明，便于理解和复现。
 - **交叉引用**：涉及其他图书已深入覆盖的主题时，给出引用链接而非重复讲解。
