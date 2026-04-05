@@ -173,7 +173,7 @@ graph TD
    - 成本效率（quality/cost）
    - 质量指标（考虑替代方案、边界情况、约束识别）
 
-**预算决策树图 7-5**：
+**预算决策树**：
 
 ```mermaid
 graph TD
@@ -221,7 +221,7 @@ graph TD
    - 支持新工具注册（ToolRegistry）
    - 支持自定义验证规则（继承 Validator）
 
-**完整流程图 7-6**：
+**完整流程图**：
 
 ```mermaid
 graph TD
