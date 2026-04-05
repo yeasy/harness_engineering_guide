@@ -14,9 +14,9 @@ MCP通过统一的协议规范解决了这些问题。现在，一个MCP Server�
 
 ## 行业采纳情况
 
-- **Anthropic Claude**：2024年11月首次推出
-- **OpenAI ChatGPT**：2025年初开始支持MCP
-- **Google Gemini**：2025年Q1开始试用
+- **Anthropic Claude**：率先推出MCP支持
+- **OpenAI ChatGPT**：随后跟进支持MCP
+- **Google Gemini**：开始试用MCP集成
 - **开源社区**：200+社区维护的MCP Server实现
 - **企业应用**：Slack、Notion、GitHub等已提供官方MCP Server
 
