@@ -140,7 +140,7 @@ graph TD
 
 **代码位置**：第2章详细代码实现
 
-### 2. Tool基类和Agent定义
+### 2. Tool基类和智能体定义
 
 `mini_harness/core/tool.py`、`mini_harness/core/agent.py`
 
