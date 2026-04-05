@@ -564,8 +564,6 @@ class MyLLMProvider(ModelProvider):
 
 ---
 
-**项目文档最后更新**：2026年4月
-
 **仓库地址**：https://github.com/yeasy/harness_engineering_guide
 
 **获取最新版本**：参见本书各章节的 MiniHarness 实战部分
