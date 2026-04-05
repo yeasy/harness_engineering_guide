@@ -79,6 +79,7 @@ response = await client.send_request("tools/list")
 5. 选择传输方式启动
 
 **关键代码框架**：
+
 ```python
 class MCPServerBase:
     def register_tool(name, description, input_schema, handler)
@@ -265,6 +266,7 @@ L5: 应用 (MiniHarness / Agent)
 #### Q2: 如何处理MCP Server的认证？
 
 **答**：
+
 1. **API Key**：在HTTP头中传递 `Authorization: Bearer <key>`
 2. **OAuth**：使用标准的OAuth 2.0流程
 3. **mTLS**：在HTTP Client中配置证书
