@@ -5,6 +5,7 @@
 #### 11.1 可观测性体系
 
 **三大支柱**：
+
 1. **Metrics（指标）**：计数器、仪表、直方图
 
    - 工具调用指标：成功率、延迟、令牌消耗
@@ -69,6 +70,7 @@
    - 限制：最多重试N次
 
 **应用示例**：
+
 ```python
 @circuit_breaker(failure_threshold=5)
 @retry(max_attempts=3, backoff="exponential")
@@ -87,6 +89,7 @@ async def call_tool(tool_name, args):
 - 外部验证：与真实数据比较
 
 **防护策略**：
+
 1. **检测阶段**：识别可能的幻觉
 2. **标记阶段**：标注不确定性
 3. **降级阶段**：使用更保守的模型
