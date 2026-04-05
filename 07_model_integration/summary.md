@@ -16,6 +16,7 @@
 3. **故障转移机制**：熔断器 + 备用链路，透明切换，无感于上层应用
 
 **架构图 7-1**：
+
 ```mermaid
 graph TD
     A["User Request"] --> B["ModelSelectionEngine"]
@@ -54,6 +55,7 @@ graph TD
 3. **Pydantic 校验**：在解析后立即进行参数验证
 
 **解析管道流程 7-2**：
+
 ```mermaid
 graph TD
     A["Raw API Response"] --> B["Parser.parse_response()<br/>or<br/>StreamingParser.process_event()"]
@@ -84,6 +86,7 @@ graph TD
 2. **一票否决制**：任何一层失败即阻止执行
 
 **门控流程图 7-3**：
+
 ```mermaid
 graph TD
     A["Tool Call"] --> B["格式检查<br/>✓"]
@@ -123,6 +126,7 @@ graph TD
    - 事实幻觉 → 级联失败 + 用户困惑
 
 **检测流程图 7-4**：
+
 ```mermaid
 graph TD
     A["Tool Call"] --> B["Tool Name Check"]
@@ -170,6 +174,7 @@ graph TD
    - 质量指标（考虑替代方案、边界情况、约束识别）
 
 **预算决策树图 7-5**：
+
 ```mermaid
 graph TD
     A["Task Arrives"] --> B{Strategy Type?}
@@ -217,6 +222,7 @@ graph TD
    - 支持自定义验证规则（继承 Validator）
 
 **完整流程图 7-6**：
+
 ```mermaid
 graph TD
     A["User Query"] --> B["ModelSelectionEngine"]

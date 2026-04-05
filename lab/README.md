@@ -6,6 +6,8 @@
 
 ### 1. 安装依赖
 
+首先创建虚拟环境并安装项目依赖：
+
 ```bash
 cd lab
 
@@ -20,11 +22,13 @@ pip install -e ".[dev]"
 ### 2. 配置 LLM
 
 MiniHarness 兼容所有 OpenAI API 格式的 LLM 服务。复制 `.env.example` 并配置：
+
 ```bash
 cp .env.example .env
 ```
 
 支持的服务（任选其一）：
+
 ```bash
 # OpenAI
 export LLM_API_KEY="sk-xxx"
@@ -48,6 +52,9 @@ export LLM_MODEL="qwen2.5:7b"
 ```
 
 ### 3. 运行示例智能体
+
+运行示例有两种方式：
+
 ```bash
 # 方式一：命令行传入任务
 python examples/simple_agent.py "列出当前目录的文件，并统计 Python 文件数量"
@@ -100,6 +107,7 @@ flowchart TD
 ## 使用 MiniHarness 库编写自己的智能体
 
 除了直接运行示例，你也可以在自己的代码中导入 MiniHarness 模块：
+
 ```python
 import asyncio
 from mini_harness.tools.builtin import BashTool, FileReadTool, FileWriteTool
@@ -136,6 +144,7 @@ print(response.tool_calls)  # [{"id": "...", "name": "bash_exec", "arguments": {
 ```
 
 **使用熔断器做故障转移**
+
 ```python
 from mini_harness.models.provider import ModelConfig, ModelProviderType, ModelSelectionEngine
 
@@ -156,6 +165,9 @@ except Exception:
 ```
 
 ## 运行测试
+
+使用 pytest 运行测试套件中的 230 个用例：
+
 ```bash
 # 全部测试（230 个用例）
 pytest tests/ -v
@@ -171,6 +183,8 @@ pytest tests/integration/test_runtime.py -v
 ```
 
 ## 项目结构
+
+MiniHarness 的代码结构遵循《智能体 Harness 工程指南》的章节组织，如下所示：
 
 ```mermaid
 graph TD

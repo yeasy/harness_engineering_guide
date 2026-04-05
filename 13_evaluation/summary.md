@@ -120,6 +120,7 @@ flowchart LR
 ### 与AI研究的联系
 
 学术研究与工程实践的反馈循环：
+
 ```mermaid
 flowchart TD
     A["研究提出新基准<br/>GAIA, WebArena"] --> B["工程采用评估<br/>复现基准"]

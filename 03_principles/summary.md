@@ -141,6 +141,7 @@ graph TB
 **设计一个转账系统**
 
 **约束优先**：定义智能体的权限
+
 ```python
 permissions = {
     "transfer_money": {
@@ -152,6 +153,7 @@ permissions = {
 ```
 
 **可验证性**：记录每个转账操作
+
 ```yaml
 Trace ID: trace-2024-04-01-001
 Step 1: Check balance
@@ -162,6 +164,7 @@ Step 4: Send confirmation
 ```
 
 **渐进信任**：根据Agent表现逐步提升权限
+
 ```text
 初期：Approve Always（每次转账都需要人工批准）
 一周后：Ask First（小额转账自动，大额需要确认）
@@ -169,6 +172,7 @@ Step 4: Send confirmation
 ```
 
 **故障假设**：为可能的失败设计处理
+
 ```text
 失败场景1：网络超时 → 重试3次
 失败场景2：余额不足 → 报告给用户
@@ -179,6 +183,7 @@ Step 4: Send confirmation
 ### 与前两章的关系
 
 本章与前两章的关系和递进逻辑如下：
+
 ```mermaid
 graph TD
     A["第1章：概论<br/>为什么需要Harness？"] --> B["第2章：架构全景<br/>Harness的系统设计"]
@@ -196,6 +201,7 @@ graph TD
 #### 约束优先
 
 在工具注册表中实现约束优先原则：
+
 ```python
 # 第2章已经定义了ToolRegistry
 # 第3章应该添加权限检查

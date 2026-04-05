@@ -59,6 +59,8 @@ MiniHarness 从第一章介绍、第二章搭建脚手架开始，每章在前�
 
 ## 学习路线图
 
+根据不同的角色和学习目标，以下路线图为你展示了最优的章节阅读顺序：
+
 ```mermaid
 graph LR
     Start[Harness 工程学习入口] --> Ch1[第1章：Harness 导论]
@@ -96,6 +98,7 @@ graph LR
 ### 本地阅读
 
 先安装 [mdPress](https://github.com/yeasy/mdpress)：
+
 ```bash
 brew tap yeasy/tap && brew install mdpress
 mdpress serve

@@ -60,6 +60,7 @@
 3. 智能体可以基于工具结果立即进行下一轮推理
 
 **事件流架构**：
+
 ```mermaid
 sequenceDiagram
     participant Agent as 智能体
@@ -150,6 +151,7 @@ sequenceDiagram
 ### 与其他部分的联系
 
 运行时引擎是整个 Harness 系统的枢纽，与其他子系统的关系：
+
 ```mermaid
 graph TB
     subgraph "运行时引擎（智能体循环）"

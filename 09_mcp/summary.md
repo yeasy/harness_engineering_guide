@@ -56,6 +56,7 @@
 - OAuth认证：标准的3-legged OAuth流程
 
 **关键代码**：
+
 ```python
 # stdio客户端
 client = StdioMCPClient("/path/to/server")
@@ -142,6 +143,7 @@ class MCPServerBase:
    - 金丝雀部署支持
 
 **关键代码**：
+
 ```python
 # 注册Server
 registry = MCPToolRegistry()
@@ -159,6 +161,7 @@ success, result = await registry.call_tool(
 #### 9.5 MiniHarness的MCP集成实现
 
 **架构设计**：
+
 ```mermaid
 flowchart LR
     A["Agent"] --> B["MCPToolAdapter"]
@@ -200,6 +203,7 @@ flowchart LR
    - 统计和监控
 
 **关键方法**：
+
 ```python
 harness = MiniHarnessWithMCP()
 await harness.initialize()
@@ -218,6 +222,7 @@ result = await harness.process_tool_call(
 #### 架构地位
 
 结构如下：
+
 ```yaml
 L1: 协议 (MCP规范)
   ↓
@@ -284,6 +289,7 @@ L5: 应用 (MiniHarness / Agent)
 #### Q4: 权限如何与SSO系统集成？
 
 **答**：
+
 ```python
 # 从SSO获取Agent的权限
 async def load_permissions_from_sso(agent_id: str):
@@ -305,6 +311,7 @@ async def load_permissions_from_sso(agent_id: str):
 #### 添加MCP Server
 
 示例如下：
+
 ```python
 await registry.add_server(MCPServerConfig(
     server_id="my_server",
@@ -317,6 +324,7 @@ await registry.add_server(MCPServerConfig(
 #### 发现和获取工具
 
 代码片段如下：
+
 ```python
 await registry.discover_tools()
 schema = await registry.get_tool_schema("my_tool")
@@ -326,6 +334,7 @@ tools = await adapter.get_available_tools()
 #### 调用工具
 
 具体实现如下：
+
 ```python
 success, result, error = await registry.call_tool(
     "my_tool", {"param": "value"}, agent_id="agent1"
@@ -335,6 +344,7 @@ success, result, error = await registry.call_tool(
 #### 检查缓存统计
 
 代码如下：
+
 ```python
 stats = harness.get_stats()
 print(f"Cache hit rate: {stats['schema_cache']}")

@@ -345,6 +345,7 @@ graph TD
 ### 安装
 
 MiniHarness的安装步骤如下：
+
 ```bash
 # 克隆仓库
 git clone https://github.com/yeasy/harness_engineering_guide.git
@@ -364,6 +365,7 @@ export ANTHROPIC_API_KEY=your_key_here
 ### 基础示例
 
 代码如下：
+
 ```python
 # examples/01_basic_agent.py
 from mini_harness.harness import MiniHarness
@@ -388,6 +390,7 @@ print(result)
 ### 运行测试
 
 命令示例如下：
+
 ```bash
 # 运行所有测试
 pytest tests/ -v
@@ -401,6 +404,8 @@ pytest tests/ --cov=mini_harness --cov-report=html
 ```
 
 ## 架构总览图
+
+MiniHarness的整体架构由多个层级组成，以下是完整的系统架构关系：
 
 ```mermaid
 graph TD
@@ -463,6 +468,7 @@ graph TD
 ## 运行完整测试套件
 
 脚本示例如下：
+
 ```bash
 # 脚本: scripts/run_tests.sh
 
@@ -498,6 +504,7 @@ echo "All tests completed! Coverage report: htmlcov/index.html"
 ### 添加新工具
 
 示例如下：
+
 ```python
 # 在 tools/ 目录创建 new_tool.py
 from mini_harness.core.tool import Tool
@@ -519,6 +526,7 @@ harness.register_tool("my_tool", MyCustomTool())
 ### 自定义测试
 
 代码如下：
+
 ```python
 # 在 tests/ 目录创建 test_custom.py
 from mini_harness.harness import MiniHarness
@@ -532,6 +540,7 @@ async def test_my_feature():
 ### 集成新的LLM
 
 示例如下：
+
 ```python
 # 在 models/ 目录创建 new_llm_provider.py
 from mini_harness.models.provider import ModelProvider

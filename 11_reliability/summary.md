@@ -96,6 +96,7 @@ async def call_tool(tool_name, args):
 4. **人工审核**：高风险输出交由人工
 
 **实现示例**：
+
 ```python
 async def verify_tool_call(tool_name, arguments, result):
     # 1. 用不同的提示词再次查询

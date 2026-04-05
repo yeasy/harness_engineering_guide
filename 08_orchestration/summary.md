@@ -265,6 +265,7 @@ groups = dag.get_parallelizable_groups()
 #### 定义工作流
 
 代码如下：
+
 ```python
 states = [StateDefinition(...), ...]
 transitions = [TransitionDefinition(...), ...]
@@ -274,6 +275,7 @@ executor.initialize("start_state", context)
 #### 创建子智能体
 
 以下是示例：
+
 ```python
 factory = SubAgentFactory("parent")
 subagent = factory.create_subagent("sub1", TaskType.LOCAL_AGENT)
@@ -283,6 +285,7 @@ result = await subagent.execute(task, parent_context)
 #### 发送通知
 
 具体实现如下：
+
 ```python
 notification = TaskNotification(
     task_id="task_0",

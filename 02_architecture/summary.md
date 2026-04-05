@@ -108,6 +108,7 @@ graph TB
 #### 工具调用协议
 
 标准化的请求-响应模式：
+
 ```mermaid
 flowchart TD
     A["ToolCallRequest"] -->|执行| B["ToolCallResponse"]
