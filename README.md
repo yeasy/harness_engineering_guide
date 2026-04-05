@@ -14,7 +14,7 @@
 
 Harness 一词意为“驾驭”，原指骑手用以驾驭烈马的缰绳和鞍具系统——如同骑手通过缰绳和鞍具将烈马的奔腾之力化为可控的前行，Agent Harness 将大模型的推理能力转化为可靠、可控、可观测的生产级系统。它包含运行时引擎、工具层、记忆子系统、编排引擎、安全体系和可观测性基础设施等核心子系统。
 
-本书不讲”Agent 是什么”——那是 [《智能体 AI 权威指南》](https://yeasy.gitbook.io/agentic_ai_guide) 的主题；不讲”上下文如何管理”——那是 [《大模型上下文工程权威指南》](https://yeasy.gitbook.io/context_engineering_guide) 的领域；也不讲”AI 安全攻防”——[《大模型安全权威指南》](https://yeasy.gitbook.io/ai_security_guide) 已有深入覆盖。本书只聚焦一个问题：**如何设计和构建驱动智能体的工程基础设施**。
+本书不讲“Agent 是什么”——那是 [《智能体 AI 权威指南》](https://yeasy.gitbook.io/agentic_ai_guide) 的主题；不讲“上下文如何管理”——那是 [《大模型上下文工程权威指南》](https://yeasy.gitbook.io/context_engineering_guide) 的领域；也不讲“AI 安全攻防”——[《大模型安全权威指南》](https://yeasy.gitbook.io/ai_security_guide) 已有深入覆盖。本书只聚焦一个问题：**如何设计和构建驱动智能体的工程基础设施**。
 
 ## 三大参考系统
 
@@ -127,7 +127,7 @@ mdpress serve
 
 **第一部分：Harness 工程基础**（第 1-3 章）用一节篇幅回顾 Agent 背景后，立即切入 Harness 工程的定义、参考架构全景和四大设计原则，并介绍贯穿全书的实战项目 MiniHarness。
 
-**第二部分：Harness 核心子系统**（第 4-7 章）逐一拆解 Harness 的四大引擎——运行时、工具层、记忆子系统、模型集成与输出治理。每章围绕”如何设计和构建这个子系统”展开，结合 Codex、Claude Code 和 OpenClaw 的真实实现进行剖析，并在 MiniHarness 中动手实现。
+**第二部分：Harness 核心子系统**（第 4-7 章）逐一拆解 Harness 的四大引擎——运行时、工具层、记忆子系统、模型集成与输出治理。每章围绕“如何设计和构建这个子系统”展开，结合 Codex、Claude Code 和 OpenClaw 的真实实现进行剖析，并在 MiniHarness 中动手实现。
 
 **第三部分：系统集成与工程实践**（第 8-11 章）从子系统上升到系统层面：任务编排与工作流引擎、MCP 协议集成、生产级 Harness 构建（提示词工程、插件体系、性能优化、特性门控），以及容错与可靠性工程。
 
