@@ -14,7 +14,7 @@
 
 Harness 一词意为“驾驭”，原指骑手用以驾驭烈马的缰绳和鞍具系统——如同骑手通过缰绳和鞍具将烈马的奔腾之力化为可控的前行，Agent Harness 将大模型的推理能力转化为可靠、可控、可观测的生产级系统。它包含运行时引擎、工具层、记忆子系统、编排引擎、安全体系和可观测性基础设施等核心子系统。
 
-本书不讲“Agent 是什么”——那是 [《智能体 AI 权威指南》](https://github.com/yeasy/agentic_ai_guide) 的主题；不讲“上下文如何管理”——那是 [《大模型上下文工程权威指南》](https://github.com/yeasy/context_engineering_guide) 的领域；也不讲“AI 安全攻防”——[《大模型安全权威指南》](https://github.com/yeasy/ai_security_guide) 已有深入覆盖。本书只聚焦一个问题：**如何设计和构建驱动智能体的工程基础设施**。
+本书不讲”Agent 是什么”——那是 [《智能体 AI 权威指南》](https://yeasy.gitbook.io/agentic_ai_guide) 的主题；不讲”上下文如何管理”——那是 [《大模型上下文工程权威指南》](https://yeasy.gitbook.io/context_engineering_guide) 的领域；也不讲”AI 安全攻防”——[《大模型安全权威指南》](https://yeasy.gitbook.io/ai_security_guide) 已有深入覆盖。本书只聚焦一个问题：**如何设计和构建驱动智能体的工程基础设施**。
 
 ## 三大参考系统
 
@@ -24,7 +24,7 @@ Harness 一词意为“驾驭”，原指骑手用以驾驭烈马的缰绳和鞍
 
 **[Claude Code](https://github.com/anthropics/claude-code)** 代表 **任务型智能体** 的 Harness 范式。它围绕终端交互场景构建了一套精密的工程系统，约 50 万行 TypeScript 代码实现了完整的 Harness 架构。其特色包括：基于异步生成器的 Agent 循环引擎（QueryEngine）、24+内置工具的类型安全注册体系、分层权限系统（含 ML 自动审批）、autoDream 记忆整合引擎、40+ 编译时特性门控、以及 Coordinator 多智能体编排模式等。
 
-**[OpenClaw](https://github.com/openclaw/openclaw)** 代表 **自驱型智能体** 的 Harness 范式。它通过 Gateway 控制平面、Heartbeat 心跳机制和多渠道接入层，实现了无需用户持续指令即可自主运行的 Agent 架构。其 Harness 特色包括：基于 WebSocket 的 Gateway 协议、三级权限模型（Free/Ask-first/Approve-once）、MEMORY.md + 每日记忆的双层记忆体系、Lobster 确定性工作流引擎，以及 ClawHub 技能注册中心等。更多内容可参考 [《OpenClaw 从入门到精通》](https://github.com/yeasy/openclaw_guide)。
+**[OpenClaw](https://github.com/openclaw/openclaw)** 代表 **自驱型智能体** 的 Harness 范式。它通过 Gateway 控制平面、Heartbeat 心跳机制和多渠道接入层，实现了无需用户持续指令即可自主运行的 Agent 架构。其 Harness 特色包括：基于 WebSocket 的 Gateway 协议、三级权限模型（Free/Ask-first/Approve-once）、MEMORY.md + 每日记忆的双层记忆体系、Lobster 确定性工作流引擎，以及 ClawHub 技能注册中心等。更多内容可参考 [《OpenClaw 从入门到精通》](https://yeasy.gitbook.io/openclaw_guide)。
 
 这三个系统分别展示了 Harness 工程在不同场景和技术路线下的设计取舍：
 
@@ -55,7 +55,7 @@ MiniHarness 从第一章介绍、第二章搭建脚手架开始，每章在前�
 - **全栈开发者**：希望理解自己使用的 Agent 框架“引擎盖下”到底发生了什么，从而更好地排查问题和优化性能。
 - **技术决策者**：需要理解 Harness 工程的核心权衡，制定 Agent 基础设施的技术战略。
 
-读者应具备 Python 编程经验，并对大语言模型和 AI Agent 有基本了解。如需补充 Agent 基础知识，推荐先阅读 [《智能体 AI 权威指南》](https://github.com/yeasy/agentic_ai_guide)。
+读者应具备 Python 编程经验，并对大语言模型和 AI Agent 有基本了解。如需补充 Agent 基础知识，推荐先阅读 [《智能体 AI 权威指南》](https://yeasy.gitbook.io/agentic_ai_guide)。
 
 ## 学习路线图
 
@@ -101,7 +101,7 @@ brew tap yeasy/tap && brew install mdpress
 mdpress serve
 ```
 
-启动后，即可通过本地网页来阅读。
+启动后访问 [本地阅读地址](http://localhost:9000) 即可阅读。
 
 ## 你将学到什么
 
@@ -136,12 +136,14 @@ mdpress serve
 
 | 图书 | 聚焦层次 | 核心问题 |
 |------|---------|---------|
-| [AI 入门指南](https://github.com/yeasy/ai_beginner_guide) | 概念层 | AI 是什么、怎么用 |
-| [智能体 AI 权威指南](https://github.com/yeasy/agentic_ai_guide) | 理论层 | Agent 的范式、推理、记忆与协作 |
-| [大模型上下文工程权威指南](https://github.com/yeasy/context_engineering_guide) | 技术层 | 如何管理 LLM 的上下文 |
-| [Claude 完全指南](https://github.com/yeasy/claude_guide) | 产品层 | Claude 生态的全面使用 |
-| [OpenClaw 从入门到精通](https://github.com/yeasy/openclaw_guide) | 实践层 | OpenClaw 的部署与使用 |
-| [大模型安全权威指南](https://github.com/yeasy/ai_security_guide) | 安全层 | AI 系统的攻防与合规 |
+| [零基础学 AI](https://yeasy.gitbook.io/ai_beginner_guide) | 概念层 | AI 是什么、怎么用 |
+| [大模型提示词工程指南](https://yeasy.gitbook.io/prompt_engineering_guide) | 交互层 | 如何与大模型高效对话 |
+| [大模型上下文工程权威指南](https://yeasy.gitbook.io/context_engineering_guide) | 技术层 | 如何管理 LLM 的上下文 |
+| [智能体 AI 权威指南](https://yeasy.gitbook.io/agentic_ai_guide) | 理论层 | Agent 的范式、推理、记忆与协作 |
+| [Claude 技术指南](https://yeasy.gitbook.io/claude_guide) | 产品层 | Claude 生态的全面使用 |
+| [大模型安全权威指南](https://yeasy.gitbook.io/ai_security_guide) | 安全层 | AI 系统的攻防与合规 |
+| [大模型原理与架构](https://yeasy.gitbook.io/llm_internals) | 原理层 | 大语言模型底层逻辑与架构 |
+| [OpenClaw 从入门到精通](https://yeasy.gitbook.io/openclaw_guide) | 实践层 | OpenClaw 的部署与使用 |
 |**本书：Harness 工程**|**基础设施层**|**如何构建驱动 Agent 的工程系统**|
 
 ## 参与贡献

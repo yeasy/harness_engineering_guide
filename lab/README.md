@@ -135,7 +135,7 @@ print(response.content)
 print(response.tool_calls)  # [{"id": "...", "name": "bash_exec", "arguments": {...}}]
 ```
 
-### 使用熔断器做故障转移
+**使用熔断器做故障转移**
 ```python
 from mini_harness.models.provider import ModelConfig, ModelProviderType, ModelSelectionEngine
 
