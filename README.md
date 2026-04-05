@@ -20,7 +20,7 @@ Harness 一词意为“驾驭”，原指骑手用以驾驭烈马的缰绳和鞍
 
 全书以三个具有代表性的生产级开源系统作为核心参考案例，贯穿始终：
 
-**[Codex CLI](https://github.com/openai/codex)** 代表 **性能型智能体** 的 Harness 范式。它以 Rust 为核心语言（占比约 95%），通过系统级编程实现了高性能、内存安全的 Harness 架构。其特色包括：基于 Starlark 的执行策略引擎（execpolicy）、平台原生沙箱（Linux 上使用 Bubblewrap + seccomp，macOS 使用 sandbox-exec，Windows 使用 restricted-token）、skills/core-skills 技能模块体系、OpenTelemetry 原生可观测性（otel 模块），以及内置 MCP 服务端支持等。
+**[OpenAI Codex](https://github.com/openai/codex)** 代表 **性能型智能体** 的 Harness 范式。它以 Rust 为核心语言（占比约 95%），通过系统级编程实现了高性能、内存安全的 Harness 架构。其特色包括：基于 Starlark 的执行策略引擎（execpolicy）、平台原生沙箱（Linux 上使用 Bubblewrap + seccomp，macOS 使用 sandbox-exec，Windows 使用 restricted-token）、skills/core-skills 技能模块体系、OpenTelemetry 原生可观测性（otel 模块），以及内置 MCP 服务端支持等。
 
 **[Claude Code](https://github.com/anthropics/claude-code)** 代表 **任务型智能体** 的 Harness 范式。它围绕终端交互场景构建了一套精密的工程系统，约 50 万行 TypeScript 代码实现了完整的 Harness 架构。其特色包括：基于异步生成器的 Agent 循环引擎（QueryEngine）、24+内置工具的类型安全注册体系、分层权限系统（含 ML 自动审批）、autoDream 记忆整合引擎、40+ 编译时特性门控、以及 Coordinator 多智能体编排模式等。
 
@@ -28,7 +28,7 @@ Harness 一词意为“驾驭”，原指骑手用以驾驭烈马的缰绳和鞍
 
 这三个系统分别展示了 Harness 工程在不同场景和技术路线下的设计取舍：
 
-| 维度 | Codex CLI（性能型） | Claude Code（任务型） | OpenClaw（自驱型） |
+| 维度 | Codex（性能型） | Claude Code（任务型） | OpenClaw（自驱型） |
 |------|--------------------|-----------------------|--------------------|
 | 核心语言 | Rust（~95%） | TypeScript（~50万行） | TypeScript |
 | 触发方式 | 用户指令驱动 | 用户指令驱动 | Heartbeat 自主唤醒 + 定时任务 |
@@ -124,7 +124,7 @@ mdpress serve
 
 **第一部分：Harness 工程基础**（第 1-3 章）用一节篇幅回顾 Agent 背景后，立即切入 Harness 工程的定义、参考架构全景和四大设计原则，并介绍贯穿全书的实战项目 MiniHarness。
 
-**第二部分：Harness 核心子系统**（第 4-7 章）逐一拆解 Harness 的四大引擎——运行时、工具层、记忆子系统、模型集成与输出治理。每章围绕”如何设计和构建这个子系统”展开，结合 Codex CLI、Claude Code 和 OpenClaw 的真实实现进行剖析，并在 MiniHarness 中动手实现。
+**第二部分：Harness 核心子系统**（第 4-7 章）逐一拆解 Harness 的四大引擎——运行时、工具层、记忆子系统、模型集成与输出治理。每章围绕”如何设计和构建这个子系统”展开，结合 Codex、Claude Code 和 OpenClaw 的真实实现进行剖析，并在 MiniHarness 中动手实现。
 
 **第三部分：系统集成与工程实践**（第 8-11 章）从子系统上升到系统层面：任务编排与工作流引擎、MCP 协议集成、生产级 Harness 构建（提示词工程、插件体系、性能优化、特性门控），以及容错与可靠性工程。
 
@@ -157,7 +157,7 @@ mdpress serve
 ## 约定
 
 - **代码示例** 使用 Python，实战项目 MiniHarness 为完整的 Python 实现。
-- **参考实现** 主要引用 Codex CLI（Rust）、Claude Code（TypeScript）和 OpenClaw（TypeScript/Gateway 架构）的源码，用于说明生产级系统的设计决策。
+- **参考实现** 主要引用 Codex（Rust）、Claude Code（TypeScript）和 OpenClaw（TypeScript/Gateway 架构）的源码，用于说明生产级系统的设计决策。
 - **术语处理**：非常见术语首次出现时给出中英文对照和解释，后续直接使用。
 - **架构图**：使用 Mermaid 绘制，辅以文字说明，便于理解和复现。
 - **交叉引用**：涉及其他图书已深入覆盖的主题时，给出引用链接而非重复讲解。
