@@ -39,7 +39,7 @@
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| role | "user" \| "assistant" | 消息发送者角色 |
+| role | `"user"` 或 `"assistant"` | 消息发送者角色 |
 | content | array | 消息内容块数组，包含：<br/>- TextBlock: 纯文本<br/>- ToolUseBlock: 工具调用请求<br/>- ToolResultBlock: 工具执行结果<br/>- ThinkingBlock: 推理过程（可选） |
 
 #### 状态管理模式
