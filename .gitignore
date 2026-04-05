@@ -37,7 +37,7 @@ Thumbs.db
 # Agent workspace
 .agent/
 
-# Temporary scripts and audit artifacts
+# Temporary scripts
 *.pyc
 audit_python.py
 check_headers.py
@@ -47,16 +47,4 @@ detailed_audit.py
 detailed_check.py
 final_audit.sh
 final_check.py
-check_chapter_structure.py
-check_mermaid.py
-check_readme_formatting.py
-check_table.py
-comprehensive_audit.py
-final_verification.py
-find_unreferenced.py
-verify_link_syntax.py
-verify_links.py
-verify_titles.py
-AUDIT_REPORT.md
-AUDIT_SUMMARY.txt
 .git.old/

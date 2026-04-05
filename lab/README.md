@@ -1,4 +1,4 @@
-# MiniHarness 实战项目
+# MiniHarness 源代码
 
 本目录包含《智能体 Harness 工程指南》全书配套的实战项目——**MiniHarness**，一个最小但完整的 Agent Harness 系统，使用 Python 实现。
 
