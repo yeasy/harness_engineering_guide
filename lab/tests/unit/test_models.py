@@ -18,7 +18,7 @@ from mini_harness.models.parser import (
     ParsedMessage, ResponseParser
 )
 from mini_harness.models.quality import (
-    ToolRegistry as QualityToolRegistry,
+    QualityToolRegistry,
     QualityGate, HallucinationDetector,
     ValidationResult, ValidationReport,
     HallucinationResult

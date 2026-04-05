@@ -17,7 +17,7 @@ class ValidationReport:
     suggestion: Optional[str] = None
 
 
-class ToolRegistry:
+class QualityToolRegistry:
     def __init__(self):
         self.tools = {}
 
@@ -36,7 +36,7 @@ class ToolRegistry:
 
 
 class QualityGate:
-    def __init__(self, registry: ToolRegistry):
+    def __init__(self, registry: QualityToolRegistry):
         self.registry = registry
 
     def validate_tool_call(self, tool_call: ToolUseBlock) -> ValidationReport:
@@ -88,7 +88,7 @@ class HallucinationResult:
 
 
 class HallucinationDetector:
-    def __init__(self, registry: ToolRegistry):
+    def __init__(self, registry: QualityToolRegistry):
         self.registry = registry
 
     def detect(self, tool_call: ToolUseBlock) -> List[HallucinationResult]:

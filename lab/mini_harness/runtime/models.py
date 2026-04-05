@@ -5,7 +5,7 @@ mini_harness/runtime/models.py
 
 from dataclasses import dataclass, field
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 import uuid
 import json
@@ -69,7 +69,7 @@ class ToolResultBlock:
 class Message:
     role: str
     content: List[Any]
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     message_id: str = field(default_factory=lambda: f"msg_{uuid.uuid4().hex[:12]}")
 
     @classmethod
@@ -111,7 +111,7 @@ class AgentState:
     session_id: str
     messages: List[Message] = field(default_factory=list)
     current_turn: int = 0
-    start_time: datetime = field(default_factory=datetime.utcnow)
+    start_time: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def add_message(self, message: Message):
         self.messages.append(message)
