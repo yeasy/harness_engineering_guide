@@ -11,11 +11,11 @@
 ```bash
 cd lab
 
-# 创建虚拟环境（推荐）
+# 创建虚拟环境(推荐)
 python3 -m venv venv
 source venv/bin/activate
 
-# 安装（开发模式）
+# 安装(开发模式)
 pip install -e ".[dev]"
 ```
 
@@ -45,7 +45,7 @@ export LLM_API_KEY="sk-xxx"
 export LLM_BASE_URL="https://dashscope.aliyuncs.com/compatible-mode/v1"
 export LLM_MODEL="qwen-plus"
 
-# Ollama 本地模型（无需付费 API Key）
+# Ollama 本地模型(无需付费 API Key)
 export LLM_API_KEY="ollama"
 export LLM_BASE_URL="http://localhost:11434/v1"
 export LLM_MODEL="qwen2.5:7b"
@@ -84,7 +84,7 @@ python examples/simple_agent.py
 
 ```mermaid
 flowchart TD
-    A["用户输入"] --> B["LLM 推理（流式响应）"]
+    A["用户输入"] --> B["LLM 推理(流式响应)"]
     B -->|"返回文本"| C["输出给用户 ✅"]
     B -->|"返回 tool_call"| D["<b>工具执行</b><br/>bash_exec / file_read / file_write"]
     D -->|"工具结果反馈"| B
@@ -131,7 +131,7 @@ config = ModelConfig(
 )
 provider = create_provider(config)
 
-# 3. 调用 LLM（带工具）
+# 3. 调用 LLM(带工具)
 from mini_harness.models.provider import Message
 tools = registry.list_tools()  # 获取 schema 列表
 response = provider.complete_with_tools(
@@ -169,7 +169,7 @@ except Exception:
 使用 pytest 运行测试套件中的 230 个用例：
 
 ```bash
-# 全部测试（230 个用例）
+# 全部测试(230 个用例)
 pytest tests/ -v
 
 # 只跑某个模块的测试

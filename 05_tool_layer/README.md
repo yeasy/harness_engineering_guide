@@ -66,8 +66,8 @@
 
 ```mermaid
 graph TD
-    A["使用者指令"] --> B["<b>Skills（高级指令）</b><br/>Markdown 格式定义<br/>.skill 文件<br/>可由智能体组合执行"]
-    B --> C["<b>Tools（底层能力）</b><br/>抽象接口<br/>单一职责<br/>由系统管理"]
+    A["使用者指令"] --> B["<b>Skills(高级指令)</b><br/>Markdown 格式定义<br/>.skill 文件<br/>可由智能体组合执行"]
+    B --> C["<b>Tools(底层能力)</b><br/>抽象接口<br/>单一职责<br/>由系统管理"]
     C --> D["<b>底层系统</b><br/>bash/fs/network<br/>实际能力实现"]
 
     style A fill:#f5e8f4,stroke:#a44a90,stroke-width:2px,color:#000000

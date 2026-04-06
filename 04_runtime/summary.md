@@ -154,7 +154,7 @@ sequenceDiagram
 
 ```mermaid
 graph TB
-    subgraph "运行时引擎（智能体循环）"
+    subgraph "运行时引擎(智能体循环)"
         ToolLayer["<b>工具层</b><br/>执行工具<br/>管理工具"]
         MemorySystem["<b>记忆系统</b><br/>上下文<br/>组装"]
         ModelIntegration["<b>模型集成</b><br/>推理调用<br/>输出治理"]
