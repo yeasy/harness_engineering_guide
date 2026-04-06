@@ -1,6 +1,6 @@
 # MiniHarness 实战项目
 
-本目录包含《智能体 Harness 工程指南》全书配套的实战项目——**MiniHarness**，一个最小但完整的 Agent Harness 系统，使用 Python 实现。
+本目录包含《智能体 Harness 工程指南》全书配套的实战项目—— **MiniHarness**，一个最小但完整的 Agent Harness 系统，使用 Python 实现。
 
 ## 快速开始
 
@@ -86,7 +86,7 @@ python examples/simple_agent.py
 flowchart TD
     A["用户输入"] --> B["LLM 推理（流式响应）"]
     B -->|"返回文本"| C["输出给用户 ✅"]
-    B -->|"返回 tool_call"| D["工具执行<br/>bash_exec / file_read / file_write"]
+    B -->|"返回 tool_call"| D["<b>工具执行</b><br/>bash_exec / file_read / file_write"]
     D -->|"工具结果反馈"| B
 
     style A fill:#e8f5e9,stroke:#388e3c
@@ -190,50 +190,50 @@ MiniHarness 的代码结构遵循《智能体 Harness 工程指南》的章节�
 graph TD
     A["lab/"]
 
-    A --> B["pyproject.toml<br/>项目配置和依赖"]
-    A --> C[".env.example<br/>环境变量示例"]
-    A --> D["README.md<br/>本文件"]
+    A --> B["<b>pyproject.toml</b><br/>项目配置和依赖"]
+    A --> C["<b>.env.example</b><br/>环境变量示例"]
+    A --> D["<b>README.md</b><br/>本文件"]
 
-    A --> E["mini_harness/<br/>源代码包"]
-    E --> E1["core/<br/>核心接口定义第2章"]
+    A --> E["<b>mini_harness/</b><br/>源代码包"]
+    E --> E1["<b>core/</b><br/>核心接口定义第2章"]
     E1 --> E1a["message.py"]
     E1 --> E1b["tool.py"]
     E1 --> E1c["agent.py"]
     E1 --> E1d["event.py"]
 
-    E --> E2["runtime/<br/>运行时引擎第4章"]
+    E --> E2["<b>runtime/</b><br/>运行时引擎第4章"]
     E2 --> E2a["engine.py"]
     E2 --> E2b["models.py"]
     E2 --> E2c["events.py"]
 
-    E --> E3["tools/<br/>工具层第5章"]
+    E --> E3["<b>tools/</b><br/>工具层第5章"]
     E3 --> E3a["registry.py"]
     E3 --> E3b["builtin.py"]
 
-    E --> E4["memory/<br/>记忆子系统第6章"]
+    E --> E4["<b>memory/</b><br/>记忆子系统第6章"]
     E4 --> E4a["storage.py"]
     E4 --> E4b["context.py"]
     E4 --> E4c["consolidation.py"]
 
-    E --> E5["models/<br/>模型集成第7章"]
+    E --> E5["<b>models/</b><br/>模型集成第7章"]
     E5 --> E5a["provider.py"]
     E5 --> E5b["parser.py"]
     E5 --> E5c["quality.py"]
 
-    E --> E6["orchestration/<br/>任务编排第8章"]
+    E --> E6["<b>orchestration/</b><br/>任务编排第8章"]
     E6 --> E6a["engine.py"]
 
-    E --> E7["mcp/<br/>MCP集成第9章"]
+    E --> E7["<b>mcp/</b><br/>MCP集成第9章"]
     E7 --> E7a["integration.py"]
 
-    E --> E8["safety/<br/>安全层第12章"]
-    E --> E9["observability/<br/>可观测性第11章"]
+    E --> E8["<b>safety/</b><br/>安全层第12章"]
+    E --> E9["<b>observability/</b><br/>可观测性第11章"]
 
-    E --> E10["utils/<br/>工具函数"]
+    E --> E10["<b>utils/</b><br/>工具函数"]
     E10 --> E10a["config.py"]
 
-    A --> F["tests/<br/>测试套件230个用例"]
-    F --> F1["unit/<br/>单元测试"]
+    A --> F["<b>tests/</b><br/>测试套件230个用例"]
+    F --> F1["<b>unit/</b><br/>单元测试"]
     F1 --> F1a["test_core.py"]
     F1 --> F1b["test_tools.py"]
     F1 --> F1c["test_memory.py"]
@@ -241,12 +241,12 @@ graph TD
     F1 --> F1e["test_orchestration.py"]
     F1 --> F1f["test_mcp.py"]
 
-    F --> F2["integration/<br/>集成测试"]
+    F --> F2["<b>integration/</b><br/>集成测试"]
     F2 --> F2a["test_runtime.py"]
 
-    F --> F3["fixtures/<br/>测试夹具"]
+    F --> F3["<b>fixtures/</b><br/>测试夹具"]
 
-    A --> G["examples/<br/>使用示例"]
+    A --> G["<b>examples/</b><br/>使用示例"]
     G --> G1["simple_agent.py"]
 
     style A fill:#e3f2fd

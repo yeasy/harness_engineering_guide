@@ -123,8 +123,8 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    A["研究提出新基准<br/>GAIA, WebArena"] --> B["工程采用评估<br/>复现基准"]
-    B --> C["发现系统弱点<br/>分析失败案例"]
+    A["<b>研究提出新基准</b><br/>GAIA, WebArena"] --> B["<b>工程采用评估</b><br/>复现基准"]
+    B --> C["<b>发现系统弱点</b><br/>分析失败案例"]
     C --> D["改进算法或框架"]
     D --> E["重新评估性能"]
     E --> F["发表结果，推动学术进展"]

@@ -86,9 +86,9 @@ Claude Code 的 **动态边界机制**（保护系统提示和关键信息，其
 
 ```mermaid
 flowchart LR
-    A["Orient<br/>分析主题"] --> B["Gather<br/>提取信息"]
-    B --> C["Consolidate<br/>融合"]
-    C --> D["Prune<br/>清理"]
+    A["<b>Orient</b><br/>分析主题"] --> B["<b>Gather</b><br/>提取信息"]
+    B --> C["<b>Consolidate</b><br/>融合"]
+    C --> D["<b>Prune</b><br/>清理"]
 
     style A fill:#e8f4f8,stroke:#4a90a4,stroke-width:2px,color:#000000
     style B fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000

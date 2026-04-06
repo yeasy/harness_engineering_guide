@@ -186,8 +186,8 @@ Step 4: Send confirmation
 
 ```mermaid
 graph TD
-    A["第1章：概论<br/>为什么需要Harness？"] --> B["第2章：架构全景<br/>Harness的系统设计"]
-    B --> C["第3章：设计原则 ← 你在这里<br/>如何正确地设计Harness"]
+    A["<b>第1章：概论</b><br/>为什么需要Harness？"] --> B["<b>第2章：架构全景</b><br/>Harness的系统设计"]
+    B --> C["<b>第3章：设计原则 ← 你在这里</b><br/>如何正确地设计Harness"]
 
     style A fill:#e8f5e9
     style B fill:#fff9c4

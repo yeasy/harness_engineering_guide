@@ -21,7 +21,7 @@
 graph TD
     A["User Request"] --> B["ModelSelectionEngine"]
     B --> C["Provider Interface"]
-    C --> D["CircuitBreaker<br/>(healthy check)"]
+    C --> D["<b>CircuitBreaker</b><br/>(healthy check)"]
     D --> E["Primary Provider"]
     D --> F["Fallback-1 Provider"]
     D --> G["Fallback-2 Provider"]
@@ -58,10 +58,10 @@ graph TD
 
 ```mermaid
 graph TD
-    A["Raw API Response"] --> B["Parser.parse_response()<br/>or<br/>StreamingParser.process_event()"]
-    B --> C["ParsedMessage<br/>(content_blocks,<br/>stop_reason,<br/>tokens_used)"]
+    A["Raw API Response"] --> B["<b>Parser.parse_response()</b><br/>or<br/>StreamingParser.process_event()"]
+    B --> C["<b>ParsedMessage</b><br/>(content_blocks,<br/>stop_reason,<br/>tokens_used)"]
     C --> D["ToolCallValidator.validate()"]
-    D --> E["✓ Validated<br/>Structured Output"]
+    D --> E["<b>✓ Validated</b><br/>Structured Output"]
 
     style A fill:#f4e8e8,stroke:#904a4a,stroke-width:2px,color:#000000
     style B fill:#e8f4f8,stroke:#4a90a4,stroke-width:2px,color:#000000
@@ -89,12 +89,12 @@ graph TD
 
 ```mermaid
 graph TD
-    A["Tool Call"] --> B["格式检查<br/>✓"]
-    B --> C["工具存在<br/>✓"]
-    C --> D["参数类型<br/>✓"]
-    D --> E["范围检查<br/>✓"]
-    E --> F["业务规则<br/>✓"]
-    F --> G["权限检查<br/>✓"]
+    A["Tool Call"] --> B["<b>格式检查</b><br/>✓"]
+    B --> C["<b>工具存在</b><br/>✓"]
+    C --> D["<b>参数类型</b><br/>✓"]
+    D --> E["<b>范围检查</b><br/>✓"]
+    E --> F["<b>业务规则</b><br/>✓"]
+    F --> G["<b>权限检查</b><br/>✓"]
     G --> H["✓ Execute Tool"]
 
     style A fill:#f4e8e8,stroke:#904a4a,stroke-width:2px,color:#000000
@@ -131,13 +131,13 @@ graph TD
 graph TD
     A["Tool Call"] --> B["Tool Name Check"]
     B --> C{Found?}
-    C -->|No| D["Hallucination Detected<br/>Suggest: Did you mean X?"]
+    C -->|No| D["<b>Hallucination Detected</b><br/>Suggest: Did you mean X?"]
     C -->|Yes| E["Parameter Range Check"]
     E --> F{Valid?}
-    F -->|No| G["Hallucination Detected<br/>Suggest: Valid range is 1-100"]
-    F -->|Yes| H["Fact Check<br/>Knowledge Base"]
+    F -->|No| G["<b>Hallucination Detected</b><br/>Suggest: Valid range is 1-100"]
+    F -->|Yes| H["<b>Fact Check</b><br/>Knowledge Base"]
     H --> I{True?}
-    I -->|No| J["Hallucination Detected<br/>Suggest: Use endpoint /api/v2"]
+    I -->|No| J["<b>Hallucination Detected</b><br/>Suggest: Use endpoint /api/v2"]
     I -->|Yes| K["✓ Execute"]
 
     style A fill:#f4e8e8,stroke:#904a4a,stroke-width:2px,color:#000000
@@ -180,7 +180,7 @@ graph TD
     A["Task Arrives"] --> B{Strategy Type?}
     B -->|DISABLED| C["No Thinking"]
     B -->|REQUIRED| D["Force Thinking"]
-    B -->|BUDGET_BASED| E["Assessment<br/>Complexity"]
+    B -->|BUDGET_BASED| E["<b>Assessment</b><br/>Complexity"]
     B -->|ADAPTIVE| F["Let model decide"]
     E --> G{Remaining Budget<br/>OK?}
     G -->|No| H["No Thinking"]
@@ -228,10 +228,10 @@ graph TD
     A["User Query"] --> B["ModelSelectionEngine"]
     B --> C["Select Viable Provider"]
     C --> D["Call LLM API"]
-    D --> E["Parse Response<br/>(TextBlock/ToolUseBlock/<br/>ThinkingBlock)"]
+    D --> E["<b>Parse Response</b><br/>(TextBlock/ToolUseBlock/<br/>ThinkingBlock)"]
     E --> F["For Each Tool Call"]
-    F --> G["Hallucination Detection<br/>Tool Name / Parameter / Fact"]
-    G --> H["Quality Gate<br/>Format / Type / Range /<br/>Business / Permission"]
+    F --> G["<b>Hallucination Detection</b><br/>Tool Name / Parameter / Fact"]
+    G --> H["<b>Quality Gate</b><br/>Format / Type / Range /<br/>Business / Permission"]
     H --> I{Decision}
     I -->|Valid| J["Execute Tool"]
     I -->|Invalid| K["Report Error"]

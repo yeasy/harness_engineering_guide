@@ -80,8 +80,8 @@
 
 ```mermaid
 flowchart TD
-    A["第8-9章：功能架构<br/>做什么"] --> B["第10章：生产架构<br/>如何高效地做"]
-    B --> C["第11章：可靠架构<br/>如何在失败时保持"]
+    A["<b>第8-9章：功能架构</b><br/>做什么"] --> B["<b>第10章：生产架构</b><br/>如何高效地做"]
+    B --> C["<b>第11章：可靠架构</b><br/>如何在失败时保持"]
 
     style A fill:#e3f2fd
     style B fill:#fff9c4,stroke:#f57f17,stroke-width:2px

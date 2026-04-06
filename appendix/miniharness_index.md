@@ -1,10 +1,10 @@
-# 附录 D：MiniHarness 架构与代码
+## 附录 D：MiniHarness 架构与代码
 
-## 项目概览
+### 项目概览
 
 [MiniHarness](../lab/README.md)是本书示例系统，展示了一个完整的Harness框架。从架构、工具调用、优化、安全、评估等全方位覆盖。
 
-### 项目目标
+#### 项目目标
 
 通过MiniHarness，读者可以：
 
@@ -13,7 +13,7 @@
 3. 掌握评估框架的搭建
 4. 在此基础上构建生产级系统
 
-### 项目特性
+#### 项目特性
 
 - ✅ 完整的工具调用框架
 - ✅ 多层安全防护（权限、路径校验、护栏）
@@ -22,7 +22,7 @@
 - ✅ 生产级监控和日志
 - ✅ 完整的测试套件
 
-## 目录结构
+### 目录结构
 
 MiniHarness项目的完整目录结构：
 
@@ -32,28 +32,28 @@ graph TD
 
     A --> B["lab/"]
 
-    B --> B1["pyproject.toml<br/>项目配置"]
-    B --> B2["README.md<br/>项目说明"]
+    B --> B1["<b>pyproject.toml</b><br/>项目配置"]
+    B --> B2["<b>README.md</b><br/>项目说明"]
 
-    B --> B3["mini_harness/<br/>主包"]
+    B --> B3["<b>mini_harness/</b><br/>主包"]
 
     B3 --> B3a["__init__.py"]
-    B3 --> B3b["harness.py<br/>核心Harness类第1-2章"]
+    B3 --> B3b["<b>harness.py</b><br/>核心Harness类第1-2章"]
 
-    B3 --> C1["core/<br/>核心模块第2章"]
+    B3 --> C1["<b>core/</b><br/>核心模块第2章"]
     C1 --> C1a["__init__.py"]
     C1 --> C1b["message.py"]
     C1 --> C1c["tool.py"]
     C1 --> C1d["agent.py"]
     C1 --> C1e["event.py"]
 
-    B3 --> C2["runtime/<br/>运行时模块第4章"]
+    B3 --> C2["<b>runtime/</b><br/>运行时模块第4章"]
     C2 --> C2a["__init__.py"]
     C2 --> C2b["engine.py"]
     C2 --> C2c["models.py"]
     C2 --> C2d["events.py"]
 
-    B3 --> C3["tools/<br/>工具层第5章"]
+    B3 --> C3["<b>tools/</b><br/>工具层第5章"]
     C3 --> C3a["__init__.py"]
     C3 --> C3b["registry.py"]
     C3 --> C3c["builtin.py"]
@@ -61,33 +61,33 @@ graph TD
     C3 --> C3e["file_tool.py"]
     C3 --> C3f["web_tool.py"]
 
-    B3 --> C4["memory/<br/>记忆层第6章"]
+    B3 --> C4["<b>memory/</b><br/>记忆层第6章"]
     C4 --> C4a["__init__.py"]
     C4 --> C4b["storage.py"]
     C4 --> C4c["context.py"]
     C4 --> C4d["consolidation.py"]
 
-    B3 --> C5["models/<br/>模型层第7章"]
+    B3 --> C5["<b>models/</b><br/>模型层第7章"]
     C5 --> C5a["__init__.py"]
     C5 --> C5b["provider.py"]
     C5 --> C5c["parser.py"]
     C5 --> C5d["quality.py"]
 
-    B3 --> C6["orchestration/<br/>编排层第8章"]
+    B3 --> C6["<b>orchestration/</b><br/>编排层第8章"]
     C6 --> C6a["__init__.py"]
     C6 --> C6b["engine.py"]
 
-    B3 --> C7["mcp/<br/>MCP集成第9章"]
+    B3 --> C7["<b>mcp/</b><br/>MCP集成第9章"]
     C7 --> C7a["__init__.py"]
     C7 --> C7b["integration.py"]
 
-    B3 --> C8["observability/<br/>可观测性第11章"]
+    B3 --> C8["<b>observability/</b><br/>可观测性第11章"]
     C8 --> C8a["__init__.py"]
     C8 --> C8b["tracing.py"]
     C8 --> C8c["metrics.py"]
     C8 --> C8d["logging.py"]
 
-    B3 --> C9["safety/<br/>安全防护第12章"]
+    B3 --> C9["<b>safety/</b><br/>安全防护第12章"]
     C9 --> C9a["__init__.py"]
     C9 --> C9b["permissions.py"]
     C9 --> C9c["path_validator.py"]
@@ -95,20 +95,20 @@ graph TD
     C9 --> C9e["sandbox.py"]
     C9 --> C9f["audit_log.py"]
 
-    B3 --> C10["utils/<br/>工具函数第10章"]
+    B3 --> C10["<b>utils/</b><br/>工具函数第10章"]
     C10 --> C10a["__init__.py"]
     C10 --> C10b["config.py"]
     C10 --> C10c["logging.py"]
     C10 --> C10d["error_handling.py"]
 
-    B --> D["examples/<br/>使用示例"]
+    B --> D["<b>examples/</b><br/>使用示例"]
     D --> D1["01_basic_agent.py"]
     D --> D2["02_file_analysis.py"]
     D --> D3["03_secure_execution.py"]
     D --> D4["04_e2e_test.py"]
     D --> D5["05_monitoring.py"]
 
-    B --> E["tests/<br/>测试套件第13章"]
+    B --> E["<b>tests/</b><br/>测试套件第13章"]
     E --> E1["conftest.py"]
     E --> E2["test_unit.py"]
     E --> E3["test_integration.py"]
@@ -125,9 +125,9 @@ graph TD
     style D fill:#c8e6c9
 ```
 
-## 核心模块代码索引
+### 核心模块代码索引
 
-### 1. 消息和事件
+#### 1. 消息和事件
 
 `mini_harness/core/message.py`、`mini_harness/core/event.py`
 
@@ -140,7 +140,7 @@ graph TD
 
 **代码位置**：第2章详细代码实现
 
-### 2. Tool基类和智能体定义
+#### 2. Tool基类和智能体定义
 
 `mini_harness/core/tool.py`、`mini_harness/core/agent.py`
 
@@ -153,7 +153,7 @@ graph TD
 
 **代码位置**：第2章完整实现
 
-### 3. 执行引擎
+#### 3. 执行引擎
 
 `mini_harness/runtime/engine.py`
 
@@ -167,7 +167,7 @@ graph TD
 
 **代码位置**：第4章详细代码实现
 
-### 4. 工具注册表
+#### 4. 工具注册表
 
 `mini_harness/tools/registry.py`
 
@@ -181,7 +181,7 @@ graph TD
 
 **代码位置**：第5章完整实现
 
-### 5. 内置工具
+#### 5. 内置工具
 
 `mini_harness/tools/builtin.py`
 
@@ -193,7 +193,7 @@ graph TD
 
 **代码位置**：第5章详细代码
 
-### 6. 记忆存储
+#### 6. 记忆存储
 
 `mini_harness/memory/storage.py`、`mini_harness/memory/context.py`、`mini_harness/memory/consolidation.py`
 
@@ -207,7 +207,7 @@ graph TD
 
 **代码位置**：第6章完整实现
 
-### 7. 模型提供者
+#### 7. 模型提供者
 
 `mini_harness/models/provider.py`、`mini_harness/models/parser.py`、`mini_harness/models/quality.py`
 
@@ -221,7 +221,7 @@ graph TD
 
 **代码位置**：第7章详细代码实现
 
-### 8. 编排引擎
+#### 8. 编排引擎
 
 `mini_harness/orchestration/engine.py`
 
@@ -234,7 +234,7 @@ graph TD
 
 **代码位置**：第8章完整实现
 
-### 9. MCP集成
+#### 9. MCP集成
 
 `mini_harness/mcp/integration.py`
 
@@ -247,7 +247,7 @@ graph TD
 
 **代码位置**：第9章详细代码
 
-### 10. 生产化加固
+#### 10. 生产化加固
 
 `mini_harness/utils/config.py`
 
@@ -260,7 +260,7 @@ graph TD
 
 **代码位置**：第10章完整实现
 
-### 11. 可观测性
+#### 11. 可观测性
 
 `mini_harness/observability/tracing.py`、`mini_harness/observability/metrics.py`、`mini_harness/observability/logging.py`
 
@@ -274,7 +274,7 @@ graph TD
 
 **代码位置**：第11章详细代码实现
 
-### 12. 权限系统
+#### 12. 权限系统
 
 `mini_harness/safety/permissions.py`
 
@@ -291,7 +291,7 @@ graph TD
 
 **代码位置**：第12.2节详细代码
 
-### 13. 路径校验
+#### 13. 路径校验
 
 `mini_harness/safety/path_validator.py`
 
@@ -308,7 +308,7 @@ graph TD
 
 **代码位置**：第12.4节完整实现
 
-### 14. 护栏框架
+#### 14. 护栏框架
 
 `mini_harness/safety/guardrails.py`
 
@@ -324,7 +324,7 @@ graph TD
 
 **代码位置**：第12.3节完整实现
 
-### 15. 评估系统
+#### 15. 评估系统
 
 `mini_harness/tests/`
 
@@ -340,9 +340,9 @@ graph TD
 
 **代码位置**：第13章完整实现
 
-## 快速开始指南
+### 快速开始指南
 
-### 安装
+#### 安装
 
 MiniHarness的安装步骤如下：
 
@@ -362,7 +362,7 @@ pip install -e .
 export ANTHROPIC_API_KEY=your_key_here
 ```
 
-### 基础示例
+#### 基础示例
 
 代码如下：
 
@@ -387,7 +387,7 @@ result = asyncio.run(harness.run(
 print(result)
 ```
 
-### 运行测试
+#### 运行测试
 
 命令示例如下：
 
@@ -403,7 +403,7 @@ pytest tests/test_performance.py -v     # 性能测试
 pytest tests/ --cov=mini_harness --cov-report=html
 ```
 
-## 架构总览图
+### 架构总览图
 
 MiniHarness的整体架构由多个层级组成，以下是完整的系统架构关系：
 
@@ -413,16 +413,16 @@ graph TD
 
     B --> C["<b>核心执行引擎</b><br/>ExecutionEngine<br/>- Agent循环管理<br/>- 工具调用编排<br/>- 提示词构建与优化"]
 
-    C --> D["模型<br/>Claude"]
-    C --> E["工具层<br/>Tools"]
-    C --> F["数据层<br/>Storage"]
+    C --> D["<b>模型</b><br/>Claude"]
+    C --> E["<b>工具层</b><br/>Tools"]
+    C --> F["<b>数据层</b><br/>Storage"]
 
     B --> G["<b>基础保障</b>"]
 
-    G --> G1["安全防护<br/>Safety<br/>权限/路径/护栏/沙箱"]
-    G --> G2["可观测性<br/>Observability<br/>追踪/指标/日志"]
-    G --> G3["评估<br/>Tests<br/>单元/集成/端到端"]
-    G --> G4["编排<br/>Orchestration<br/>工作流/多Agent"]
+    G --> G1["<b>安全防护</b><br/>Safety<br/>权限/路径/护栏/沙箱"]
+    G --> G2["<b>可观测性</b><br/>Observability<br/>追踪/指标/日志"]
+    G --> G3["<b>评估</b><br/>Tests<br/>单元/集成/端到端"]
+    G --> G4["<b>编排</b><br/>Orchestration<br/>工作流/多Agent"]
 
     B --> H["<b>基础设施层</b><br/>文件系统、数据库、外部API、容器运行时"]
 
@@ -433,7 +433,7 @@ graph TD
     style H fill:#fce4ec,stroke:#c2185b,stroke-width:2px
 ```
 
-## 文件到章节的映射
+### 文件到章节的映射
 
 | 文件 | 对应章节 | 关键概念 |
 |-----|---------|--------|
@@ -465,7 +465,7 @@ graph TD
 | safety/guardrails.py | 12.3 | 护栏防护 |
 | tests/ | 13 | 测试框架 |
 
-## 运行完整测试套件
+### 运行完整测试套件
 
 脚本示例如下：
 
@@ -499,9 +499,9 @@ pytest tests/ --cov=mini_harness --cov-report=html
 echo "All tests completed! Coverage report: htmlcov/index.html"
 ```
 
-## 扩展和集成点
+### 扩展和集成点
 
-### 添加新工具
+#### 添加新工具
 
 示例如下：
 
@@ -523,7 +523,7 @@ class MyCustomTool(Tool):
 harness.register_tool("my_tool", MyCustomTool())
 ```
 
-### 自定义测试
+#### 自定义测试
 
 代码如下：
 
@@ -537,7 +537,7 @@ async def test_my_feature():
     pass
 ```
 
-### 集成新的LLM
+#### 集成新的LLM
 
 示例如下：
 
@@ -551,7 +551,7 @@ class MyLLMProvider(ModelProvider):
         pass
 ```
 
-## 性能基准
+### 性能基准
 
 在标准硬件上的参考指标（仅供参考）：
 
