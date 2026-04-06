@@ -39,7 +39,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from mini_harness.tools.builtin import (
-    Tool, ToolResult, BashTool, FileReadTool, FileWriteTool
+    BashTool, FileReadTool, FileWriteTool
 )
 from mini_harness.tools.registry import ToolRegistry
 from mini_harness.utils.config import get_config

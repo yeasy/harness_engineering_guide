@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 from mini_harness.models.parser import ToolUseBlock
 
 
