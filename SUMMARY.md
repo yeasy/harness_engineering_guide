@@ -19,10 +19,10 @@
   * [2.5 MiniHarness脚手架搭建](02_architecture/2.5_miniharness_scaffold.md)
   * [本章小结](02_architecture/summary.md)
 * [第三章：设计原则与方法论](03_principles/README.md)
-  * [3.1 约束优先（Constraint-First）原则](03_principles/3.1_constraint_first.md)
-  * [3.2 可验证性（Verifiability）原则](03_principles/3.2_verifiability.md)
-  * [3.3 渐进信任（Progressive Trust）原则](03_principles/3.3_progressive_trust.md)
-  * [3.4 故障假设（Design for Failure）原则](03_principles/3.4_design_for_failure.md)
+  * [3.1 约束优先(Constraint-First)原则](03_principles/3.1_constraint_first.md)
+  * [3.2 可验证性(Verifiability)原则](03_principles/3.2_verifiability.md)
+  * [3.3 渐进信任(Progressive Trust)原则](03_principles/3.3_progressive_trust.md)
+  * [3.4 故障假设(Design for Failure)原则](03_principles/3.4_design_for_failure.md)
   * [本章小结](03_principles/summary.md)
 
 ## 第二部分：Harness 核心子系统

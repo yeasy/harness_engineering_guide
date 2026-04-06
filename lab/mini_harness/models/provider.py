@@ -10,9 +10,9 @@ mini_harness/models/provider.py - 模型提供者抽象层
 import json
 import time
 from abc import ABC, abstractmethod
-from enum import Enum
 from dataclasses import dataclass, field
-from typing import Optional, List, Dict, Any, Generator
+from enum import Enum
+from typing import Any, Dict, Generator, List, Optional
 
 # 延迟导入，避免未安装时直接报错
 _anthropic = None
@@ -23,6 +23,7 @@ def _get_anthropic() -> Any:
     global _anthropic
     if _anthropic is None:
         import anthropic
+
         _anthropic = anthropic
     return _anthropic
 
@@ -31,6 +32,7 @@ def _get_openai() -> Any:
     global _openai
     if _openai is None:
         import openai
+
         _openai = openai
     return _openai
 
@@ -52,6 +54,7 @@ class ModelConfig:
         timeout: 请求超时（秒）
         max_tokens: 最大生成 token 数
     """
+
     provider: ModelProviderType
     model_id: str
     api_key: Optional[str] = None
@@ -62,6 +65,7 @@ class ModelConfig:
 
 class Message:
     """简单消息对象"""
+
     def __init__(self, role: str, content: str):
         self.role = role
         self.content = content
@@ -70,6 +74,7 @@ class Message:
 @dataclass
 class ProviderResponse:
     """模型响应（非流式）"""
+
     content: str
     tokens_used: int
     model: str
@@ -84,8 +89,13 @@ class CircuitBreaker:
     - open: 故障状态，请求被拒绝
     - half-open: 恢复测试状态，需要多次成功才能关闭
     """
-    def __init__(self, failure_threshold: int = 3, reset_timeout: int = 60,
-                 success_threshold_half_open: int = 3):
+
+    def __init__(
+        self,
+        failure_threshold: int = 3,
+        reset_timeout: int = 60,
+        success_threshold_half_open: int = 3,
+    ):
         self.failure_count = 0
         self.failure_threshold = failure_threshold
         self.reset_timeout = reset_timeout
@@ -133,6 +143,7 @@ class CircuitBreaker:
 # Provider 抽象基类
 # ============================================================================
 
+
 class BaseProvider(ABC):
     """模型 Provider 的抽象基类"""
 
@@ -140,20 +151,21 @@ class BaseProvider(ABC):
         self.config = config
 
     @abstractmethod
-    def complete(self, messages: List[Message],
-                 tools: Optional[List[Dict]] = None) -> ProviderResponse:
+    def complete(
+        self, messages: List[Message], tools: Optional[List[Dict]] = None
+    ) -> ProviderResponse:
         """非流式请求"""
         pass
 
     @abstractmethod
-    def stream(self, messages: List[Message],
-               tools: Optional[List[Dict]] = None) -> Generator[str, None, None]:
+    def stream(
+        self, messages: List[Message], tools: Optional[List[Dict]] = None
+    ) -> Generator[str, None, None]:
         """流式请求（逐 token 输出文本）"""
         pass
 
     @abstractmethod
-    def complete_with_tools(self, messages: List[Message],
-                            tools: List[Dict]) -> ProviderResponse:
+    def complete_with_tools(self, messages: List[Message], tools: List[Dict]) -> ProviderResponse:
         """带工具调用的请求"""
         pass
 
@@ -161,6 +173,7 @@ class BaseProvider(ABC):
 # ============================================================================
 # Claude Provider（Anthropic SDK）
 # ============================================================================
+
 
 class ClaudeProvider(BaseProvider):
     """Anthropic Claude API Provider"""
@@ -170,8 +183,9 @@ class ClaudeProvider(BaseProvider):
         anthropic = _get_anthropic()
         self.client = anthropic.Anthropic(api_key=config.api_key)
 
-    def complete(self, messages: List[Message],
-                 tools: Optional[List[Dict]] = None) -> ProviderResponse:
+    def complete(
+        self, messages: List[Message], tools: Optional[List[Dict]] = None
+    ) -> ProviderResponse:
         api_messages = [{"role": m.role, "content": m.content} for m in messages]
         kwargs = dict(
             model=self.config.model_id,
@@ -189,11 +203,13 @@ class ClaudeProvider(BaseProvider):
             if block.type == "text":
                 text_parts.append(block.text)
             elif block.type == "tool_use":
-                tool_calls.append({
-                    "id": block.id,
-                    "name": block.name,
-                    "arguments": block.input,
-                })
+                tool_calls.append(
+                    {
+                        "id": block.id,
+                        "name": block.name,
+                        "arguments": block.input,
+                    }
+                )
 
         return ProviderResponse(
             content="".join(text_parts),
@@ -203,12 +219,12 @@ class ClaudeProvider(BaseProvider):
             stop_reason=response.stop_reason,
         )
 
-    def complete_with_tools(self, messages: List[Message],
-                            tools: List[Dict]) -> ProviderResponse:
+    def complete_with_tools(self, messages: List[Message], tools: List[Dict]) -> ProviderResponse:
         return self.complete(messages, tools=tools)
 
-    def stream(self, messages: List[Message],
-               tools: Optional[List[Dict]] = None) -> Generator[str, None, None]:
+    def stream(
+        self, messages: List[Message], tools: Optional[List[Dict]] = None
+    ) -> Generator[str, None, None]:
         api_messages = [{"role": m.role, "content": m.content} for m in messages]
         with self.client.messages.stream(
             model=self.config.model_id,
@@ -222,6 +238,7 @@ class ClaudeProvider(BaseProvider):
 # ============================================================================
 # OpenAI-Compatible Provider（支持 OpenAI、DeepSeek、Qwen、Ollama 等）
 # ============================================================================
+
 
 class OpenAIProvider(BaseProvider):
     """OpenAI API 兼容 Provider
@@ -252,8 +269,9 @@ class OpenAIProvider(BaseProvider):
             kwargs["timeout"] = config.timeout
         self.client = openai.OpenAI(**kwargs)
 
-    def complete(self, messages: List[Message],
-                 tools: Optional[List[Dict]] = None) -> ProviderResponse:
+    def complete(
+        self, messages: List[Message], tools: Optional[List[Dict]] = None
+    ) -> ProviderResponse:
         api_messages = [{"role": m.role, "content": m.content} for m in messages]
         kwargs = dict(
             model=self.config.model_id,
@@ -278,29 +296,32 @@ class OpenAIProvider(BaseProvider):
                         args = json.loads(args)
                     except json.JSONDecodeError:
                         args = {}
-                tool_calls.append({
-                    "id": tc.id,
-                    "name": tc.function.name,
-                    "arguments": args,
-                })
+                tool_calls.append(
+                    {
+                        "id": tc.id,
+                        "name": tc.function.name,
+                        "arguments": args,
+                    }
+                )
 
         return ProviderResponse(
             content=message.content or "",
             tokens_used=(
                 (response.usage.prompt_tokens + response.usage.completion_tokens)
-                if response.usage else 0
+                if response.usage
+                else 0
             ),
             model=self.config.model_id,
             tool_calls=tool_calls,
             stop_reason=choice.finish_reason or "stop",
         )
 
-    def complete_with_tools(self, messages: List[Message],
-                            tools: List[Dict]) -> ProviderResponse:
+    def complete_with_tools(self, messages: List[Message], tools: List[Dict]) -> ProviderResponse:
         return self.complete(messages, tools=tools)
 
-    def stream(self, messages: List[Message],
-               tools: Optional[List[Dict]] = None) -> Generator[str, None, None]:
+    def stream(
+        self, messages: List[Message], tools: Optional[List[Dict]] = None
+    ) -> Generator[str, None, None]:
         """流式输出（兼容 OpenAI response stream 格式）"""
         api_messages = [{"role": m.role, "content": m.content} for m in messages]
         kwargs = dict(
@@ -329,20 +350,25 @@ class OpenAIProvider(BaseProvider):
         """
         openai_tools = []
         for tool in tools:
-            openai_tools.append({
-                "type": "function",
-                "function": {
-                    "name": tool["name"],
-                    "description": tool.get("description", ""),
-                    "parameters": tool.get("input_schema", {"type": "object", "properties": {}}),
+            openai_tools.append(
+                {
+                    "type": "function",
+                    "function": {
+                        "name": tool["name"],
+                        "description": tool.get("description", ""),
+                        "parameters": tool.get(
+                            "input_schema", {"type": "object", "properties": {}}
+                        ),
+                    },
                 }
-            })
+            )
         return openai_tools
 
 
 # ============================================================================
 # 统一工厂方法
 # ============================================================================
+
 
 def create_provider(config: ModelConfig) -> BaseProvider:
     """根据配置创建合适的 Provider"""
@@ -357,6 +383,7 @@ def create_provider(config: ModelConfig) -> BaseProvider:
 # ============================================================================
 # 模型选择引擎（带熔断器的故障转移）
 # ============================================================================
+
 
 class ModelSelectionEngine:
     """模型选择引擎，支持故障转移"""

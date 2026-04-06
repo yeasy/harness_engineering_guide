@@ -1,6 +1,6 @@
+import json
 from dataclasses import dataclass
 from enum import Enum
-import json
 from typing import List, Union
 
 
@@ -34,13 +34,11 @@ class ParsedMessage:
     tokens_used: int
 
     def text_content(self) -> str:
-        texts = [b.text for b in self.content_blocks
-                 if isinstance(b, TextBlock)]
+        texts = [b.text for b in self.content_blocks if isinstance(b, TextBlock)]
         return "".join(texts)
 
     def tool_calls(self) -> List[ToolUseBlock]:
-        return [b for b in self.content_blocks
-                if isinstance(b, ToolUseBlock)]
+        return [b for b in self.content_blocks if isinstance(b, ToolUseBlock)]
 
 
 class ResponseParser:
@@ -58,16 +56,16 @@ class ResponseParser:
                         input_data = json.loads(input_data)
                     except Exception:
                         input_data = {}
-                content_blocks.append(ToolUseBlock(
-                    id=block.get("id", ""),
-                    name=block.get("name", ""),
-                    input=input_data
-                ))
+                content_blocks.append(
+                    ToolUseBlock(
+                        id=block.get("id", ""), name=block.get("name", ""), input=input_data
+                    )
+                )
         return ParsedMessage(
             content_blocks=content_blocks,
             stop_reason=raw_response.get("stop_reason", "end_turn"),
             tokens_used=(
-                raw_response.get("usage", {}).get("input_tokens", 0) +
-                raw_response.get("usage", {}).get("output_tokens", 0)
-            )
+                raw_response.get("usage", {}).get("input_tokens", 0)
+                + raw_response.get("usage", {}).get("output_tokens", 0)
+            ),
         )

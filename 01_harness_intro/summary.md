@@ -121,10 +121,10 @@ Harness明确了自己的职责：
 
 将深入讨论四大设计原则：
 
-1. 约束优先（Constraint-first）
-2. 可验证性（Verifiability）
-3. 渐进信任（Progressive Trust）
-4. 故障假设（Design for Failure）
+1. 约束优先(Constraint-first)
+2. 可验证性(Verifiability)
+3. 渐进信任(Progressive Trust)
+4. 故障假设(Design for Failure)
 
 这些原则贯穿Harness系统的每个决策。
 

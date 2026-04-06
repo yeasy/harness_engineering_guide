@@ -285,7 +285,7 @@ graph TD
 
 **主要方法**：
 
-- `decide()`: 做出权限决策（ASK/AUTO/DENY）
+- `decide()`: 做出权限决策(ASK/AUTO/DENY)
 - `record_approval()`: 记录用户批准
 - `evaluate()`: 评估权限等级
 

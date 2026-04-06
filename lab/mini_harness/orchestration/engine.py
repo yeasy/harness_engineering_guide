@@ -1,23 +1,25 @@
 # orchestration.py
 # MiniHarness编排引擎实现
 
-import json
 import asyncio
+import json
 import uuid
-from typing import Dict, Any, List, Optional, Callable, Tuple
-from dataclasses import dataclass, field, asdict
-from enum import Enum
-from datetime import datetime
-from collections import deque
 from abc import ABC, abstractmethod
+from collections import deque
 from contextvars import ContextVar
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
+from enum import Enum
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 # ============================================================================
 # 1. 枚举定义
 # ============================================================================
 
+
 class TaskType(Enum):
     """Task类型"""
+
     LOCAL_BASH = "local_bash"
     LOCAL_AGENT = "local_agent"
     IN_PROCESS_TEAMMATE = "in_process_teammate"
@@ -26,6 +28,7 @@ class TaskType(Enum):
 
 class TaskState(Enum):
     """Task生命周期状态"""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -35,6 +38,7 @@ class TaskState(Enum):
 
 class StateType(Enum):
     """工作流状态类型"""
+
     INITIAL = "initial"
     NORMAL = "normal"
     FINAL = "final"
@@ -46,9 +50,11 @@ class StateType(Enum):
 # 2. 数据类
 # ============================================================================
 
+
 @dataclass
 class TaskDefinition:
     """Task定义"""
+
     task_id: str
     task_type: TaskType
     description: str
@@ -61,6 +67,7 @@ class TaskDefinition:
 @dataclass
 class TaskExecution:
     """Task执行记录"""
+
     task_id: str
     state: TaskState
     start_time: Optional[datetime] = None
@@ -74,6 +81,7 @@ class TaskExecution:
 @dataclass
 class TaskNotification:
     """Task通知消息"""
+
     id: str
     task_id: str
     state: TaskState
@@ -85,14 +93,15 @@ class TaskNotification:
     def to_json(self) -> str:
         """转换为JSON"""
         data = asdict(self)
-        data['state'] = self.state.value
-        data['timestamp'] = self.timestamp.isoformat()
+        data["state"] = self.state.value
+        data["timestamp"] = self.timestamp.isoformat()
         return json.dumps(data, indent=2)
 
 
 @dataclass
 class StateDefinition:
     """工作流状态定义"""
+
     state_id: str
     state_type: StateType
     description: str
@@ -102,6 +111,7 @@ class StateDefinition:
 @dataclass
 class TransitionDefinition:
     """工作流转移定义"""
+
     from_state: str
     to_state: str
     condition: Optional[Callable[[Dict[str, Any]], bool]] = None
@@ -111,6 +121,7 @@ class TransitionDefinition:
 # ============================================================================
 # 3. Task管理器
 # ============================================================================
+
 
 class TaskManager:
     """管理Task的生命周期和依赖关系"""
@@ -196,7 +207,7 @@ class TaskManager:
             next_tasks=self._find_dependent_tasks(task_id),
             metrics={
                 "timestamp": datetime.now().isoformat(),
-            }
+            },
         )
         self.notification_queue.append(notification)
 
@@ -224,7 +235,9 @@ class TaskManager:
                 "state": exec_record.state.value,
                 "result": exec_record.result,
                 "error": exec_record.error,
-                "start_time": exec_record.start_time.isoformat() if exec_record.start_time else None,
+                "start_time": (
+                    exec_record.start_time.isoformat() if exec_record.start_time else None
+                ),
                 "end_time": exec_record.end_time.isoformat() if exec_record.end_time else None,
             }
         return states
@@ -233,6 +246,7 @@ class TaskManager:
 # ============================================================================
 # 4. 工作流状态机
 # ============================================================================
+
 
 class WorkflowStateMachine:
     """工作流状态机"""
@@ -298,12 +312,14 @@ class WorkflowStateMachine:
 
     def _log_state_entry(self, state_id: str) -> None:
         """记录进入状态"""
-        self.execution_log.append({
-            "timestamp": datetime.now().isoformat(),
-            "event": "state_entry",
-            "state": state_id,
-            "context_snapshot": dict(self.context),
-        })
+        self.execution_log.append(
+            {
+                "timestamp": datetime.now().isoformat(),
+                "event": "state_entry",
+                "state": state_id,
+                "context_snapshot": dict(self.context),
+            }
+        )
 
     def is_final_state(self) -> bool:
         """检查是否到达终止状态"""
@@ -322,10 +338,7 @@ class WorkflowStateMachine:
 # 5. 智能体上下文隔离
 # ============================================================================
 
-_agent_context: ContextVar[Optional[Dict[str, Any]]] = ContextVar(
-    'agent_context',
-    default=None
-)
+_agent_context: ContextVar[Optional[Dict[str, Any]]] = ContextVar("agent_context", default=None)
 
 
 class AgentContext:
@@ -349,11 +362,13 @@ class AgentContext:
 
     def log(self, message: str, level: str = "info") -> None:
         """记录日志"""
-        self.execution_log.append({
-            "timestamp": datetime.now().isoformat(),
-            "level": level,
-            "message": message,
-        })
+        self.execution_log.append(
+            {
+                "timestamp": datetime.now().isoformat(),
+                "level": level,
+                "message": message,
+            }
+        )
 
     def __enter__(self):
         """进入上下文"""
@@ -369,14 +384,15 @@ class AgentContext:
 # 6. 子智能体工厂
 # ============================================================================
 
+
 class SubAgentFactory:
     """创建和管理子Agent"""
 
     def __init__(self, parent_agent_id: str):
         self.parent_agent_id = parent_agent_id
-        self.subagents: Dict[str, 'SubAgent'] = {}
+        self.subagents: Dict[str, "SubAgent"] = {}
 
-    def create_subagent(self, subagent_id: str, task_type: TaskType) -> 'SubAgent':
+    def create_subagent(self, subagent_id: str, task_type: TaskType) -> "SubAgent":
         """创建子Agent"""
         subagent = SubAgent(
             subagent_id=subagent_id,
@@ -402,9 +418,7 @@ class SubAgent:
         self.context: Optional[AgentContext] = None
 
     async def execute(
-        self,
-        task: str,
-        parent_context: Optional[Dict[str, Any]] = None
+        self, task: str, parent_context: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """在隔离上下文中执行任务"""
         with AgentContext(self.subagent_id, parent_context) as ctx:
@@ -434,6 +448,7 @@ class SubAgent:
 # ============================================================================
 # 7. 编排引擎
 # ============================================================================
+
 
 class OrchestrationEngine:
     """编排引擎：协调TaskManager和StateMachine"""
@@ -498,7 +513,9 @@ class OrchestrationEngine:
                         if result["success"]:
                             self.task_manager.mark_completed(task_id, result)
                         else:
-                            self.task_manager.mark_failed(task_id, result.get("error", "Unknown error"))
+                            self.task_manager.mark_failed(
+                                task_id, result.get("error", "Unknown error")
+                            )
                         executed = True
 
             # 处理通知
@@ -540,8 +557,7 @@ class OrchestrationEngine:
                 # 创建并执行子Agent
                 if self.subagent_factory:
                     subagent = self.subagent_factory.create_subagent(
-                        f"subagent_{task_id}",
-                        task.task_type
+                        f"subagent_{task_id}", task.task_type
                     )
                     context = self.state_machine.context.copy()
                     result = await subagent.execute(task_id, context)
@@ -558,6 +574,7 @@ class OrchestrationEngine:
 # ============================================================================
 # 8. 使用示例
 # ============================================================================
+
 
 async def main():
     """演示编排引擎的使用"""
@@ -624,7 +641,7 @@ async def main():
         {"input_data": "sample_data", "config": {}},
     )
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("执行结果:")
     print(json.dumps(result, indent=2, default=str))
 

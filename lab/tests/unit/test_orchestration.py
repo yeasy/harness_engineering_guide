@@ -3,29 +3,34 @@ Tests for mini_harness.orchestration module:
 - engine.py: TaskManager, WorkflowStateMachine, AgentContext, SubAgentFactory, OrchestrationEngine
 """
 
-import pytest
 import asyncio
 
+import pytest
+
 from mini_harness.orchestration.engine import (
-    TaskType, TaskState, StateType,
-    TaskDefinition, TaskExecution, TaskNotification,
-    StateDefinition, TransitionDefinition,
-    TaskManager, WorkflowStateMachine,
-    AgentContext, SubAgentFactory, SubAgent,
-    OrchestrationEngine
+    AgentContext,
+    OrchestrationEngine,
+    StateDefinition,
+    StateType,
+    SubAgent,
+    SubAgentFactory,
+    TaskDefinition,
+    TaskExecution,
+    TaskManager,
+    TaskNotification,
+    TaskState,
+    TaskType,
+    TransitionDefinition,
+    WorkflowStateMachine,
 )
 
-
 # ============ TaskManager Tests ============
+
 
 class TestTaskManager:
     def test_register_task(self):
         mgr = TaskManager()
-        task = TaskDefinition(
-            task_id="t1",
-            task_type=TaskType.LOCAL_BASH,
-            description="Test task"
-        )
+        task = TaskDefinition(task_id="t1", task_type=TaskType.LOCAL_BASH, description="Test task")
         mgr.register_task(task)
 
         assert mgr.get_task("t1") is task
@@ -46,10 +51,7 @@ class TestTaskManager:
     def test_can_execute_with_pending_dependency(self):
         mgr = TaskManager()
         mgr.register_task(TaskDefinition("t1", TaskType.LOCAL_BASH, "First"))
-        mgr.register_task(TaskDefinition(
-            "t2", TaskType.LOCAL_BASH, "Second",
-            dependencies=["t1"]
-        ))
+        mgr.register_task(TaskDefinition("t2", TaskType.LOCAL_BASH, "Second", dependencies=["t1"]))
         can, reason = mgr.can_execute("t2")
         assert can is False
         assert "t1" in reason
@@ -57,10 +59,7 @@ class TestTaskManager:
     def test_can_execute_with_completed_dependency(self):
         mgr = TaskManager()
         mgr.register_task(TaskDefinition("t1", TaskType.LOCAL_BASH, "First"))
-        mgr.register_task(TaskDefinition(
-            "t2", TaskType.LOCAL_BASH, "Second",
-            dependencies=["t1"]
-        ))
+        mgr.register_task(TaskDefinition("t2", TaskType.LOCAL_BASH, "Second", dependencies=["t1"]))
         mgr.mark_running("t1")
         mgr.mark_completed("t1", {"output": "done"})
 
@@ -87,9 +86,7 @@ class TestTaskManager:
 
     def test_mark_failed_with_retry(self):
         mgr = TaskManager()
-        mgr.register_task(TaskDefinition(
-            "t1", TaskType.LOCAL_BASH, "Test", max_retries=2
-        ))
+        mgr.register_task(TaskDefinition("t1", TaskType.LOCAL_BASH, "Test", max_retries=2))
         mgr.mark_running("t1")
         mgr.mark_failed("t1", "Error occurred")
 
@@ -99,9 +96,7 @@ class TestTaskManager:
 
     def test_mark_failed_no_retry(self):
         mgr = TaskManager()
-        mgr.register_task(TaskDefinition(
-            "t1", TaskType.LOCAL_BASH, "Test", max_retries=1
-        ))
+        mgr.register_task(TaskDefinition("t1", TaskType.LOCAL_BASH, "Test", max_retries=1))
         mgr.mark_running("t1")
         mgr.mark_failed("t1", "First error")
         # retry_count now 1, state back to PENDING
@@ -132,10 +127,7 @@ class TestTaskManager:
     def test_dependent_tasks_in_notification(self):
         mgr = TaskManager()
         mgr.register_task(TaskDefinition("t1", TaskType.LOCAL_BASH, "First"))
-        mgr.register_task(TaskDefinition(
-            "t2", TaskType.LOCAL_BASH, "Second",
-            dependencies=["t1"]
-        ))
+        mgr.register_task(TaskDefinition("t2", TaskType.LOCAL_BASH, "Second", dependencies=["t1"]))
         mgr.mark_running("t1")
         mgr.mark_completed("t1", {})
 
@@ -153,10 +145,9 @@ class TestTaskManager:
 class TestTaskNotification:
     def test_to_json(self):
         from datetime import datetime
+
         notif = TaskNotification(
-            id="n1", task_id="t1",
-            state=TaskState.COMPLETED,
-            timestamp=datetime.now()
+            id="n1", task_id="t1", state=TaskState.COMPLETED, timestamp=datetime.now()
         )
         j = notif.to_json()
         assert "completed" in j
@@ -164,6 +155,7 @@ class TestTaskNotification:
 
 
 # ============ WorkflowStateMachine Tests ============
+
 
 class TestWorkflowStateMachine:
     def _make_machine(self):
@@ -214,14 +206,14 @@ class TestWorkflowStateMachine:
 
     def test_find_next_state_conditional(self):
         sm = self._make_machine()
-        sm.add_transition(TransitionDefinition(
-            "start", "done",
-            condition=lambda ctx: ctx.get("skip") is True
-        ))
-        sm.add_transition(TransitionDefinition(
-            "start", "process",
-            condition=lambda ctx: ctx.get("skip") is not True
-        ))
+        sm.add_transition(
+            TransitionDefinition("start", "done", condition=lambda ctx: ctx.get("skip") is True)
+        )
+        sm.add_transition(
+            TransitionDefinition(
+                "start", "process", condition=lambda ctx: ctx.get("skip") is not True
+            )
+        )
 
         sm.initialize("start", {"skip": False})
         assert sm.find_next_state() == "process"
@@ -268,6 +260,7 @@ class TestWorkflowStateMachine:
 
 # ============ AgentContext Tests ============
 
+
 class TestAgentContext:
     def test_set_and_get(self):
         ctx = AgentContext("agent-1")
@@ -303,6 +296,7 @@ class TestAgentContext:
 
 # ============ SubAgentFactory Tests ============
 
+
 class TestSubAgentFactory:
     def test_create_subagent(self):
         factory = SubAgentFactory("parent-agent")
@@ -322,6 +316,7 @@ class TestSubAgentFactory:
 
 
 # ============ OrchestrationEngine Tests ============
+
 
 class TestOrchestrationEngine:
     @pytest.mark.asyncio
@@ -366,9 +361,7 @@ class TestOrchestrationEngine:
         engine.initialize_subagent_factory("main")
 
         tasks = [
-            TaskDefinition(
-                "t1", TaskType.IN_PROCESS_TEAMMATE, "SubAgent task"
-            ),
+            TaskDefinition("t1", TaskType.IN_PROCESS_TEAMMATE, "SubAgent task"),
         ]
         engine.register_tasks(tasks)
 

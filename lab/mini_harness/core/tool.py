@@ -1,13 +1,14 @@
 """工具接口定义"""
 
-from typing import Optional, Any, Dict, List
-from dataclasses import dataclass
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
 class ToolResult:
     """工具执行结果"""
+
     success: bool
     content: str
     execution_time: float
@@ -17,6 +18,7 @@ class ToolResult:
 @dataclass
 class ToolInputSchema:
     """工具输入schema"""
+
     type: str = "object"
     properties: Dict[str, Dict[str, Any]] = None
     required: List[str] = None
@@ -31,6 +33,7 @@ class ToolInputSchema:
 @dataclass
 class ToolDefinition:
     """工具定义"""
+
     name: str
     description: str
     input_schema: ToolInputSchema
@@ -77,5 +80,5 @@ class Tool(ABC):
         return {
             "name": self.name(),
             "description": self.description(),
-            "input_schema": self.input_schema()
+            "input_schema": self.input_schema(),
         }

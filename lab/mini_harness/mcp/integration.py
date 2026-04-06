@@ -2,19 +2,21 @@
 # MiniHarness的MCP集成模块
 
 import asyncio
+import hashlib
 import json
 import os
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-import hashlib
+from typing import Any, Dict, List, Optional, Tuple
 
 # ============================================================================
 # 1. MCP Client基础类（复用第9.2节）
 # ============================================================================
 
+
 class BaseMCPClient:
     """MCP Client基类"""
+
     pass  # 复用前面实现的StdioMCPClient或HttpMCPClient
 
 
@@ -22,9 +24,11 @@ class BaseMCPClient:
 # 2. 工具Schema缓存
 # ============================================================================
 
+
 @dataclass
 class CachedToolSchema:
     """缓存的工具Schema"""
+
     server_id: str
     tool_name: str
     description: str
@@ -33,7 +37,7 @@ class CachedToolSchema:
     schema_hash: str
 
     @classmethod
-    def from_mcp_tool(cls, server_id: str, tool_dict: Dict) -> 'CachedToolSchema':
+    def from_mcp_tool(cls, server_id: str, tool_dict: Dict) -> "CachedToolSchema":
         """从MCP工具定义创建缓存对象"""
         schema_hash = hashlib.md5(
             json.dumps(tool_dict.get("inputSchema", {}), sort_keys=True).encode()
@@ -72,12 +76,11 @@ class ToolSchemaCache:
         disk_path = self._get_disk_path(server_id, tool_name)
         if os.path.exists(disk_path):
             try:
-                with open(disk_path, 'r') as f:
+                with open(disk_path, "r") as f:
                     data = json.load(f)
-                    cached = CachedToolSchema(**{
-                        **data,
-                        'cached_at': datetime.fromisoformat(data['cached_at'])
-                    })
+                    cached = CachedToolSchema(
+                        **{**data, "cached_at": datetime.fromisoformat(data["cached_at"])}
+                    )
                     # 晋升到内存缓存
                     self.memory_cache[cache_key] = cached
                     return cached
@@ -98,9 +101,9 @@ class ToolSchemaCache:
         try:
             os.makedirs(os.path.dirname(disk_path), exist_ok=True)
 
-            with open(disk_path, 'w') as f:
+            with open(disk_path, "w") as f:
                 data = asdict(schema)
-                data['cached_at'] = schema.cached_at.isoformat()
+                data["cached_at"] = schema.cached_at.isoformat()
                 json.dump(data, f, indent=2)
         except (IOError, OSError) as e:
             print(f"[ToolSchemaCache] Warning: Failed to write schema to disk: {e}")
@@ -112,7 +115,7 @@ class ToolSchemaCache:
 
     def get_stats(self) -> Dict[str, Any]:
         """获取缓存统计"""
-        disk_items = len([f for f in os.listdir(self.cache_dir) if f.endswith('.json')])
+        disk_items = len([f for f in os.listdir(self.cache_dir) if f.endswith(".json")])
         return {
             "memory_items": len(self.memory_cache),
             "disk_items": disk_items,
@@ -124,9 +127,11 @@ class ToolSchemaCache:
 # 3. MCP工具注册表
 # ============================================================================
 
+
 @dataclass
 class MCPServerConfig:
     """MCP Server配置"""
+
     server_id: str
     server_name: str
     transport_type: str  # "stdio" | "http"
@@ -172,10 +177,7 @@ class MCPToolRegistry:
                     client = await self._get_client(server_id, config)
                     response = await client.send_request("tools/list")
 
-                    tools = [
-                        tool["name"]
-                        for tool in response.get("result", {}).get("tools", [])
-                    ]
+                    tools = [tool["name"] for tool in response.get("result", {}).get("tools", [])]
 
                     tools_by_server[server_id] = tools
 
@@ -247,7 +249,7 @@ class MCPToolRegistry:
                 {
                     "name": tool_name,
                     "arguments": arguments,
-                }
+                },
             )
 
             if "error" in response:
@@ -285,6 +287,7 @@ class MCPToolRegistry:
 # ============================================================================
 # 4. MCP工具适配器（为LLM准备工具定义）
 # ============================================================================
+
 
 class MCPToolAdapter:
     """将MCP工具适配为LLM可用的格式"""
@@ -325,9 +328,7 @@ class MCPToolAdapter:
                 arguments = tool_input
 
             # 调用工具
-            success, result, error = await self.registry.call_tool(
-                tool_name, arguments, agent_id
-            )
+            success, result, error = await self.registry.call_tool(tool_name, arguments, agent_id)
 
             return {
                 "success": success,
@@ -361,6 +362,7 @@ class MCPToolAdapter:
 # 5. MiniHarness集成
 # ============================================================================
 
+
 class MiniHarnessWithMCP:
     """集成了MCP的MiniHarness"""
 
@@ -372,19 +374,23 @@ class MiniHarnessWithMCP:
     async def initialize(self) -> None:
         """初始化MCP集成"""
         # 示例：添加几个MCP Server
-        await self.registry.add_server(MCPServerConfig(
-            server_id="filesystem",
-            server_name="File System Server",
-            transport_type="stdio",
-            endpoint="./mcp_filesystem_server.py",
-        ))
+        await self.registry.add_server(
+            MCPServerConfig(
+                server_id="filesystem",
+                server_name="File System Server",
+                transport_type="stdio",
+                endpoint="./mcp_filesystem_server.py",
+            )
+        )
 
-        await self.registry.add_server(MCPServerConfig(
-            server_id="web",
-            server_name="Web Server",
-            transport_type="http",
-            endpoint="http://localhost:8001",
-        ))
+        await self.registry.add_server(
+            MCPServerConfig(
+                server_id="web",
+                server_name="Web Server",
+                transport_type="http",
+                endpoint="http://localhost:8001",
+            )
+        )
 
         # 发现工具
         print("[MiniHarness] Discovering tools...")
@@ -417,6 +423,7 @@ class MiniHarnessWithMCP:
 # 6. 模拟客户端（实际应使用真实的StdioMCPClient或HttpMCPClient）
 # ============================================================================
 
+
 class MockStdioMCPClient:
     """模拟stdio MCP客户端"""
 
@@ -434,11 +441,9 @@ class MockStdioMCPClient:
                             "description": "Read file contents",
                             "inputSchema": {
                                 "type": "object",
-                                "properties": {
-                                    "path": {"type": "string"}
-                                },
-                                "required": ["path"]
-                            }
+                                "properties": {"path": {"type": "string"}},
+                                "required": ["path"],
+                            },
                         },
                         {
                             "name": "write_file",
@@ -447,20 +452,18 @@ class MockStdioMCPClient:
                                 "type": "object",
                                 "properties": {
                                     "path": {"type": "string"},
-                                    "content": {"type": "string"}
+                                    "content": {"type": "string"},
                                 },
-                                "required": ["path", "content"]
-                            }
-                        }
+                                "required": ["path", "content"],
+                            },
+                        },
                     ]
                 }
             }
         elif method == "tools/call":
             return {
                 "result": {
-                    "content": [
-                        {"type": "text", "text": f"Mock result for {params['name']}"}
-                    ]
+                    "content": [{"type": "text", "text": f"Mock result for {params['name']}"}]
                 }
             }
         return {}
@@ -483,29 +486,22 @@ class MockHttpMCPClient:
                             "description": "Search the web",
                             "inputSchema": {
                                 "type": "object",
-                                "properties": {
-                                    "query": {"type": "string"}
-                                },
-                                "required": ["query"]
-                            }
+                                "properties": {"query": {"type": "string"}},
+                                "required": ["query"],
+                            },
                         }
                     ]
                 }
             }
         elif method == "tools/call":
-            return {
-                "result": {
-                    "content": [
-                        {"type": "text", "text": f"Web search results"}
-                    ]
-                }
-            }
+            return {"result": {"content": [{"type": "text", "text": f"Web search results"}]}}
         return {}
 
 
 # ============================================================================
 # 7. 使用示例
 # ============================================================================
+
 
 async def main():
     """演示MCP集成"""
@@ -524,10 +520,7 @@ async def main():
 
     # 调用工具
     print("\n[Calling] read_file tool...")
-    result = await harness.process_tool_call(
-        "read_file",
-        json.dumps({"path": "/tmp/test.txt"})
-    )
+    result = await harness.process_tool_call("read_file", json.dumps({"path": "/tmp/test.txt"}))
     print(f"Result: {result}")
 
     # 显示统计

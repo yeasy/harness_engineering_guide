@@ -12,11 +12,11 @@
 
 ### C
 
-**Capability**（能力/功能）：智能体能执行的原子操作或工具。MCP中用schema定义。
+**Capability**(能力/功能)：智能体能执行的原子操作或工具。MCP中用schema定义。
 
 **Checkpoint**（检查点）：智能体推理过程的保存点，用于恢复和持久化。
 
-**Claude Code**：Anthropic 官方提供的智能体编码工具（Agentic Coding Tool），内置权限管理、路径校验、危险命令检测。
+**Claude Code**：Anthropic 官方提供的智能体编码工具(Agentic Coding Tool)，内置权限管理、路径校验、危险命令检测。
 
 **Composed Tool**（复合工具）：由多个基础工具组合而成的高层工具。
 
@@ -26,7 +26,7 @@
 
 **Defense in Depth**（纵深防护）：多层安全防护设计，单层失效不导致整体失败。
 
-**Dynamic Tool Discovery**（动态工具发现）：运行时查询和发现可用工具，而非启动时静态加载。MCP 规范（2025-11-25 版本）已支持。
+**Dynamic Tool Discovery**（动态工具发现）：运行时查询和发现可用工具，而非启动时静态加载。MCP 规范(2025-11-25 版本)已支持。
 
 ### E
 
@@ -66,11 +66,11 @@
 
 ### M
 
-**MCP**（Model Context Protocol）：Anthropic 发起、现由 Linux Foundation 托管的工具和 LLM 交互的开放标准协议。最新规范（2025-11-25 版本）支持动态能力协商和 Streamable HTTP 传输等特性。
+**MCP**(Model Context Protocol)：Anthropic 发起、现由 Linux Foundation 托管的工具和 LLM 交互的开放标准协议。最新规范(2025-11-25 版本)支持动态能力协商和 Streamable HTTP 传输等特性。
 
 **Mock Testing**（模拟测试）：用模拟对象代替真实依赖的测试方式，快速但可能不够真实。
 
-**Multi-Agent System**（多Agent系统）：多个智能体协作完成任务的系统。
+**Multi-Agent System**(多Agent系统)：多个智能体协作完成任务的系统。
 
 ### N
 
@@ -80,7 +80,7 @@
 
 ### O
 
-**OpenClaw**：开源自驱型智能体框架（前身为 Clawdbot），特色是 Heartbeat 模式和 SOUL.md 行为约束。由 Peter Steinberger 创建，非 Anthropic 内部项目。
+**OpenClaw**：开源自驱型智能体框架(前身为 Clawdbot)，特色是 Heartbeat 模式和 SOUL.md 行为约束。由 Peter Steinberger 创建，非 Anthropic 内部项目。
 
 **Orchestration**（编排）：多工具或多智能体的协调和控制。
 
@@ -88,9 +88,9 @@
 
 **Pareto Frontier**（帕累托前沿）：多目标优化中，无法同时改进所有目标的最优解集合。
 
-**Path Validation**（路径校验）：防止路径穿越攻击的5层防护机制（长度、解码、Unicode、平台、realpath）。
+**Path Validation**（路径校验）：防止路径穿越攻击的5层防护机制(长度、解码、Unicode、平台、realpath)。
 
-**PermissionMode**：Claude Code 的权限管理模式，主要包括 default（逐次询问）、auto（ML 分类器自动决策）和 bypass（跳过全部权限检查）等。
+**PermissionMode**：Claude Code 的权限管理模式，主要包括 default（逐次询问）、auto(ML 分类器自动决策)和 bypass（跳过全部权限检查）等。
 
 **Prompt Injection**（提示注入）：通过恶意输入改变LLM的行为，使其执行非预期操作。
 
@@ -106,11 +106,11 @@
 
 **Sandbox**（沙箱）：隔离执行环境，限制工具调用的破坏范围。分为进程级、容器级、VM级。
 
-**Schema Validation**（Schema校验）：验证工具参数是否符合定义的Schema。
+**Schema Validation**(Schema校验)：验证工具参数是否符合定义的Schema。
 
 **SOUL.md**：OpenClaw中的智能体行为约束文档，定义智能体的工作原则和限制。
 
-**Sub-Agent**（子Agent）：由父 Agent 创建的 Agent，权限可能受限。MCP 规范支持权限委托机制。
+**Sub-Agent**(子Agent)：由父 Agent 创建的 Agent，权限可能受限。MCP 规范支持权限委托机制。
 
 **SWE-Bench**：软件工程基准，包含2294个真实GitHub问题，用于评估代码修改能力。
 
@@ -120,7 +120,7 @@
 
 **Tool Calling**（工具调用）：LLM根据推理结果调用工具的过程。
 
-**Token Efficiency**（Token效率）：完成任务所消耗的Token数，越少越高效。
+**Token Efficiency**(Token效率)：完成任务所消耗的Token数，越少越高效。
 
 **Trajectory**（轨迹）：智能体执行过程中的工具调用序列。
 
@@ -128,9 +128,9 @@
 
 ### U
 
-**Unicode Normalization**（Unicode规范化）：统一Unicode字符的多种表示形式，防止基于Unicode的路径穿越。
+**Unicode Normalization**(Unicode规范化)：统一Unicode字符的多种表示形式，防止基于Unicode的路径穿越。
 
-**URL Encoding**（URL编码）：将特殊字符编码为%xx形式，可能被利用进行路径穿越。
+**URL Encoding**(URL编码)：将特殊字符编码为%xx形式，可能被利用进行路径穿越。
 
 ### W
 
@@ -140,7 +140,7 @@
 
 ### Y
 
-**YOLO Mode**：Claude Code 中的非正式称呼，指使用 `--dangerously-skip-permissions` 标志跳过所有权限检查的模式。注意与 Auto Mode（使用 ML 分类器自动决策）不同。
+**YOLO Mode**：Claude Code 中的非正式称呼，指使用 `--dangerously-skip-permissions` 标志跳过所有权限检查的模式。注意与 Auto Mode(使用 ML 分类器自动决策)不同。
 
 **Auto Mode Classifier**：Claude Code 中约 52KB 的 ML 分类器模块，用于在 Auto Mode 下评估工具调用的风险并自动决策是否批准。
 

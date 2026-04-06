@@ -1,12 +1,13 @@
 """智能体接口定义"""
 
-from typing import Optional, Dict, Any
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any, Dict, Optional
 
 
 class AgentState(str, Enum):
     """智能体状态"""
+
     IDLE = "idle"
     INITIALIZING = "initializing"
     EXECUTING = "executing"
@@ -18,6 +19,7 @@ class AgentState(str, Enum):
 @dataclass
 class ExecutionResult:
     """执行结果"""
+
     status: str  # "success", "error", "timeout"
     output: Optional[str] = None
     error: Optional[str] = None
@@ -31,6 +33,7 @@ class ExecutionResult:
 @dataclass
 class Agent:
     """Agent定义"""
+
     agent_id: str
     name: str
     description: str

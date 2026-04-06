@@ -2,11 +2,12 @@
 Root conftest.py - shared fixtures for all tests
 """
 
-import sys
 import os
-import pytest
-import tempfile
 import shutil
+import sys
+import tempfile
+
+import pytest
 
 # Ensure mini_harness is importable
 sys.path.insert(0, os.path.dirname(__file__))
@@ -27,7 +28,7 @@ def sample_tool_schema():
         "type": "object",
         "properties": {
             "command": {"type": "string", "description": "Bash command"},
-            "timeout": {"type": "integer", "description": "Timeout in seconds", "default": 30}
+            "timeout": {"type": "integer", "description": "Timeout in seconds", "default": 30},
         },
-        "required": ["command"]
+        "required": ["command"],
     }

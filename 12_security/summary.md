@@ -15,9 +15,9 @@ Harness系统面临十类主要威胁，其中 **恶意工具调用** 和 **路�
 - **权限** 控制“是否允许”执行
 - **沙箱** 限制“执行的破坏范围”
 
-Claude Code 的五模式框架（normal/auto-accept/plan/don't-ask/bypass）更灵活；OpenClaw 的三级权限（deny/allowlist/full）适合自驱型 Agent。最佳实践是 **基于风险的自适应权限决策**。
+Claude Code 的五模式框架(normal/auto-accept/plan/don't-ask/bypass)更灵活；OpenClaw 的三级权限(deny/allowlist/full)适合自驱型 Agent。最佳实践是 **基于风险的自适应权限决策**。
 
-沙箱隔离从进程级（setrlimit）→ 容器级（Docker）→ VM级（Firecracker），隔离强度与开销递增。
+沙箱隔离从进程级(setrlimit)→ 容器级(Docker)→ VM级(Firecracker)，隔离强度与开销递增。
 
 #### 3. 工具调用护栏
 
@@ -39,14 +39,14 @@ Claude Code 的五模式框架（normal/auto-accept/plan/don't-ask/bypass）更�
 | 4 | 平台特性 | 斜杠统一、./移除 |
 | 5 | 符号链接、.. | realpath + 边界检查 |
 
-**关键洞见**：第五层是核心。使用`realpath()`实际解析文件系统，并检查解析后的路径是否在基目录内（注意：必须追加“/”避免前缀匹配误判）。
+**关键洞见**：第五层是核心。使用`realpath()`实际解析文件系统，并检查解析后的路径是否在基目录内(注意：必须追加“/”避免前缀匹配误判)。
 
 #### 5. 实战集成
 
 MiniHarness安全层集成所有防护：
 
 - PermissionDecisionEngine：权限决策
-- PathValidator：路径校验（5层）
+- PathValidator：路径校验(5层)
 - GuardrailFramework：护栏检查
 - SecureToolExecutor：统一执行
 
@@ -74,7 +74,7 @@ MiniHarness安全层集成所有防护：
 - Unicode: ..%u002f
 - 多重编码绕过
 
-**正确做法**：先规范化（解码+Unicode），再边界检查。
+**正确做法**：先规范化(解码+Unicode)，再边界检查。
 
 #### 误区3：权限一刀切
 
@@ -121,7 +121,7 @@ Harness安全聚焦工程实现，AI安全研究聚焦模型对齐：
 - [ ] 审计日志完整记录（权限决策、拒绝原因）
 - [ ] 权限策略有文档并定期审查
 - [ ] 路径白名单显式定义
-- [ ] 超时配置合理（避免DoS与可用性平衡）
+- [ ] 超时配置合理(避免DoS与可用性平衡)
 - [ ] 隐私敏感信息在日志中脱敏
 - [ ] 定期安全审计与红队测试
 
@@ -129,7 +129,7 @@ Harness安全聚焦工程实现，AI安全研究聚焦模型对齐：
 
 #### 1. LLM 辅助权限决策
 
-Claude Code 的 auto-accept 模式使用两阶段 LLM 评估（而非传统 ML 分类器）来预测风险等级：第一阶段为快速保守检查，第二阶段在需要时进行链式推理分析，自动决定是否批准。这种基于 LLM 的权限决策是权限框架的下一代方向。
+Claude Code 的 auto-accept 模式使用两阶段 LLM 评估(而非传统 ML 分类器)来预测风险等级：第一阶段为快速保守检查，第二阶段在需要时进行链式推理分析，自动决定是否批准。这种基于 LLM 的权限决策是权限框架的下一代方向。
 
 #### 2. 符号执行用于路径校验
 
@@ -141,11 +141,11 @@ Claude Code 的 auto-accept 模式使用两阶段 LLM 评估（而非传统 ML �
 
 #### 4. 可信执行环境
 
-使用 AMD SEV、ARM TrustZone 或新兴的 Intel TDX、Arm CCA 等技术隔离工具执行，防止容器逃逸。注意 Intel SGX 已从最新 CPU 产品线中移除，AMD SEV（全 VM 内存加密）和 Intel TDX（VM 级保护）正在成为云环境中的主流 TEE 选择。
+使用 AMD SEV、ARM TrustZone 或新兴的 Intel TDX、Arm CCA 等技术隔离工具执行，防止容器逃逸。注意 Intel SGX 已从最新 CPU 产品线中移除，AMD SEV(全 VM 内存加密)和 Intel TDX(VM 级保护)正在成为云环境中的主流 TEE 选择。
 
 #### 5. 新一代轻量级沙箱
 
-除 Firecracker 外，2025-2026 年涌现了多种面向 AI Agent 的新型沙箱方案，如 Microsoft LiteBox（基于 Rust 的 Library OS）、Fly.io Sprites（持久化轻量 VM，创建仅需 1-2 秒）、Daytona（亚 90ms 沙箱创建）等，在隔离强度与启动性能间提供了更多选择。
+除 Firecracker 外，2025-2026 年涌现了多种面向 AI Agent 的新型沙箱方案，如 Microsoft LiteBox(基于 Rust 的 Library OS)、Fly.io Sprites(持久化轻量 VM，创建仅需 1-2 秒)、Daytona(亚 90ms 沙箱创建)等，在隔离强度与启动性能间提供了更多选择。
 
 ### 扩展阅读
 

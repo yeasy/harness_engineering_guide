@@ -24,7 +24,7 @@
 
 - 对话历史：当前会话的完整消息
 - CLAUDE.md：用户反馈、项目信息、参考资料
-- autoDream 系统：三门触发、四阶段整合（Orient→Gather→Consolidate→Prune）
+- autoDream 系统：三门触发、四阶段整合(Orient→Gather→Consolidate→Prune)
 
 **OpenClaw 的双层模型**：
 

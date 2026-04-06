@@ -6,20 +6,24 @@ Tests for mini_harness.core module:
 - event.py: EventType, Event
 """
 
-import pytest
 import json
 from datetime import datetime
 
-from mini_harness.core.message import (
-    Message, MessageRole, MessageType,
-    ToolCallMessage, ToolResultMessage
-)
-from mini_harness.core.tool import ToolInputSchema, ToolDefinition, Tool
-from mini_harness.core.agent import AgentState, ExecutionResult, Agent
-from mini_harness.core.event import EventType, Event
+import pytest
 
+from mini_harness.core.agent import Agent, AgentState, ExecutionResult
+from mini_harness.core.event import Event, EventType
+from mini_harness.core.message import (
+    Message,
+    MessageRole,
+    MessageType,
+    ToolCallMessage,
+    ToolResultMessage,
+)
+from mini_harness.core.tool import Tool, ToolDefinition, ToolInputSchema
 
 # ============ Message Tests ============
+
 
 class TestMessageRole:
     def test_role_values(self):
@@ -43,11 +47,7 @@ class TestMessageType:
 
 class TestMessage:
     def test_create_message(self):
-        msg = Message(
-            role=MessageRole.USER,
-            type=MessageType.TEXT,
-            content="Hello, world!"
-        )
+        msg = Message(role=MessageRole.USER, type=MessageType.TEXT, content="Hello, world!")
         assert msg.role == MessageRole.USER
         assert msg.type == MessageType.TEXT
         assert msg.content == "Hello, world!"
@@ -66,16 +66,13 @@ class TestMessage:
             role=MessageRole.ASSISTANT,
             type=MessageType.TEXT,
             content="Hi",
-            metadata={"model": "claude-sonnet"}
+            metadata={"model": "claude-sonnet"},
         )
         assert msg.metadata["model"] == "claude-sonnet"
 
     def test_to_dict(self):
         msg = Message(
-            role=MessageRole.USER,
-            type=MessageType.TEXT,
-            content="Test",
-            message_id="test-id-123"
+            role=MessageRole.USER, type=MessageType.TEXT, content="Test", message_id="test-id-123"
         )
         d = msg.to_dict()
         assert d["message_id"] == "test-id-123"
@@ -86,11 +83,7 @@ class TestMessage:
         assert "timestamp" in d
 
     def test_to_json(self):
-        msg = Message(
-            role=MessageRole.USER,
-            type=MessageType.TEXT,
-            content="Test"
-        )
+        msg = Message(role=MessageRole.USER, type=MessageType.TEXT, content="Test")
         j = msg.to_json()
         data = json.loads(j)
         assert data["role"] == "user"
@@ -102,7 +95,7 @@ class TestMessage:
             "type": "text",
             "content": "Hello!",
             "message_id": "msg-001",
-            "metadata": {"key": "value"}
+            "metadata": {"key": "value"},
         }
         msg = Message.from_dict(data)
         assert msg.role == MessageRole.ASSISTANT
@@ -116,7 +109,7 @@ class TestMessage:
             role=MessageRole.TOOL,
             type=MessageType.TOOL_RESULT,
             content="result data",
-            metadata={"status": "ok"}
+            metadata={"status": "ok"},
         )
         d = original.to_dict()
         restored = Message.from_dict(d)
@@ -125,16 +118,12 @@ class TestMessage:
         assert restored.content == original.content
 
     def test_parent_id(self):
-        parent = Message(
-            role=MessageRole.USER,
-            type=MessageType.TEXT,
-            content="parent"
-        )
+        parent = Message(role=MessageRole.USER, type=MessageType.TEXT, content="parent")
         child = Message(
             role=MessageRole.ASSISTANT,
             type=MessageType.TEXT,
             content="child",
-            parent_id=parent.message_id
+            parent_id=parent.message_id,
         )
         assert child.parent_id == parent.message_id
 
@@ -145,10 +134,7 @@ class TestToolCallMessage:
             role=MessageRole.ASSISTANT,
             type=MessageType.TOOL_CALL,
             content="",
-            metadata={
-                "tool_name": "bash_exec",
-                "tool_params": {"command": "ls -la"}
-            }
+            metadata={"tool_name": "bash_exec", "tool_params": {"command": "ls -la"}},
         )
         assert msg.tool_name == "bash_exec"
         assert msg.tool_params == {"command": "ls -la"}
@@ -158,7 +144,7 @@ class TestToolCallMessage:
             role=MessageRole.ASSISTANT,
             type=MessageType.TOOL_CALL,
             content="",
-            metadata={"tool_name": "list_tools"}
+            metadata={"tool_name": "list_tools"},
         )
         assert msg.tool_name == "list_tools"
         assert msg.tool_params == {}
@@ -170,7 +156,7 @@ class TestToolResultMessage:
             role=MessageRole.TOOL,
             type=MessageType.TOOL_RESULT,
             content="output",
-            metadata={"status": "success"}
+            metadata={"status": "success"},
         )
         assert msg.status == "success"
         assert msg.is_success is True
@@ -180,22 +166,19 @@ class TestToolResultMessage:
             role=MessageRole.TOOL,
             type=MessageType.TOOL_RESULT,
             content="error",
-            metadata={"status": "error"}
+            metadata={"status": "error"},
         )
         assert msg.status == "error"
         assert msg.is_success is False
 
     def test_default_status(self):
-        msg = ToolResultMessage(
-            role=MessageRole.TOOL,
-            type=MessageType.TOOL_RESULT,
-            content=""
-        )
+        msg = ToolResultMessage(role=MessageRole.TOOL, type=MessageType.TOOL_RESULT, content="")
         assert msg.status == "unknown"
         assert msg.is_success is False
 
 
 # ============ Tool Tests ============
+
 
 class TestToolInputSchema:
     def test_defaults(self):
@@ -205,25 +188,19 @@ class TestToolInputSchema:
         assert schema.required == []
 
     def test_with_properties(self):
-        schema = ToolInputSchema(
-            properties={"name": {"type": "string"}},
-            required=["name"]
-        )
+        schema = ToolInputSchema(properties={"name": {"type": "string"}}, required=["name"])
         assert "name" in schema.properties
         assert "name" in schema.required
 
 
 class TestToolDefinition:
     def test_creation(self):
-        schema = ToolInputSchema(
-            properties={"cmd": {"type": "string"}},
-            required=["cmd"]
-        )
+        schema = ToolInputSchema(properties={"cmd": {"type": "string"}}, required=["cmd"])
         defn = ToolDefinition(
             name="bash_exec",
             description="Execute bash commands",
             input_schema=schema,
-            timeout_seconds=60
+            timeout_seconds=60,
         )
         assert defn.name == "bash_exec"
         assert defn.timeout_seconds == 60
@@ -236,7 +213,7 @@ class TestToolDefinition:
             description="Write files",
             input_schema=ToolInputSchema(),
             permissions_required=["write"],
-            tags=["filesystem"]
+            tags=["filesystem"],
         )
         assert "write" in defn.permissions_required
         assert "filesystem" in defn.tags
@@ -245,34 +222,36 @@ class TestToolDefinition:
 class TestToolABC:
     def test_concrete_tool(self):
         """Test that a concrete tool implementation works."""
-        class EchoTool(Tool):
-            def __init__(self):
-                super().__init__(ToolDefinition(
-                    name="echo",
-                    description="Echo input",
-                    input_schema=ToolInputSchema()
-                ))
 
-            async def execute(self, **kwargs):
-                return kwargs.get("text", "")
+        class EchoTool(Tool):
+            def name(self) -> str:
+                return "echo"
+
+            def description(self) -> str:
+                return "Echo input"
+
+            def input_schema(self) -> dict:
+                return {"properties": {}, "required": []}
+
+            async def call(self, params):
+                return params.get("text", "")
 
         tool = EchoTool()
-        assert tool.name == "echo"
-        assert tool.description == "Echo input"
+        assert tool.name() == "echo"
+        assert tool.description() == "Echo input"
 
     def test_get_definition_dict(self):
         class DummyTool(Tool):
-            def __init__(self):
-                super().__init__(ToolDefinition(
-                    name="dummy",
-                    description="A dummy tool",
-                    input_schema=ToolInputSchema(
-                        properties={"x": {"type": "integer"}},
-                        required=["x"]
-                    )
-                ))
+            def name(self) -> str:
+                return "dummy"
 
-            async def execute(self, **kwargs):
+            def description(self) -> str:
+                return "A dummy tool"
+
+            def input_schema(self) -> dict:
+                return {"properties": {"x": {"type": "integer"}}, "required": ["x"]}
+
+            async def call(self, params):
                 return None
 
         tool = DummyTool()
@@ -284,6 +263,7 @@ class TestToolABC:
 
 
 # ============ Agent Tests ============
+
 
 class TestAgentState:
     def test_values(self):
@@ -306,9 +286,7 @@ class TestExecutionResult:
 
     def test_error(self):
         result = ExecutionResult(
-            status="error",
-            error="Something went wrong",
-            metadata={"retry_count": 3}
+            status="error", error="Something went wrong", metadata={"retry_count": 3}
         )
         assert result.status == "error"
         assert result.error == "Something went wrong"
@@ -321,7 +299,7 @@ class TestAgent:
             agent_id="agent-001",
             name="TestAgent",
             description="A test agent",
-            system_prompt="You are helpful."
+            system_prompt="You are helpful.",
         )
         assert agent.agent_id == "agent-001"
         assert agent.name == "TestAgent"
@@ -337,7 +315,7 @@ class TestAgent:
             system_prompt="Custom prompt",
             model_name="claude-opus-4-20250514",
             max_steps=50,
-            metadata={"role": "researcher"}
+            metadata={"role": "researcher"},
         )
         assert agent.model_name == "claude-opus-4-20250514"
         assert agent.max_steps == 50
@@ -345,6 +323,7 @@ class TestAgent:
 
 
 # ============ Event Tests ============
+
 
 class TestEventType:
     def test_task_events(self):
@@ -361,9 +340,7 @@ class TestEventType:
 class TestEvent:
     def test_creation(self):
         event = Event(
-            event_type=EventType.TASK_STARTED,
-            source="runtime",
-            data={"task_id": "task-001"}
+            event_type=EventType.TASK_STARTED, source="runtime", data={"task_id": "task-001"}
         )
         assert event.event_type == EventType.TASK_STARTED
         assert event.source == "runtime"
@@ -381,7 +358,7 @@ class TestEvent:
             event_type=EventType.TOOL_EXECUTION_COMPLETED,
             source="tool_layer",
             data={"result": "ok"},
-            event_id="evt-001"
+            event_id="evt-001",
         )
         d = event.to_dict()
         assert d["event_id"] == "evt-001"

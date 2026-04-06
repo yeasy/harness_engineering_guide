@@ -1,15 +1,16 @@
 """消息类型和接口定义"""
 
-from enum import Enum
-from typing import Optional, Any, Dict
-from dataclasses import dataclass, field
-from datetime import datetime
 import json
 import uuid
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, Optional
 
 
 class MessageRole(str, Enum):
     """消息角色"""
+
     USER = "user"
     ASSISTANT = "assistant"
     TOOL = "tool"
@@ -18,6 +19,7 @@ class MessageRole(str, Enum):
 
 class MessageType(str, Enum):
     """消息类型"""
+
     TEXT = "text"
     TOOL_CALL = "tool_call"
     TOOL_RESULT = "tool_result"
@@ -27,6 +29,7 @@ class MessageType(str, Enum):
 @dataclass
 class Message:
     """通用消息类"""
+
     role: MessageRole
     type: MessageType
     content: str
@@ -44,7 +47,7 @@ class Message:
             "content": self.content,
             "parent_id": self.parent_id,
             "metadata": self.metadata,
-            "timestamp": self.timestamp.isoformat()
+            "timestamp": self.timestamp.isoformat(),
         }
 
     def to_json(self) -> str:
@@ -61,7 +64,7 @@ class Message:
             message_id=data.get("message_id", str(uuid.uuid4())),
             parent_id=data.get("parent_id"),
             metadata=data.get("metadata", {}),
-            timestamp=datetime.fromisoformat(data.get("timestamp", datetime.now().isoformat()))
+            timestamp=datetime.fromisoformat(data.get("timestamp", datetime.now().isoformat())),
         )
 
 

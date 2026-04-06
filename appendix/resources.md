@@ -13,7 +13,7 @@
 **Model Context Protocol (MCP)**
 
 - https://github.com/modelcontextprotocol/specification
-- MCP 规范、参考实现、工具开发指南（Anthropic 发起，Linux Foundation 托管）
+- MCP 规范、参考实现、工具开发指南(Anthropic 发起，Linux Foundation 托管)
 - 推荐度：必读，5星
 
 **Claude 代码示例库**
@@ -39,7 +39,7 @@
 **AutoGen / Microsoft Agent Framework**
 
 - https://microsoft.github.io/autogen/
-- 多智能体对话、协作框架（注意：Microsoft 已将 AutoGen 与 Semantic Kernel 整合为 Microsoft Agent Framework）
+- 多智能体对话、协作框架(注意：Microsoft 已将 AutoGen 与 Semantic Kernel 整合为 Microsoft Agent Framework)
 - 推荐度：多智能体项目参考，3星
 
 ### 学习资源
@@ -203,7 +203,7 @@
 **NIST AI Safety Institute (AISI) / CAISI**
 
 - https://www.nist.gov/caisi
-- AI 安全研究和标准化（2025 年更名为 Center for AI Standards and Innovation）
+- AI 安全研究和标准化(2025 年更名为 Center for AI Standards and Innovation)
 - 推荐度：标准化跟踪必读，5星
 
 **CWE - Common Weakness Enumeration**
@@ -214,7 +214,7 @@
 
 #### 安全工具
 
-**Bandit**（Python）
+**Bandit**(Python)
 
 - https://github.com/PyCQA/bandit
 - 危险模式检测
@@ -275,7 +275,7 @@
 - 不定期举办
 - 推荐度：本地化交流，4星
 
-**Code with Claude**（Anthropic 开发者活动）
+**Code with Claude**(Anthropic 开发者活动)
 
 - Anthropic 官方开发者大会
 - 推荐度：前沿进展分享，5星
@@ -317,8 +317,8 @@
 
 **周7-8**
 
-- 实现安全防护（第12章）
-- 建立评估基线（第13章）
+- 实现安全防护(第12章)
+- 建立评估基线(第13章)
 - 性能优化初步
 
 **推荐资源**
@@ -337,7 +337,7 @@
 
 **周11-12**
 
-- 阅读智能体论文（GAIA, WebArena等）
+- 阅读智能体论文(GAIA, WebArena等)
 - 参与社区讨论
 - 规划后续发展方向
 
@@ -380,7 +380,7 @@
 
 **推荐阅读**
 
-- 主要论文（GAIA, SWE-Bench等）
+- 主要论文(GAIA, SWE-Bench等)
 - 框架对比分析
 - 成本效益分析
 

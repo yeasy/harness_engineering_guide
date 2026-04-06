@@ -38,9 +38,7 @@ import sys
 # 确保 mini_harness 可被导入
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mini_harness.tools.builtin import (
-    BashTool, FileReadTool, FileWriteTool
-)
+from mini_harness.tools.builtin import BashTool, FileReadTool, FileWriteTool
 from mini_harness.tools.registry import ToolRegistry
 from mini_harness.utils.config import get_config
 
@@ -67,6 +65,7 @@ SYSTEM_PROMPT = """你是 MiniHarness，一个有帮助的 AI 助手。
 # ============================================================================
 # 2. OpenAI 兼容的 LLM 客户端（轻量封装）
 # ============================================================================
+
 
 class LLMClient:
     """轻量级 OpenAI API 兼容客户端
@@ -169,16 +168,19 @@ class LLMClient:
             message["tool_calls"] = [tool_calls_map[i] for i in sorted(tool_calls_map)]
 
         return {
-            "choices": [{
-                "message": message,
-                "finish_reason": finish_reason or "stop",
-            }],
+            "choices": [
+                {
+                    "message": message,
+                    "finish_reason": finish_reason or "stop",
+                }
+            ],
         }
 
 
 # ============================================================================
 # 3. 简易 Agent 运行时
 # ============================================================================
+
 
 class SimpleAgent:
     """一个最小但完整的 Agent 实现
@@ -197,14 +199,16 @@ class SimpleAgent:
         """获取 OpenAI function calling 格式的工具列表"""
         tools = []
         for schema in self.tool_registry.list_tools():
-            tools.append({
-                "type": "function",
-                "function": {
-                    "name": schema["name"],
-                    "description": schema["description"],
-                    "parameters": schema["input_schema"],
-                },
-            })
+            tools.append(
+                {
+                    "type": "function",
+                    "function": {
+                        "name": schema["name"],
+                        "description": schema["description"],
+                        "parameters": schema["input_schema"],
+                    },
+                }
+            )
         return tools
 
     async def run(self, user_input: str) -> str:
@@ -251,7 +255,11 @@ class SimpleAgent:
                 func = tc["function"]
                 tool_name = func["name"]
                 try:
-                    arguments = json.loads(func["arguments"]) if isinstance(func["arguments"], str) else func["arguments"]
+                    arguments = (
+                        json.loads(func["arguments"])
+                        if isinstance(func["arguments"], str)
+                        else func["arguments"]
+                    )
                 except json.JSONDecodeError:
                     arguments = {}
 
@@ -274,11 +282,13 @@ class SimpleAgent:
                 print(f"   ← ({len(tool_output)} 字符)")
 
                 # 将工具结果加入消息历史
-                self.messages.append({
-                    "role": "tool",
-                    "tool_call_id": tc["id"],
-                    "content": tool_output,
-                })
+                self.messages.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": tc["id"],
+                        "content": tool_output,
+                    }
+                )
 
             print()
 
@@ -289,6 +299,7 @@ class SimpleAgent:
 # ============================================================================
 # 4. 入口
 # ============================================================================
+
 
 async def main():
     # 检查配置

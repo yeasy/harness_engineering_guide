@@ -2,17 +2,17 @@
 mini_harness/tools/builtin.py - Built-in tools and execution pipeline
 """
 
-from abc import abstractmethod
-from dataclasses import dataclass
-from typing import Dict, Any, Optional
+import os
 import subprocess
 import time
-import os
+from abc import abstractmethod
+from dataclasses import dataclass
+from typing import Any, Dict, Optional
 
 from mini_harness.core.tool import Tool, ToolResult
 
-
 # ============ Built-in Tools ============
+
 
 class BashTool(Tool):
     """Bash 命令执行工具"""
@@ -25,19 +25,15 @@ class BashTool(Tool):
 
         try:
             result = subprocess.run(
-                command,
-                shell=True,
-                capture_output=True,
-                timeout=timeout,
-                text=True
+                command, shell=True, capture_output=True, timeout=timeout, text=True
             )
 
-            output = f"stdout: {result.stdout}\nstderr: {result.stderr}\nreturncode: {result.returncode}"
+            output = (
+                f"stdout: {result.stdout}\nstderr: {result.stderr}\nreturncode: {result.returncode}"
+            )
 
             return ToolResult(
-                success=result.returncode == 0,
-                content=output,
-                execution_time=time.time() - start
+                success=result.returncode == 0, content=output, execution_time=time.time() - start
             )
 
         except subprocess.TimeoutExpired:
@@ -45,7 +41,7 @@ class BashTool(Tool):
                 success=False,
                 content=f"Command timeout after {timeout}s",
                 execution_time=time.time() - start,
-                error_type="TimeoutError"
+                error_type="TimeoutError",
             )
 
         except Exception as e:
@@ -53,7 +49,7 @@ class BashTool(Tool):
                 success=False,
                 content=str(e),
                 execution_time=time.time() - start,
-                error_type=type(e).__name__
+                error_type=type(e).__name__,
             )
 
     def name(self) -> str:
@@ -67,9 +63,9 @@ class BashTool(Tool):
             "type": "object",
             "properties": {
                 "command": {"type": "string", "description": "Bash command"},
-                "timeout": {"type": "integer", "description": "Timeout in seconds", "default": 30}
+                "timeout": {"type": "integer", "description": "Timeout in seconds", "default": 30},
             },
-            "required": ["command"]
+            "required": ["command"],
         }
 
 
@@ -83,24 +79,20 @@ class FileReadTool(Tool):
         start = time.time()
 
         try:
-            with open(filepath, 'r') as f:
+            with open(filepath, "r") as f:
                 content = f.read(max_bytes)
 
             if len(content) >= max_bytes:
                 content += f"\n... [File truncated at {max_bytes} bytes]"
 
-            return ToolResult(
-                success=True,
-                content=content,
-                execution_time=time.time() - start
-            )
+            return ToolResult(success=True, content=content, execution_time=time.time() - start)
 
         except FileNotFoundError:
             return ToolResult(
                 success=False,
                 content=f"File not found: {filepath}",
                 execution_time=time.time() - start,
-                error_type="FileNotFoundError"
+                error_type="FileNotFoundError",
             )
 
         except Exception as e:
@@ -108,7 +100,7 @@ class FileReadTool(Tool):
                 success=False,
                 content=str(e),
                 execution_time=time.time() - start,
-                error_type=type(e).__name__
+                error_type=type(e).__name__,
             )
 
     def name(self) -> str:
@@ -122,9 +114,9 @@ class FileReadTool(Tool):
             "type": "object",
             "properties": {
                 "path": {"type": "string", "description": "File path"},
-                "max_bytes": {"type": "integer", "description": "Max bytes to read"}
+                "max_bytes": {"type": "integer", "description": "Max bytes to read"},
             },
-            "required": ["path"]
+            "required": ["path"],
         }
 
 
@@ -139,7 +131,7 @@ class FileWriteTool(Tool):
         start = time.time()
 
         try:
-            mode = 'a' if append else 'w'
+            mode = "a" if append else "w"
 
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
@@ -149,7 +141,7 @@ class FileWriteTool(Tool):
             return ToolResult(
                 success=True,
                 content=f"Successfully wrote {len(content)} bytes to {filepath}",
-                execution_time=time.time() - start
+                execution_time=time.time() - start,
             )
 
         except Exception as e:
@@ -157,7 +149,7 @@ class FileWriteTool(Tool):
                 success=False,
                 content=str(e),
                 execution_time=time.time() - start,
-                error_type=type(e).__name__
+                error_type=type(e).__name__,
             )
 
     def name(self) -> str:
@@ -172,17 +164,23 @@ class FileWriteTool(Tool):
             "properties": {
                 "path": {"type": "string", "description": "File path"},
                 "content": {"type": "string", "description": "Content to write"},
-                "append": {"type": "boolean", "description": "Append instead of write", "default": False}
+                "append": {
+                    "type": "boolean",
+                    "description": "Append instead of write",
+                    "default": False,
+                },
             },
-            "required": ["path", "content"]
+            "required": ["path", "content"],
         }
 
 
 # ============ Execution Pipeline ============
 
+
 @dataclass
 class ToolResultBlock:
     """工具结果块"""
+
     tool_name: str
     success: bool
     content: str
@@ -195,28 +193,25 @@ class ToolResultBlock:
             "success": self.success,
             "content": self.content,
             "execution_time": self.execution_time,
-            "error_type": self.error_type
+            "error_type": self.error_type,
         }
 
 
 class ExecutionPipeline:
     """工具执行流水线"""
 
-    def __init__(self, tool_registry: 'ToolRegistry'):
+    def __init__(self, tool_registry: "ToolRegistry"):
         self.tool_registry = tool_registry
         self.execution_history = []
 
-    async def execute(self, tool_name: str,
-                     input_params: Dict[str, Any]) -> ToolResultBlock:
+    async def execute(self, tool_name: str, input_params: Dict[str, Any]) -> ToolResultBlock:
         """执行工具的完整流水线"""
 
         # 1. 工具发现
         tool = self.tool_registry.get(tool_name)
         if not tool:
             return ToolResultBlock(
-                tool_name=tool_name,
-                success=False,
-                content=f"Tool not found: {tool_name}"
+                tool_name=tool_name, success=False, content=f"Tool not found: {tool_name}"
             )
 
         # 2. 权限检查
@@ -224,7 +219,7 @@ class ExecutionPipeline:
             return ToolResultBlock(
                 tool_name=tool_name,
                 success=False,
-                content=f"Permission denied for tool: {tool_name}"
+                content=f"Permission denied for tool: {tool_name}",
             )
 
         # 3. 执行工具
@@ -236,13 +231,10 @@ class ExecutionPipeline:
                 success=result.success,
                 content=result.content,
                 execution_time=result.execution_time,
-                error_type=result.error_type
+                error_type=result.error_type,
             )
 
         except Exception as e:
             return ToolResultBlock(
-                tool_name=tool_name,
-                success=False,
-                content=str(e),
-                error_type=type(e).__name__
+                tool_name=tool_name, success=False, content=str(e), error_type=type(e).__name__
             )

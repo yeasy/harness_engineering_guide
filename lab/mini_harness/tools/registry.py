@@ -2,17 +2,17 @@
 mini_harness/tools/registry.py - Tool Registry
 """
 
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
 
 
 class ToolRegistry:
     """工具注册中心"""
 
     def __init__(self):
-        self.tools: Dict[str, 'Tool'] = {}
+        self.tools: Dict[str, "Tool"] = {}
         self.schema_cache: Dict[str, Dict] = {}
 
-    def register(self, tool: 'Tool'):
+    def register(self, tool: "Tool"):
         """注册工具"""
         name = tool.name()
         self.tools[name] = tool
@@ -21,10 +21,10 @@ class ToolRegistry:
         self.schema_cache[name] = {
             "name": name,
             "description": tool.description(),
-            "input_schema": tool.input_schema()
+            "input_schema": tool.input_schema(),
         }
 
-    def get(self, name: str) -> Optional['Tool']:
+    def get(self, name: str) -> Optional["Tool"]:
         """获取工具"""
         return self.tools.get(name)
 

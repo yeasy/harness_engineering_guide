@@ -5,17 +5,18 @@ Tests for mini_harness.memory module:
 - consolidation.py: ConsolidationState, ConsolidationEngine
 """
 
-import pytest
-import os
 import asyncio
+import os
 from datetime import datetime, timedelta
 
-from mini_harness.memory.storage import MemoryEntry, MemoryStore
-from mini_harness.memory.context import MemoryRequirement, ContextAssembler
-from mini_harness.memory.consolidation import ConsolidationState, ConsolidationEngine
+import pytest
 
+from mini_harness.memory.consolidation import ConsolidationEngine, ConsolidationState
+from mini_harness.memory.context import ContextAssembler, MemoryRequirement
+from mini_harness.memory.storage import MemoryEntry, MemoryStore
 
 # ============ MemoryEntry Tests ============
+
 
 class TestMemoryEntry:
     def test_creation(self):
@@ -23,7 +24,7 @@ class TestMemoryEntry:
             memory_id="mem-001",
             content="Test memory content",
             memory_type="episodic",
-            tags=["test", "unit"]
+            tags=["test", "unit"],
         )
         assert entry.id == "mem-001"
         assert entry.content == "Test memory content"
@@ -46,7 +47,7 @@ class TestMemoryEntry:
             content="Markdown test",
             memory_type="user",
             tags=["style"],
-            confidence=0.9
+            confidence=0.9,
         )
         md = entry.to_markdown()
         assert "---" in md
@@ -87,7 +88,7 @@ This is the content."""
             content="Roundtrip test content",
             memory_type="feedback",
             tags=["round", "trip"],
-            confidence=0.75
+            confidence=0.75,
         )
         md = original.to_markdown()
         restored = MemoryEntry.from_markdown(md, "mem-006")
@@ -98,11 +99,7 @@ This is the content."""
 
     def test_with_expiry(self):
         expiry = datetime.now() + timedelta(days=7)
-        entry = MemoryEntry(
-            memory_id="mem-007",
-            content="Expiring memory",
-            expiry=expiry
-        )
+        entry = MemoryEntry(memory_id="mem-007", content="Expiring memory", expiry=expiry)
         assert entry.expiry == expiry
         md = entry.to_markdown()
         assert "expiry:" in md
@@ -111,15 +108,13 @@ This is the content."""
 
 # ============ MemoryStore Tests ============
 
+
 class TestMemoryStore:
     @pytest.mark.asyncio
     async def test_save_and_load(self, tmp_dir):
         store = MemoryStore(tmp_dir)
         entry = MemoryEntry(
-            memory_id="test-save",
-            content="Saved content",
-            memory_type="episodic",
-            tags=["test"]
+            memory_id="test-save", content="Saved content", memory_type="episodic", tags=["test"]
         )
         result = await store.save(entry)
         assert result is True
@@ -189,16 +184,12 @@ class TestMemoryStore:
 
         # Create an expired entry
         expired = MemoryEntry(
-            "expired-1", "Expired content",
-            expiry=datetime.now() - timedelta(days=1)
+            "expired-1", "Expired content", expiry=datetime.now() - timedelta(days=1)
         )
         await store.save(expired)
 
         # Create a non-expired entry
-        valid = MemoryEntry(
-            "valid-1", "Valid content",
-            expiry=datetime.now() + timedelta(days=7)
-        )
+        valid = MemoryEntry("valid-1", "Valid content", expiry=datetime.now() + timedelta(days=7))
         await store.save(valid)
 
         count = await store.cleanup_expired()
@@ -212,7 +203,7 @@ class TestMemoryStore:
     @pytest.mark.asyncio
     async def test_type_directories_created(self, tmp_dir):
         store = MemoryStore(tmp_dir)
-        expected_types = ['user', 'feedback', 'project', 'reference', 'episodic']
+        expected_types = ["user", "feedback", "project", "reference", "episodic"]
         for t in expected_types:
             assert os.path.isdir(os.path.join(tmp_dir, "by_type", t))
 
@@ -234,6 +225,7 @@ class TestMemoryStore:
 
 # ============ MemoryRequirement Tests ============
 
+
 class TestMemoryRequirement:
     def test_defaults(self):
         req = MemoryRequirement()
@@ -245,6 +237,7 @@ class TestMemoryRequirement:
 
 
 # ============ ContextAssembler Tests ============
+
 
 class TestContextAssembler:
     @pytest.mark.asyncio
@@ -315,10 +308,7 @@ class TestContextAssembler:
         assembler = ContextAssembler(store, token_budget=10)  # Very small budget
 
         # Add large content
-        await store.save(MemoryEntry(
-            "big", "A " * 1000,
-            memory_type="user"
-        ))
+        await store.save(MemoryEntry("big", "A " * 1000, memory_type="user"))
 
         result = await assembler.assemble("What do I prefer?")
         # Token estimator is rough, but assembler should respect budget
@@ -333,6 +323,7 @@ class TestContextAssembler:
 
 
 # ============ ConsolidationEngine Tests ============
+
 
 class TestConsolidationState:
     def test_defaults(self):
@@ -373,7 +364,7 @@ class TestConsolidationEngine:
         messages = [
             "I found a bug in the login page",
             "Fixed the error in authentication",
-            "Added a new feature for search"
+            "Added a new feature for search",
         ]
         result = await engine.orient_phase(messages)
         assert "summary" in result
@@ -397,7 +388,7 @@ class TestConsolidationEngine:
             "I prefer dark mode",
             "We completed the login feature",
             "I learned that caching improves performance",
-            "We decided to use PostgreSQL"
+            "We decided to use PostgreSQL",
         ]
         gathered = await engine.gather_phase(messages, {})
         assert len(gathered["user_preferences"]) > 0
@@ -413,7 +404,7 @@ class TestConsolidationEngine:
             "user_preferences": ["Prefers TypeScript"],
             "project_updates": ["Completed API design"],
             "learned_lessons": ["Discovered caching helps"],
-            "decisions": []
+            "decisions": [],
         }
         result = await engine.consolidate_phase(gathered)
         assert result is True
@@ -430,10 +421,7 @@ class TestConsolidationEngine:
         engine = ConsolidationEngine(store)
 
         # Add expired memory
-        expired = MemoryEntry(
-            "old-mem", "Old content",
-            expiry=datetime.now() - timedelta(days=1)
-        )
+        expired = MemoryEntry("old-mem", "Old content", expiry=datetime.now() - timedelta(days=1))
         await store.save(expired)
 
         pruned = await engine.prune_phase()
@@ -448,7 +436,7 @@ class TestConsolidationEngine:
             "I prefer Python over JavaScript",
             "We completed the database migration",
             "I learned that async improves throughput",
-            "We decided on microservices architecture"
+            "We decided on microservices architecture",
         ]
 
         result = await engine.consolidate(messages)

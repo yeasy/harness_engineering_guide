@@ -3,12 +3,12 @@ mini_harness/runtime/models.py
 基础数据模型定义
 """
 
-from dataclasses import dataclass, field
-from enum import Enum
-from datetime import datetime, timezone
-from typing import List, Dict, Any, Optional
-import uuid
 import json
+import uuid
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 
 class MessageRole(Enum):
@@ -39,12 +39,7 @@ class ToolUseBlock:
     input: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        return {
-            "type": self.type,
-            "id": self.id,
-            "name": self.name,
-            "input": self.input
-        }
+        return {"type": self.type, "id": self.id, "name": self.name, "input": self.input}
 
 
 @dataclass
@@ -61,7 +56,7 @@ class ToolResultBlock:
             "tool_use_id": self.tool_use_id,
             "content": self.content,
             "is_error": self.is_error,
-            "error_type": self.error_type
+            "error_type": self.error_type,
         }
 
 
@@ -74,17 +69,11 @@ class Message:
 
     @classmethod
     def user(cls, text: str) -> "Message":
-        return cls(
-            role="user",
-            content=[TextBlock(text=text)]
-        )
+        return cls(role="user", content=[TextBlock(text=text)])
 
     @classmethod
     def assistant(cls, content: List[Any]) -> "Message":
-        return cls(
-            role="assistant",
-            content=content
-        )
+        return cls(role="assistant", content=content)
 
     def has_tool_calls(self) -> bool:
         return any(isinstance(block, ToolUseBlock) for block in self.content)
@@ -101,13 +90,14 @@ class Message:
             "role": self.role,
             "content": [block.to_dict() for block in self.content],
             "timestamp": self.timestamp.isoformat(),
-            "message_id": self.message_id
+            "message_id": self.message_id,
         }
 
 
 @dataclass
 class AgentState:
     """Agent 会话状态"""
+
     session_id: str
     messages: List[Message] = field(default_factory=list)
     current_turn: int = 0

@@ -5,28 +5,28 @@ Tests for mini_harness.models module:
 - quality.py: ToolRegistry (quality), QualityGate, HallucinationDetector
 """
 
-import pytest
 import time
 from unittest.mock import MagicMock, patch
 
-from mini_harness.models.provider import (
-    CircuitBreaker, ModelConfig, ModelProviderType,
-    ModelSelectionEngine, Message as ProviderMessage
-)
-from mini_harness.models.parser import (
-    TextBlock, ToolUseBlock, ThinkingBlock,
-    ParsedMessage, ResponseParser
-)
-from mini_harness.models.quality import (
-    QualityToolRegistry,
-    QualityGate, HallucinationDetector,
-    ValidationResult, ValidationReport,
-    HallucinationResult
-)
-from mini_harness.models.parser import ToolUseBlock as ParserToolUseBlock
+import pytest
 
+from mini_harness.models.parser import ParsedMessage, ResponseParser, TextBlock, ThinkingBlock
+from mini_harness.models.parser import ToolUseBlock
+from mini_harness.models.parser import ToolUseBlock as ParserToolUseBlock
+from mini_harness.models.provider import CircuitBreaker
+from mini_harness.models.provider import Message as ProviderMessage
+from mini_harness.models.provider import ModelConfig, ModelProviderType, ModelSelectionEngine
+from mini_harness.models.quality import (
+    HallucinationDetector,
+    HallucinationResult,
+    QualityGate,
+    QualityToolRegistry,
+    ValidationReport,
+    ValidationResult,
+)
 
 # ============ CircuitBreaker Tests ============
+
 
 class TestCircuitBreaker:
     def test_initial_state(self):
@@ -65,11 +65,7 @@ class TestCircuitBreaker:
         assert cb.state == "half-open"
 
     def test_half_open_needs_multiple_successes(self):
-        cb = CircuitBreaker(
-            failure_threshold=1,
-            reset_timeout=0,
-            success_threshold_half_open=3
-        )
+        cb = CircuitBreaker(failure_threshold=1, reset_timeout=0, success_threshold_half_open=3)
         cb.record_failure()
         assert cb.state == "open"
 
@@ -85,11 +81,7 @@ class TestCircuitBreaker:
         assert cb.state == "closed"  # Closed after 3 successes
 
     def test_half_open_failure_resets(self):
-        cb = CircuitBreaker(
-            failure_threshold=1,
-            reset_timeout=0,
-            success_threshold_half_open=3
-        )
+        cb = CircuitBreaker(failure_threshold=1, reset_timeout=0, success_threshold_half_open=3)
         cb.record_failure()
         time.sleep(0.01)
         cb.is_available()  # half-open
@@ -109,12 +101,10 @@ class TestCircuitBreaker:
 
 # ============ ModelConfig Tests ============
 
+
 class TestModelConfig:
     def test_creation(self):
-        config = ModelConfig(
-            provider=ModelProviderType.CLAUDE,
-            model_id="claude-sonnet-4-20250514"
-        )
+        config = ModelConfig(provider=ModelProviderType.CLAUDE, model_id="claude-sonnet-4-20250514")
         assert config.provider == ModelProviderType.CLAUDE
         assert config.max_tokens == 4096
         assert config.timeout == 30
@@ -125,7 +115,7 @@ class TestModelConfig:
             model_id="claude-opus-4-20250514",
             api_key="test-key",
             max_tokens=8192,
-            timeout=60
+            timeout=60,
         )
         assert config.api_key == "test-key"
         assert config.max_tokens == 8192
@@ -133,27 +123,20 @@ class TestModelConfig:
 
 # ============ ModelSelectionEngine Tests ============
 
+
 class TestModelSelectionEngine:
     def test_select_primary(self):
         primary = ModelConfig(
-            provider=ModelProviderType.CLAUDE,
-            model_id="claude-sonnet-4-20250514",
-            api_key="test"
+            provider=ModelProviderType.CLAUDE, model_id="claude-sonnet-4-20250514", api_key="test"
         )
         engine = ModelSelectionEngine(primary)
         provider = engine.select_model()
         assert provider.config.model_id == "claude-sonnet-4-20250514"
 
     def test_fallback_selection(self):
-        primary = ModelConfig(
-            provider=ModelProviderType.CLAUDE,
-            model_id="primary",
-            api_key="test"
-        )
+        primary = ModelConfig(provider=ModelProviderType.CLAUDE, model_id="primary", api_key="test")
         fallback = ModelConfig(
-            provider=ModelProviderType.CLAUDE,
-            model_id="fallback",
-            api_key="test"
+            provider=ModelProviderType.CLAUDE, model_id="fallback", api_key="test"
         )
         engine = ModelSelectionEngine(primary, [fallback])
 
@@ -165,11 +148,7 @@ class TestModelSelectionEngine:
         assert provider.config.model_id == "fallback"
 
     def test_all_unavailable_raises(self):
-        primary = ModelConfig(
-            provider=ModelProviderType.CLAUDE,
-            model_id="only",
-            api_key="test"
-        )
+        primary = ModelConfig(provider=ModelProviderType.CLAUDE, model_id="only", api_key="test")
         engine = ModelSelectionEngine(primary)
 
         for _ in range(3):
@@ -179,17 +158,14 @@ class TestModelSelectionEngine:
             engine.select_model()
 
     def test_mark_success(self):
-        primary = ModelConfig(
-            provider=ModelProviderType.CLAUDE,
-            model_id="model-1",
-            api_key="test"
-        )
+        primary = ModelConfig(provider=ModelProviderType.CLAUDE, model_id="model-1", api_key="test")
         engine = ModelSelectionEngine(primary)
         engine.mark_success("model-1")
         assert engine.breakers["model-1"].failure_count == 0
 
 
 # ============ Parser Tests ============
+
 
 class TestTextBlock:
     def test_defaults(self):
@@ -210,11 +186,7 @@ class TestToolUseBlock:
         assert block.input is None
 
     def test_with_data(self):
-        block = ToolUseBlock(
-            id="tool_123",
-            name="bash_exec",
-            input={"command": "ls"}
-        )
+        block = ToolUseBlock(id="tool_123", name="bash_exec", input={"command": "ls"})
         assert block.name == "bash_exec"
         assert block.input["command"] == "ls"
 
@@ -229,12 +201,9 @@ class TestThinkingBlock:
 class TestParsedMessage:
     def test_text_content(self):
         msg = ParsedMessage(
-            content_blocks=[
-                TextBlock(text="Hello "),
-                TextBlock(text="world")
-            ],
+            content_blocks=[TextBlock(text="Hello "), TextBlock(text="world")],
             stop_reason="end_turn",
-            tokens_used=100
+            tokens_used=100,
         )
         assert msg.text_content() == "Hello world"
 
@@ -242,24 +211,16 @@ class TestParsedMessage:
         tool1 = ToolUseBlock(name="bash_exec")
         tool2 = ToolUseBlock(name="file_read")
         msg = ParsedMessage(
-            content_blocks=[
-                TextBlock(text="Let me help"),
-                tool1,
-                tool2
-            ],
+            content_blocks=[TextBlock(text="Let me help"), tool1, tool2],
             stop_reason="tool_use",
-            tokens_used=200
+            tokens_used=200,
         )
         calls = msg.tool_calls()
         assert len(calls) == 2
         assert calls[0].name == "bash_exec"
 
     def test_empty_message(self):
-        msg = ParsedMessage(
-            content_blocks=[],
-            stop_reason="end_turn",
-            tokens_used=0
-        )
+        msg = ParsedMessage(content_blocks=[], stop_reason="end_turn", tokens_used=0)
         assert msg.text_content() == ""
         assert msg.tool_calls() == []
 
@@ -267,11 +228,9 @@ class TestParsedMessage:
 class TestResponseParser:
     def test_parse_text_response(self):
         raw = {
-            "content": [
-                {"type": "text", "text": "Hello!"}
-            ],
+            "content": [{"type": "text", "text": "Hello!"}],
             "stop_reason": "end_turn",
-            "usage": {"input_tokens": 50, "output_tokens": 10}
+            "usage": {"input_tokens": 50, "output_tokens": 10},
         }
         msg = ResponseParser.parse_response(raw)
         assert msg.text_content() == "Hello!"
@@ -286,11 +245,11 @@ class TestResponseParser:
                     "type": "tool_use",
                     "id": "tool_abc",
                     "name": "bash_exec",
-                    "input": {"command": "ls -la"}
-                }
+                    "input": {"command": "ls -la"},
+                },
             ],
             "stop_reason": "tool_use",
-            "usage": {"input_tokens": 100, "output_tokens": 50}
+            "usage": {"input_tokens": 100, "output_tokens": 50},
         }
         msg = ResponseParser.parse_response(raw)
         assert msg.text_content() == "I'll run a command."
@@ -303,14 +262,9 @@ class TestResponseParser:
     def test_parse_tool_input_as_string(self):
         raw = {
             "content": [
-                {
-                    "type": "tool_use",
-                    "id": "tool_x",
-                    "name": "test",
-                    "input": '{"key": "value"}'
-                }
+                {"type": "tool_use", "id": "tool_x", "name": "test", "input": '{"key": "value"}'}
             ],
-            "stop_reason": "tool_use"
+            "stop_reason": "tool_use",
         }
         msg = ResponseParser.parse_response(raw)
         calls = msg.tool_calls()
@@ -319,14 +273,9 @@ class TestResponseParser:
     def test_parse_invalid_json_input(self):
         raw = {
             "content": [
-                {
-                    "type": "tool_use",
-                    "id": "tool_y",
-                    "name": "test",
-                    "input": "not valid json"
-                }
+                {"type": "tool_use", "id": "tool_y", "name": "test", "input": "not valid json"}
             ],
-            "stop_reason": "tool_use"
+            "stop_reason": "tool_use",
         }
         msg = ResponseParser.parse_response(raw)
         calls = msg.tool_calls()
@@ -346,6 +295,7 @@ class TestResponseParser:
 
 
 # ============ QualityGate Tests ============
+
 
 class TestQualityToolRegistry:
     def test_register_tool(self):
@@ -375,9 +325,7 @@ class TestQualityGate:
         gate = QualityGate(registry)
 
         tool_call = ParserToolUseBlock(
-            id="tool_001",
-            name="bash_exec",
-            input={"command": "echo hi"}
+            id="tool_001", name="bash_exec", input={"command": "echo hi"}
         )
         report = gate.validate_tool_call(tool_call)
         assert report.result == ValidationResult.PASS
@@ -403,17 +351,14 @@ class TestQualityGate:
         registry = self._make_registry()
         gate = QualityGate(registry)
 
-        tool_call = ParserToolUseBlock(
-            id="tool_001",
-            name="nonexistent_tool",
-            input={}
-        )
+        tool_call = ParserToolUseBlock(id="tool_001", name="nonexistent_tool", input={})
         report = gate.validate_tool_call(tool_call)
         assert report.result == ValidationResult.FAIL
         assert report.suggestion is not None
 
 
 # ============ HallucinationDetector Tests ============
+
 
 class TestHallucinationDetector:
     def _make_registry(self):
@@ -426,10 +371,7 @@ class TestHallucinationDetector:
         registry = self._make_registry()
         detector = HallucinationDetector(registry)
 
-        tool_call = ParserToolUseBlock(
-            id="t1", name="bash_exec",
-            input={"command": "ls"}
-        )
+        tool_call = ParserToolUseBlock(id="t1", name="bash_exec", input={"command": "ls"})
         results = detector.detect(tool_call)
         assert len(results) == 0
 
@@ -437,10 +379,7 @@ class TestHallucinationDetector:
         registry = self._make_registry()
         detector = HallucinationDetector(registry)
 
-        tool_call = ParserToolUseBlock(
-            id="t1", name="bash_execute",  # Similar but wrong
-            input={}
-        )
+        tool_call = ParserToolUseBlock(id="t1", name="bash_execute", input={})  # Similar but wrong
         results = detector.detect(tool_call)
         assert len(results) > 0
         assert results[0].is_hallucination is True
@@ -450,10 +389,7 @@ class TestHallucinationDetector:
         registry = self._make_registry()
         detector = HallucinationDetector(registry)
 
-        tool_call = ParserToolUseBlock(
-            id="t1", name="bash_exe",  # Close to bash_exec
-            input={}
-        )
+        tool_call = ParserToolUseBlock(id="t1", name="bash_exe", input={})  # Close to bash_exec
         results = detector.detect(tool_call)
         hallucination = results[0]
         assert hallucination.is_hallucination is True
@@ -466,8 +402,7 @@ class TestHallucinationDetector:
         detector = HallucinationDetector(registry)
 
         tool_call = ParserToolUseBlock(
-            id="t1", name="bash_exec",
-            input={"timeout": 99999999}  # Unreasonable value
+            id="t1", name="bash_exec", input={"timeout": 99999999}  # Unreasonable value
         )
         results = detector.detect(tool_call)
         assert any(r.is_hallucination for r in results)
@@ -476,10 +411,7 @@ class TestHallucinationDetector:
         registry = self._make_registry()
         detector = HallucinationDetector(registry)
 
-        tool_call = ParserToolUseBlock(
-            id="t1", name="bash_exec",
-            input={"timeout": -100}
-        )
+        tool_call = ParserToolUseBlock(id="t1", name="bash_exec", input={"timeout": -100})
         results = detector.detect(tool_call)
         assert any(r.is_hallucination for r in results)
 
@@ -487,9 +419,6 @@ class TestHallucinationDetector:
         registry = self._make_registry()
         detector = HallucinationDetector(registry)
 
-        tool_call = ParserToolUseBlock(
-            id="t1", name="bash_exec",
-            input={"timeout": 30}
-        )
+        tool_call = ParserToolUseBlock(id="t1", name="bash_exec", input={"timeout": 30})
         results = detector.detect(tool_call)
         assert len(results) == 0

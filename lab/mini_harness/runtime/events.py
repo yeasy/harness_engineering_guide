@@ -3,11 +3,11 @@ mini_harness/runtime/events.py
 事件定义和流处理
 """
 
-from dataclasses import dataclass, field
-from enum import Enum
-from datetime import datetime, timezone
-from typing import AsyncIterator, Any, Dict
 import json
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from enum import Enum
+from typing import Any, AsyncIterator, Dict
 
 
 class EventType(Enum):
@@ -28,11 +28,13 @@ class Event:
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_json(self) -> str:
-        return json.dumps({
-            "event_type": self.event_type.value,
-            "timestamp": self.timestamp.isoformat(),
-            "metadata": self.metadata
-        })
+        return json.dumps(
+            {
+                "event_type": self.event_type.value,
+                "timestamp": self.timestamp.isoformat(),
+                "metadata": self.metadata,
+            }
+        )
 
 
 # 特化的事件类

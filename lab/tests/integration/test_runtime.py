@@ -5,23 +5,35 @@ Integration tests for mini_harness.runtime module:
 - runtime/events.py: Event types
 """
 
-import pytest
 import asyncio
 
-from mini_harness.runtime.models import (
-    Message, AgentState, TextBlock, ToolUseBlock, ToolResultBlock,
-    MessageRole, ContentBlockType
-)
-from mini_harness.runtime.events import (
-    Event, EventType,
-    AgentStartEvent, TurnStartEvent, ErrorEvent,
-    TextResponseEvent, ToolExecuteEvent, ToolResultEvent,
-    TurnEndEvent, AgentEndEvent
-)
-from mini_harness.runtime.engine import RuntimeEngine
+import pytest
 
+from mini_harness.runtime.engine import RuntimeEngine
+from mini_harness.runtime.events import (
+    AgentEndEvent,
+    AgentStartEvent,
+    ErrorEvent,
+    Event,
+    EventType,
+    TextResponseEvent,
+    ToolExecuteEvent,
+    ToolResultEvent,
+    TurnEndEvent,
+    TurnStartEvent,
+)
+from mini_harness.runtime.models import (
+    AgentState,
+    ContentBlockType,
+    Message,
+    MessageRole,
+    TextBlock,
+    ToolResultBlock,
+    ToolUseBlock,
+)
 
 # ============ Runtime Models Tests ============
+
 
 class TestRuntimeTextBlock:
     def test_defaults(self):
@@ -51,20 +63,13 @@ class TestRuntimeToolUseBlock:
 
 class TestRuntimeToolResultBlock:
     def test_creation(self):
-        block = ToolResultBlock(
-            tool_use_id="tu_123",
-            content="result output",
-            is_error=False
-        )
+        block = ToolResultBlock(tool_use_id="tu_123", content="result output", is_error=False)
         assert block.tool_use_id == "tu_123"
         assert block.is_error is False
 
     def test_error_result(self):
         block = ToolResultBlock(
-            tool_use_id="tu_456",
-            content="error msg",
-            is_error=True,
-            error_type="TimeoutError"
+            tool_use_id="tu_456", content="error msg", is_error=True, error_type="TimeoutError"
         )
         assert block.is_error is True
         assert block.error_type == "TimeoutError"
@@ -83,20 +88,19 @@ class TestRuntimeMessage:
         assert msg.get_text() == "Hi there"
 
     def test_assistant_with_tool_call(self):
-        msg = Message.assistant([
-            TextBlock(text="Let me run a command."),
-            ToolUseBlock(name="bash_exec", input={"command": "ls"})
-        ])
+        msg = Message.assistant(
+            [
+                TextBlock(text="Let me run a command."),
+                ToolUseBlock(name="bash_exec", input={"command": "ls"}),
+            ]
+        )
         assert msg.has_tool_calls() is True
         calls = msg.get_tool_calls()
         assert len(calls) == 1
         assert calls[0].name == "bash_exec"
 
     def test_multiple_text_blocks(self):
-        msg = Message.assistant([
-            TextBlock(text="Part 1 "),
-            TextBlock(text="Part 2")
-        ])
+        msg = Message.assistant([TextBlock(text="Part 1 "), TextBlock(text="Part 2")])
         assert msg.get_text() == "Part 1 Part 2"
 
     def test_to_dict(self):
@@ -135,6 +139,7 @@ class TestRuntimeAgentState:
 
 # ============ Runtime Events Tests ============
 
+
 class TestRuntimeEvents:
     def test_event_types(self):
         assert EventType.AGENT_START.value == "agent_start"
@@ -159,6 +164,7 @@ class TestRuntimeEvents:
 
 
 # ============ RuntimeEngine Integration Tests ============
+
 
 class TestRuntimeEngine:
     @pytest.mark.asyncio

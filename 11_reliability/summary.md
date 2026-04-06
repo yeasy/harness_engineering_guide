@@ -14,8 +14,8 @@
 2. **Logs（日志）**：结构化日志
 
    - JSON格式便于解析
-   - 包含上下文信息（agent_id、trace_id）
-   - 不同日志级别（DEBUG/INFO/WARNING/ERROR/CRITICAL）
+   - 包含上下文信息(agent_id、trace_id)
+   - 不同日志级别(DEBUG/INFO/WARNING/ERROR/CRITICAL)
 
 3. **Traces（追踪）**：分布式追踪
 
@@ -25,7 +25,7 @@
 
 #### 11.2 反馈循环
 
-**人在回路（HITL）模式**：
+**人在回路(HITL)模式**：
 
 - Agent做重大决定前需要审批
 - 构建审批工作流
@@ -46,24 +46,24 @@
 
 **四大模式**：
 
-1. **断路器（Circuit Breaker）**
+1. **断路器(Circuit Breaker)**
 
    - 故障检测：连续失败触发断开
    - 快速失败：断开后直接返回错误
    - 自动恢复：定期尝试重新连接
 
-2. **隔舱（Bulkhead）**
+2. **隔舱(Bulkhead)**
 
    - 资源隔离：为不同工具分配独立线程池
    - 故障隔离：一个故障不影响其他
 
-3. **超时（Timeout）**
+3. **超时(Timeout)**
 
    - 工具超时：单个工具调用超时
    - 任务超时：整个任务超时
    - Agent超时：整个会话超时
 
-4. **重试（Retry）**
+4. **重试(Retry)**
 
    - 指数退避：1秒→2秒→4秒
    - 幂等性：确保重复安全
@@ -109,7 +109,7 @@ async def verify_tool_call(tool_name, arguments, result):
 
 实现了完整的可靠性保障，包括：
 
-- 完整的可观测性（metrics、logs、traces）
+- 完整的可观测性(metrics、logs、traces)
 - 基本的容错模式（重试、超时）
 - 工具调用验证
 - 人工审批流程
@@ -131,8 +131,8 @@ async def verify_tool_call(tool_name, arguments, result):
 #### 可观测性
 
 - [ ] 收集关键指标（延迟、成功率、成本）
-- [ ] 结构化日志（JSON格式）
-- [ ] 分布式追踪（trace_id贯穿）
+- [ ] 结构化日志(JSON格式)
+- [ ] 分布式追踪(trace_id贯穿)
 - [ ] 实时仪表板
 
 #### 容错能力
@@ -147,7 +147,7 @@ async def verify_tool_call(tool_name, arguments, result):
 - [ ] 高风险操作需要审批
 - [ ] 用户反馈机制
 - [ ] 自动告警系统
-- [ ] 事后分析（post-mortem）
+- [ ] 事后分析(post-mortem)
 
 #### 幻觉防护
 
@@ -201,7 +201,7 @@ async def verify_tool_call(tool_name, arguments, result):
 
 #### 长期规划
 
-1. AIOps（AI运维）：自动故障诊断和恢复
+1. AIOps(AI运维)：自动故障诊断和恢复
 2. 混沌工程：定期注入故障进行演练
 3. 零信任：假设所有组件都可能故障
 4. 自愈系统：自动恢复和优化
@@ -219,7 +219,7 @@ async def verify_tool_call(tool_name, arguments, result):
 
 **重要数据**：
 
-- 99.9%可用性（日均停机<1.5分钟）
+- 99.9%可用性(日均停机<1.5分钟)
 - 工具调用>99.5%成功率
 - 幻觉率<1%
 

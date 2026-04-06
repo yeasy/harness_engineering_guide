@@ -4,19 +4,25 @@ Tests for mini_harness.tools module:
 - registry.py: ToolRegistry
 """
 
-import pytest
-import os
 import asyncio
+import os
 import tempfile
 
+import pytest
+
 from mini_harness.tools.builtin import (
-    ToolResult, Tool, BashTool, FileReadTool, FileWriteTool,
-    ExecutionPipeline, ToolResultBlock
+    BashTool,
+    ExecutionPipeline,
+    FileReadTool,
+    FileWriteTool,
+    Tool,
+    ToolResult,
+    ToolResultBlock,
 )
 from mini_harness.tools.registry import ToolRegistry
 
-
 # ============ ToolResult Tests ============
+
 
 class TestToolResult:
     def test_success_result(self):
@@ -31,7 +37,7 @@ class TestToolResult:
             success=False,
             content="file not found",
             execution_time=0.01,
-            error_type="FileNotFoundError"
+            error_type="FileNotFoundError",
         )
         assert result.success is False
         assert result.error_type == "FileNotFoundError"
@@ -39,13 +45,11 @@ class TestToolResult:
 
 # ============ ToolResultBlock Tests ============
 
+
 class TestToolResultBlock:
     def test_to_dict(self):
         block = ToolResultBlock(
-            tool_name="bash_exec",
-            success=True,
-            content="hello",
-            execution_time=0.1
+            tool_name="bash_exec", success=True, content="hello", execution_time=0.1
         )
         d = block.to_dict()
         assert d["tool_name"] == "bash_exec"
@@ -59,13 +63,14 @@ class TestToolResultBlock:
             tool_name="unknown_tool",
             success=False,
             content="Tool not found",
-            error_type="NotFoundError"
+            error_type="NotFoundError",
         )
         assert block.success is False
         assert block.error_type == "NotFoundError"
 
 
 # ============ BashTool Tests ============
+
 
 class TestBashTool:
     def test_name_and_description(self):
@@ -115,6 +120,7 @@ class TestBashTool:
 
 # ============ FileReadTool Tests ============
 
+
 class TestFileReadTool:
     def test_name_and_schema(self):
         tool = FileReadTool()
@@ -153,6 +159,7 @@ class TestFileReadTool:
 
 
 # ============ FileWriteTool Tests ============
+
 
 class TestFileWriteTool:
     def test_name_and_schema(self):
@@ -208,6 +215,7 @@ class TestFileWriteTool:
 
 # ============ ToolRegistry Tests ============
 
+
 class TestToolRegistry:
     def test_register_and_get(self):
         registry = ToolRegistry()
@@ -261,6 +269,7 @@ class TestToolRegistry:
 
 # ============ ExecutionPipeline Tests ============
 
+
 class TestExecutionPipeline:
     def _make_pipeline(self):
         registry = ToolRegistry()
@@ -287,12 +296,20 @@ class TestExecutionPipeline:
     @pytest.mark.asyncio
     async def test_pipeline_permission_denied(self):
         """Test that permission denied is handled."""
+
         class RestrictedTool(Tool):
             async def call(self, params):
                 return ToolResult(success=True, content="ok", execution_time=0)
-            def name(self): return "restricted"
-            def description(self): return "Restricted tool"
-            def input_schema(self): return {"type": "object", "properties": {}}
+
+            def name(self):
+                return "restricted"
+
+            def description(self):
+                return "Restricted tool"
+
+            def input_schema(self):
+                return {"type": "object", "properties": {}}
+
             def check_permissions(self, context):
                 return False
 
@@ -310,9 +327,9 @@ class TestExecutionPipeline:
 
         # Write
         filepath = os.path.join(tmp_dir, "pipeline_test.txt")
-        result = await pipeline.execute("file_write", {
-            "path": filepath, "content": "Pipeline wrote this"
-        })
+        result = await pipeline.execute(
+            "file_write", {"path": filepath, "content": "Pipeline wrote this"}
+        )
         assert result.success is True
 
         # Read

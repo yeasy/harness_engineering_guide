@@ -3,21 +3,26 @@ Tests for mini_harness.mcp module:
 - integration.py: ToolSchemaCache, CachedToolSchema, MCPToolRegistry, MCPToolAdapter, MiniHarnessWithMCP
 """
 
-import pytest
-import os
-import json
 import asyncio
+import json
+import os
 from datetime import datetime, timedelta
 
+import pytest
+
 from mini_harness.mcp.integration import (
-    CachedToolSchema, ToolSchemaCache,
-    MCPServerConfig, MCPToolRegistry,
-    MCPToolAdapter, MiniHarnessWithMCP,
-    MockStdioMCPClient, MockHttpMCPClient
+    CachedToolSchema,
+    MCPServerConfig,
+    MCPToolAdapter,
+    MCPToolRegistry,
+    MiniHarnessWithMCP,
+    MockHttpMCPClient,
+    MockStdioMCPClient,
+    ToolSchemaCache,
 )
 
-
 # ============ CachedToolSchema Tests ============
+
 
 class TestCachedToolSchema:
     def test_creation(self):
@@ -27,7 +32,7 @@ class TestCachedToolSchema:
             description="Read a file",
             input_schema={"type": "object"},
             cached_at=datetime.now(),
-            schema_hash="abc123"
+            schema_hash="abc123",
         )
         assert schema.server_id == "test-server"
         assert schema.tool_name == "read_file"
@@ -39,8 +44,8 @@ class TestCachedToolSchema:
             "inputSchema": {
                 "type": "object",
                 "properties": {"query": {"type": "string"}},
-                "required": ["query"]
-            }
+                "required": ["query"],
+            },
         }
         schema = CachedToolSchema.from_mcp_tool("web-server", tool_dict)
         assert schema.server_id == "web-server"
@@ -52,7 +57,7 @@ class TestCachedToolSchema:
     def test_schema_hash_deterministic(self):
         tool_dict = {
             "name": "test",
-            "inputSchema": {"type": "object", "properties": {"a": {"type": "string"}}}
+            "inputSchema": {"type": "object", "properties": {"a": {"type": "string"}}},
         }
         s1 = CachedToolSchema.from_mcp_tool("server", tool_dict)
         s2 = CachedToolSchema.from_mcp_tool("server", tool_dict)
@@ -60,6 +65,7 @@ class TestCachedToolSchema:
 
 
 # ============ ToolSchemaCache Tests ============
+
 
 class TestToolSchemaCache:
     @pytest.mark.asyncio
@@ -71,7 +77,7 @@ class TestToolSchemaCache:
             description="A tool",
             input_schema={"type": "object"},
             cached_at=datetime.now(),
-            schema_hash="hash1"
+            schema_hash="hash1",
         )
         await cache.put(schema)
 
@@ -95,7 +101,7 @@ class TestToolSchemaCache:
             description="Persistent tool",
             input_schema={"type": "object"},
             cached_at=datetime.now(),
-            schema_hash="hash_p"
+            schema_hash="hash_p",
         )
         await cache1.put(schema)
 
@@ -114,7 +120,7 @@ class TestToolSchemaCache:
             description="Will expire",
             input_schema={},
             cached_at=datetime.now() - timedelta(seconds=10),  # Already old
-            schema_hash="h"
+            schema_hash="h",
         )
         # Put directly in memory cache (bypassing normal put which sets fresh cached_at)
         cache.memory_cache["srv#expiring"] = schema
@@ -137,13 +143,14 @@ class TestToolSchemaCache:
 
 # ============ MCPServerConfig Tests ============
 
+
 class TestMCPServerConfig:
     def test_defaults(self):
         config = MCPServerConfig(
             server_id="test",
             server_name="Test Server",
             transport_type="stdio",
-            endpoint="./server.py"
+            endpoint="./server.py",
         )
         assert config.enabled is True
         assert config.priority == 0
@@ -151,6 +158,7 @@ class TestMCPServerConfig:
 
 
 # ============ MockClient Tests ============
+
 
 class TestMockClients:
     @pytest.mark.asyncio
@@ -186,18 +194,21 @@ class TestMockClients:
 
 # ============ MCPToolRegistry Tests ============
 
+
 class TestMCPToolRegistry:
     @pytest.mark.asyncio
     async def test_add_server(self, tmp_dir):
         cache = ToolSchemaCache(cache_dir=tmp_dir)
         registry = MCPToolRegistry(schema_cache=cache)
 
-        await registry.add_server(MCPServerConfig(
-            server_id="fs",
-            server_name="Filesystem",
-            transport_type="stdio",
-            endpoint="./fs_server.py"
-        ))
+        await registry.add_server(
+            MCPServerConfig(
+                server_id="fs",
+                server_name="Filesystem",
+                transport_type="stdio",
+                endpoint="./fs_server.py",
+            )
+        )
         assert "fs" in registry.servers
 
     @pytest.mark.asyncio
@@ -205,12 +216,14 @@ class TestMCPToolRegistry:
         cache = ToolSchemaCache(cache_dir=tmp_dir)
         registry = MCPToolRegistry(schema_cache=cache)
 
-        await registry.add_server(MCPServerConfig(
-            server_id="fs",
-            server_name="Filesystem",
-            transport_type="stdio",
-            endpoint="./fs_server.py"
-        ))
+        await registry.add_server(
+            MCPServerConfig(
+                server_id="fs",
+                server_name="Filesystem",
+                transport_type="stdio",
+                endpoint="./fs_server.py",
+            )
+        )
 
         tools = await registry.discover_tools(force=True)
         assert len(tools) > 0
@@ -221,12 +234,8 @@ class TestMCPToolRegistry:
         cache = ToolSchemaCache(cache_dir=tmp_dir)
         registry = MCPToolRegistry(schema_cache=cache)
 
-        await registry.add_server(MCPServerConfig(
-            "fs", "FS", "stdio", "./fs.py"
-        ))
-        await registry.add_server(MCPServerConfig(
-            "web", "Web", "http", "http://localhost"
-        ))
+        await registry.add_server(MCPServerConfig("fs", "FS", "stdio", "./fs.py"))
+        await registry.add_server(MCPServerConfig("web", "Web", "http", "http://localhost"))
 
         tools = await registry.discover_tools(force=True)
         assert "read_file" in tools
@@ -237,9 +246,9 @@ class TestMCPToolRegistry:
         cache = ToolSchemaCache(cache_dir=tmp_dir)
         registry = MCPToolRegistry(schema_cache=cache)
 
-        await registry.add_server(MCPServerConfig(
-            "disabled", "Disabled", "stdio", "./d.py", enabled=False
-        ))
+        await registry.add_server(
+            MCPServerConfig("disabled", "Disabled", "stdio", "./d.py", enabled=False)
+        )
 
         tools = await registry.discover_tools(force=True)
         assert len(tools) == 0
@@ -249,14 +258,10 @@ class TestMCPToolRegistry:
         cache = ToolSchemaCache(cache_dir=tmp_dir)
         registry = MCPToolRegistry(schema_cache=cache)
 
-        await registry.add_server(MCPServerConfig(
-            "fs", "FS", "stdio", "./fs.py"
-        ))
+        await registry.add_server(MCPServerConfig("fs", "FS", "stdio", "./fs.py"))
         await registry.discover_tools(force=True)
 
-        success, result, error = await registry.call_tool(
-            "read_file", {"path": "/tmp/test"}
-        )
+        success, result, error = await registry.call_tool("read_file", {"path": "/tmp/test"})
         assert success is True
         assert result is not None
 
@@ -272,15 +277,14 @@ class TestMCPToolRegistry:
 
 # ============ MCPToolAdapter Tests ============
 
+
 class TestMCPToolAdapter:
     @pytest.mark.asyncio
     async def test_get_available_tools(self, tmp_dir):
         cache = ToolSchemaCache(cache_dir=tmp_dir)
         registry = MCPToolRegistry(schema_cache=cache)
 
-        await registry.add_server(MCPServerConfig(
-            "fs", "FS", "stdio", "./fs.py"
-        ))
+        await registry.add_server(MCPServerConfig("fs", "FS", "stdio", "./fs.py"))
 
         adapter = MCPToolAdapter(registry)
         tools = await adapter.get_available_tools()
@@ -293,15 +297,12 @@ class TestMCPToolAdapter:
         cache = ToolSchemaCache(cache_dir=tmp_dir)
         registry = MCPToolRegistry(schema_cache=cache)
 
-        await registry.add_server(MCPServerConfig(
-            "fs", "FS", "stdio", "./fs.py"
-        ))
+        await registry.add_server(MCPServerConfig("fs", "FS", "stdio", "./fs.py"))
         await registry.discover_tools(force=True)
 
         adapter = MCPToolAdapter(registry)
         result = await adapter.call_tool_from_llm(
-            "read_file",
-            json.dumps({"path": "/tmp/test.txt"})
+            "read_file", json.dumps({"path": "/tmp/test.txt"})
         )
         assert result["success"] is True
 
@@ -320,20 +321,18 @@ class TestMCPToolAdapter:
         cache = ToolSchemaCache(cache_dir=tmp_dir)
         registry = MCPToolRegistry(schema_cache=cache)
 
-        await registry.add_server(MCPServerConfig(
-            "fs", "FS", "stdio", "./fs.py"
-        ))
+        await registry.add_server(MCPServerConfig("fs", "FS", "stdio", "./fs.py"))
         await registry.discover_tools(force=True)
 
         adapter = MCPToolAdapter(registry)
         result = await adapter.call_tool_from_llm(
-            "read_file",
-            {"path": "/tmp/test.txt"}  # Dict, not string
+            "read_file", {"path": "/tmp/test.txt"}  # Dict, not string
         )
         assert result["success"] is True
 
 
 # ============ MiniHarnessWithMCP Tests ============
+
 
 class TestMiniHarnessWithMCP:
     @pytest.mark.asyncio
@@ -353,10 +352,7 @@ class TestMiniHarnessWithMCP:
     async def test_process_tool_call(self):
         harness = MiniHarnessWithMCP()
         await harness.initialize()
-        result = await harness.process_tool_call(
-            "read_file",
-            json.dumps({"path": "/tmp/test.txt"})
-        )
+        result = await harness.process_tool_call("read_file", json.dumps({"path": "/tmp/test.txt"}))
         assert result["success"] is True
 
     @pytest.mark.asyncio

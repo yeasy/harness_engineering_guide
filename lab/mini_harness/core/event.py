@@ -1,14 +1,15 @@
 """事件类型和定义"""
 
+import uuid
 from dataclasses import dataclass, field
-from typing import Dict, Any
 from datetime import datetime
 from enum import Enum
-import uuid
+from typing import Any, Dict
 
 
 class EventType(str, Enum):
     """事件类型"""
+
     # 任务事件
     TASK_STARTED = "task_started"
     TASK_COMPLETED = "task_completed"
@@ -33,6 +34,7 @@ class EventType(str, Enum):
 @dataclass
 class Event:
     """事件类"""
+
     event_type: EventType
     source: str  # 事件来源
     data: Dict[str, Any]
@@ -45,5 +47,5 @@ class Event:
             "event_type": self.event_type.value,
             "source": self.source,
             "data": self.data,
-            "timestamp": self.timestamp.isoformat()
+            "timestamp": self.timestamp.isoformat(),
         }

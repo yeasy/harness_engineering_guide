@@ -3,24 +3,26 @@ mini_harness/memory/storage.py - Memory storage layer
 """
 
 import asyncio
+import hashlib
 import json
 import os
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
 from pathlib import Path
-import hashlib
+from typing import Any, Dict, List, Optional
 
 
 class MemoryEntry:
     """记忆条目的完整定义"""
 
-    def __init__(self,
-                 memory_id: str,
-                 content: str,
-                 memory_type: str = "episodic",
-                 tags: List[str] = None,
-                 confidence: float = 1.0,
-                 expiry: Optional[datetime] = None):
+    def __init__(
+        self,
+        memory_id: str,
+        content: str,
+        memory_type: str = "episodic",
+        tags: List[str] = None,
+        confidence: float = 1.0,
+        expiry: Optional[datetime] = None,
+    ):
         self.id = memory_id
         self.content = content
         self.type = memory_type
@@ -50,17 +52,17 @@ tags: {json.dumps(self.tags)}
         return frontmatter + self.content
 
     @classmethod
-    def from_markdown(cls, content: str, memory_id: str) -> 'MemoryEntry':
+    def from_markdown(cls, content: str, memory_id: str) -> "MemoryEntry":
         """从 Markdown 解析"""
         import yaml
 
-        parts = content.split('---')
+        parts = content.split("---")
         if len(parts) < 3:
             # 没有 frontmatter，创建默认项
             return cls(memory_id, content)
 
         frontmatter_str = parts[1]
-        body = '---'.join(parts[2:]).strip()
+        body = "---".join(parts[2:]).strip()
 
         # 安全解析 YAML，处理可能的解析错误
         try:
@@ -71,9 +73,9 @@ tags: {json.dumps(self.tags)}
 
         # 安全提取 metadata 字段，处理类型转换错误
         try:
-            expiry_raw = metadata.get('expiry') if metadata else None
+            expiry_raw = metadata.get("expiry") if metadata else None
             expiry = None
-            if expiry_raw and expiry_raw != 'never':
+            if expiry_raw and expiry_raw != "never":
                 if isinstance(expiry_raw, datetime):
                     expiry = expiry_raw
                 else:
@@ -85,17 +87,17 @@ tags: {json.dumps(self.tags)}
             entry = cls(
                 memory_id=memory_id,
                 content=body,
-                memory_type=metadata.get('type', 'episodic') if metadata else 'episodic',
-                tags=metadata.get('tags', []) if metadata else [],
-                confidence=metadata.get('confidence', 1.0) if metadata else 1.0,
-                expiry=expiry
+                memory_type=metadata.get("type", "episodic") if metadata else "episodic",
+                tags=metadata.get("tags", []) if metadata else [],
+                confidence=metadata.get("confidence", 1.0) if metadata else 1.0,
+                expiry=expiry,
             )
 
-            entry.version = metadata.get('version', 1) if metadata else 1
+            entry.version = metadata.get("version", 1) if metadata else 1
 
             # 安全解析时间戳
             try:
-                created_at_raw = metadata.get('created_at') if metadata else None
+                created_at_raw = metadata.get("created_at") if metadata else None
                 if isinstance(created_at_raw, datetime):
                     entry.created_at = created_at_raw
                 elif created_at_raw:
@@ -104,7 +106,7 @@ tags: {json.dumps(self.tags)}
                 entry.created_at = datetime.now()
 
             try:
-                modified_raw = metadata.get('last_modified') if metadata else None
+                modified_raw = metadata.get("last_modified") if metadata else None
                 if isinstance(modified_raw, datetime):
                     entry.last_modified = modified_raw
                 elif modified_raw:
@@ -112,13 +114,13 @@ tags: {json.dumps(self.tags)}
             except (ValueError, TypeError):
                 entry.last_modified = datetime.now()
 
-            entry.modified_by = metadata.get('modified_by', 'unknown') if metadata else 'unknown'
+            entry.modified_by = metadata.get("modified_by", "unknown") if metadata else "unknown"
 
             return entry
         except Exception as e:
             print(f"Error parsing metadata for {memory_id}: {e}")
             # 返回带默认值的条目
-            return cls(memory_id, body, memory_type='episodic')
+            return cls(memory_id, body, memory_type="episodic")
 
 
 class MemoryStore:
@@ -139,7 +141,7 @@ class MemoryStore:
 
     def _init_type_dirs(self):
         """初始化类型子目录"""
-        for mem_type in ['user', 'feedback', 'project', 'reference', 'episodic']:
+        for mem_type in ["user", "feedback", "project", "reference", "episodic"]:
             (self.types_dir / mem_type).mkdir(exist_ok=True)
 
     def _get_path(self, memory_id: str, memory_type: str) -> Path:
@@ -154,26 +156,25 @@ class MemoryStore:
 
             # 版本控制：创建备份
             if path.exists():
-                backup_path = path.with_suffix('.bak')
+                backup_path = path.with_suffix(".bak")
                 path.rename(backup_path)
 
             # 写入新内容
-            path.write_text(entry.to_markdown(), encoding='utf-8')
+            path.write_text(entry.to_markdown(), encoding="utf-8")
 
             return True
         except Exception as e:
             print(f"Error saving memory {entry.id}: {e}")
             return False
 
-    async def load(self, memory_id: str,
-                   memory_type: str = 'episodic') -> Optional[MemoryEntry]:
+    async def load(self, memory_id: str, memory_type: str = "episodic") -> Optional[MemoryEntry]:
         """加载记忆条目"""
         try:
             path = self._get_path(memory_id, memory_type)
             if not path.exists():
                 return None
 
-            content = path.read_text(encoding='utf-8')
+            content = path.read_text(encoding="utf-8")
             return MemoryEntry.from_markdown(content, memory_id)
         except Exception as e:
             print(f"Error loading memory {memory_id}: {e}")
@@ -185,10 +186,9 @@ class MemoryStore:
         if not type_dir.exists():
             return []
 
-        return [f.stem for f in type_dir.glob('*.md')]
+        return [f.stem for f in type_dir.glob("*.md")]
 
-    async def delete(self, memory_id: str,
-                     memory_type: str = 'episodic') -> bool:
+    async def delete(self, memory_id: str, memory_type: str = "episodic") -> bool:
         """删除记忆条目"""
         try:
             path = self._get_path(memory_id, memory_type)
@@ -203,12 +203,12 @@ class MemoryStore:
         """按标签搜索"""
         results = []
 
-        for memory_type in ['user', 'feedback', 'project', 'reference', 'episodic']:
+        for memory_type in ["user", "feedback", "project", "reference", "episodic"]:
             type_dir = self.types_dir / memory_type
             if not type_dir.exists():
                 continue
 
-            for md_file in type_dir.glob('*.md'):
+            for md_file in type_dir.glob("*.md"):
                 entry = await self.load(md_file.stem, memory_type)
                 if entry and tag in entry.tags:
                     results.append(entry)
@@ -220,12 +220,12 @@ class MemoryStore:
         count = 0
         now = datetime.now()
 
-        for memory_type in ['user', 'feedback', 'project', 'reference', 'episodic']:
+        for memory_type in ["user", "feedback", "project", "reference", "episodic"]:
             type_dir = self.types_dir / memory_type
             if not type_dir.exists():
                 continue
 
-            for md_file in type_dir.glob('*.md'):
+            for md_file in type_dir.glob("*.md"):
                 entry = await self.load(md_file.stem, memory_type)
                 if entry and entry.expiry and entry.expiry < now:
                     await self.delete(entry.id, memory_type)

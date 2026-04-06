@@ -5,13 +5,25 @@ mini_harness/runtime/engine.py
 
 import asyncio
 import uuid
-from typing import AsyncIterator, Optional, List
+from typing import AsyncIterator, List, Optional
 
-from mini_harness.runtime.models import Message, AgentState, TextBlock, ToolUseBlock, ToolResultBlock
 from mini_harness.runtime.events import (
-    Event, AgentStartEvent, TurnStartEvent, ErrorEvent,
-    TextResponseEvent, ToolExecuteEvent, ToolResultEvent,
-    TurnEndEvent, AgentEndEvent
+    AgentEndEvent,
+    AgentStartEvent,
+    ErrorEvent,
+    Event,
+    TextResponseEvent,
+    ToolExecuteEvent,
+    ToolResultEvent,
+    TurnEndEvent,
+    TurnStartEvent,
+)
+from mini_harness.runtime.models import (
+    AgentState,
+    Message,
+    TextBlock,
+    ToolResultBlock,
+    ToolUseBlock,
 )
 
 
@@ -39,16 +51,11 @@ class RuntimeEngine:
             response = await self._infer(state)
 
             if response is None:
-                yield ErrorEvent(metadata={
-                    "error": "Inference failed",
-                    "turn": turn
-                })
+                yield ErrorEvent(metadata={"error": "Inference failed", "turn": turn})
                 break
 
             state.add_message(response)
-            yield TextResponseEvent(metadata={
-                "text": response.get_text()[:200]
-            })
+            yield TextResponseEvent(metadata={"text": response.get_text()[:200]})
 
             # 处理工具调用
             tool_calls = response.get_tool_calls()
@@ -56,19 +63,20 @@ class RuntimeEngine:
             if tool_calls:
                 tool_results = []
                 for tool_use in tool_calls:
-                    yield ToolExecuteEvent(metadata={
-                        "tool_name": tool_use.name,
-                        "tool_id": tool_use.id
-                    })
+                    yield ToolExecuteEvent(
+                        metadata={"tool_name": tool_use.name, "tool_id": tool_use.id}
+                    )
 
                     result = await self._execute_tool(tool_use)
                     tool_results.append(result)
 
-                    yield ToolResultEvent(metadata={
-                        "tool_id": tool_use.id,
-                        "is_error": result.is_error,
-                        "content_length": len(result.content)
-                    })
+                    yield ToolResultEvent(
+                        metadata={
+                            "tool_id": tool_use.id,
+                            "is_error": result.is_error,
+                            "content_length": len(result.content),
+                        }
+                    )
 
                 # 添加工具结果到状态
                 for result in tool_results:
@@ -77,16 +85,15 @@ class RuntimeEngine:
                 # 没有工具调用，循环结束
                 break
 
-            yield TurnEndEvent(metadata={
-                "turn_number": turn,
-                "has_tool_calls": bool(tool_calls)
-            })
+            yield TurnEndEvent(metadata={"turn_number": turn, "has_tool_calls": bool(tool_calls)})
 
-        yield AgentEndEvent(metadata={
-            "session_id": session_id,
-            "turn_count": state.current_turn,
-            "final_response": state.messages[-1].get_text()[:200]
-        })
+        yield AgentEndEvent(
+            metadata={
+                "session_id": session_id,
+                "turn_count": state.current_turn,
+                "final_response": state.messages[-1].get_text()[:200],
+            }
+        )
 
     async def _infer(self, state: AgentState) -> Optional[Message]:
         """模拟推理：返回模拟的 Assistant 消息"""
@@ -97,18 +104,17 @@ class RuntimeEngine:
 
         if "bash" in user_text.lower() or "command" in user_text.lower():
             # 建议执行 bash 命令
-            return Message.assistant([
-                TextBlock(text="I'll help you execute a bash command."),
-                ToolUseBlock(
-                    name="bash_exec",
-                    input={"command": "echo 'Hello from MiniHarness'"}
-                )
-            ])
+            return Message.assistant(
+                [
+                    TextBlock(text="I'll help you execute a bash command."),
+                    ToolUseBlock(
+                        name="bash_exec", input={"command": "echo 'Hello from MiniHarness'"}
+                    ),
+                ]
+            )
         else:
             # 直接回复
-            return Message.assistant([
-                TextBlock(text=f"You asked: {user_text}. How can I help?")
-            ])
+            return Message.assistant([TextBlock(text=f"You asked: {user_text}. How can I help?")])
 
     async def _execute_tool(self, tool_use: ToolUseBlock) -> ToolResultBlock:
         """执行工具"""
@@ -117,7 +123,7 @@ class RuntimeEngine:
                 tool_use_id=tool_use.id,
                 content="Tool registry not configured",
                 is_error=True,
-                error_type="ToolRegistryError"
+                error_type="ToolRegistryError",
             )
 
         tool = self.tool_registry.get(tool_use.name)
@@ -127,20 +133,13 @@ class RuntimeEngine:
                 tool_use_id=tool_use.id,
                 content=f"Tool '{tool_use.name}' not found",
                 is_error=True,
-                error_type="ToolNotFoundError"
+                error_type="ToolNotFoundError",
             )
 
         try:
             result = await tool.call(tool_use.input)
-            return ToolResultBlock(
-                tool_use_id=tool_use.id,
-                content=result,
-                is_error=False
-            )
+            return ToolResultBlock(tool_use_id=tool_use.id, content=result, is_error=False)
         except Exception as e:
             return ToolResultBlock(
-                tool_use_id=tool_use.id,
-                content=str(e),
-                is_error=True,
-                error_type=type(e).__name__
+                tool_use_id=tool_use.id, content=str(e), is_error=True, error_type=type(e).__name__
             )
