@@ -1,8 +1,8 @@
-# 附录 A：术语表
+## 附录 A：术语表
 
 本术语表收录全书涉及的技术术语，按字母排序。中文术语标注中英对照。
 
-## A
+### A
 
 **Agent**（智能体）：能够感知环境、自主决策和执行行动的自治系统。本书特指基于LLM的工具调用Agent。
 
@@ -10,7 +10,7 @@
 
 **Always-On Assistant**（持久化助手）：长期在线的Agent，能跨会话维持状态和目标。OpenClaw的Heartbeat模式是其实现。
 
-## C
+### C
 
 **Capability**（能力/功能）：智能体能执行的原子操作或工具。MCP中用schema定义。
 
@@ -20,7 +20,7 @@
 
 **Composed Tool**（复合工具）：由多个基础工具组合而成的高层工具。
 
-## D
+### D
 
 **Dangerous Patterns**：Claude Code 中的危险命令检测模块，包含多个禁止命令的黑名单。
 
@@ -28,7 +28,7 @@
 
 **Dynamic Tool Discovery**（动态工具发现）：运行时查询和发现可用工具，而非启动时静态加载。MCP 规范（2025-11-25 版本）已支持。
 
-## E
+### E
 
 **E2E Testing**（端到端测试）：测试完整工作流，从用户输入到最终输出。
 
@@ -36,25 +36,25 @@
 
 **Execution Harness**（执行驾驭层）：本书的核心概念，包含LLM、工具定义、执行引擎、安全防护、评估系统。
 
-## G
+### G
 
 **GAIA**：由 Meta、Hugging Face 等机构研究者开发的通用 AI 助手基准，三个难度等级，约 466 个任务。
 
 **Guardrail**（护栏）：执行前对工具调用的检查机制，防止危险操作。包括危险命令检测、约束检查、超时强制。
 
-## H
+### H
 
 **Harness**（驾驭）：本书的核心概念。Harness 一词意为“驾驭”，原指骑手用以驾驭烈马的缰绳和鞍具系统。在本书中，指包裹在大模型外围、将其推理能力转化为可靠可控生产级系统的完整工程基础设施。
 
 **Heartbeat**（心跳）：OpenClaw的自驱模式，定期检查待办事项并执行。
 
-## I
+### I
 
 **Interoperability**（互操作性）：不同框架和系统之间的兼容性和协作能力。
 
 **Injection Attack**（注入攻击）：通过恶意输入改变系统行为的攻击。包括提示注入、路径穿越等。
 
-## L
+### L
 
 **LangChain**：开源智能体框架，提供工具调用、记忆管理、链式推理等功能。
 
@@ -64,7 +64,7 @@
 
 **Long-term Memory**（长期记忆）：跨会话的持久化记忆，与短期上下文对比。
 
-## M
+### M
 
 **MCP**（Model Context Protocol）：Anthropic 发起、现由 Linux Foundation 托管的工具和 LLM 交互的开放标准协议。最新规范（2025-11-25 版本）支持动态能力协商和 Streamable HTTP 传输等特性。
 
@@ -72,19 +72,19 @@
 
 **Multi-Agent System**（多Agent系统）：多个智能体协作完成任务的系统。
 
-## N
+### N
 
 **NIST**：美国国家标准技术研究院，2026年发起AI Agent标准化倡议。
 
 **Null Hypothesis**（零假设）：统计测试中的默认假设，用于验证改进是否显著。
 
-## O
+### O
 
 **OpenClaw**：开源自驱型智能体框架（前身为 Clawdbot），特色是 Heartbeat 模式和 SOUL.md 行为约束。由 Peter Steinberger 创建，非 Anthropic 内部项目。
 
 **Orchestration**（编排）：多工具或多智能体的协调和控制。
 
-## P
+### P
 
 **Pareto Frontier**（帕累托前沿）：多目标优化中，无法同时改进所有目标的最优解集合。
 
@@ -94,7 +94,7 @@
 
 **Prompt Injection**（提示注入）：通过恶意输入改变LLM的行为，使其执行非预期操作。
 
-## R
+### R
 
 **Regression Test**（回归测试）：确保新改动不会导致已有功能性能下降的测试。
 
@@ -102,7 +102,7 @@
 
 **Retrieval-Augmented Generation**（检索增强生成）：结合信息检索和文本生成的方法。
 
-## S
+### S
 
 **Sandbox**（沙箱）：隔离执行环境，限制工具调用的破坏范围。分为进程级、容器级、VM级。
 
@@ -114,7 +114,7 @@
 
 **SWE-Bench**：软件工程基准，包含2294个真实GitHub问题，用于评估代码修改能力。
 
-## T
+### T
 
 **Tool**（工具）：Agent可调用的原子操作，包括API调用、文件操作、代码执行等。
 
@@ -126,25 +126,25 @@
 
 **Trajectory-level Evaluation**（轨迹级评估）：评估工具调用序列的效率（最优性比、错误恢复率等）。
 
-## U
+### U
 
 **Unicode Normalization**（Unicode规范化）：统一Unicode字符的多种表示形式，防止基于Unicode的路径穿越。
 
 **URL Encoding**（URL编码）：将特殊字符编码为%xx形式，可能被利用进行路径穿越。
 
-## W
+### W
 
 **WebArena**：CMU 研究者开发的网页自动化基准，包含 812 个现实网站任务。
 
 **Whitelist**（白名单）：允许的操作或资源列表。相比黑名单更安全。
 
-## Y
+### Y
 
 **YOLO Mode**：Claude Code 中的非正式称呼，指使用 `--dangerously-skip-permissions` 标志跳过所有权限检查的模式。注意与 Auto Mode（使用 ML 分类器自动决策）不同。
 
 **Auto Mode Classifier**：Claude Code 中约 52KB 的 ML 分类器模块，用于在 Auto Mode 下评估工具调用的风险并自动决策是否批准。
 
-## Z
+### Z
 
 **Zero-Knowledge Proof**（零知识证明）：证明某个陈述真实，而无需披露具体信息。在Agent安全中用于验证工具输出。
 

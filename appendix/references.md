@@ -1,10 +1,10 @@
-# 附录 B：参考文献
+## 附录 B：参考文献
 
 本附录列举全书涉及的学术论文、技术文档和开源项目。按主题分类。
 
-## 学术论文与研究
+### 学术论文与研究
 
-### 智能体基准与评估
+#### 智能体基准与评估
 
 1. **GAIA: A Benchmark for General AI Assistants**
 
@@ -30,7 +30,7 @@
    - https://arxiv.org/abs/2308.03688
    - 跨 8 个领域的多类别基准任务
 
-### 提示词工程与优化
+#### 提示词工程与优化
 
 5. **Chain-of-Thought Prompting Elicits Reasoning in Large Language Models**
 
@@ -44,7 +44,7 @@
    - https://arxiv.org/abs/2210.03629
    - 推理与行动结合的智能体框架原理
 
-### 安全性与对抗性
+#### 安全性与对抗性
 
 7. **Adversarial Attacks on Deep Learning Systems for User Identification based on Motion Sensors**
 
@@ -56,14 +56,14 @@
    - 2023
    - 系统分析提示注入攻击向量
 
-### 多智能体系统
+#### 多智能体系统
 
 9. **Agent: An Open-source Framework for Autonomous Large Language Model Agents**
 
    - Various, 2023
    - 多智能体协作的架构和通信协议
 
-### 长期记忆与推理
+#### 长期记忆与推理
 
 10. **In-Context Learning and Induction Heads**
 
@@ -71,9 +71,9 @@
     - https://arxiv.org/abs/2209.11895
     - 理解LLM如何利用上下文进行学习
 
-## 技术文档与规范
+### 技术文档与规范
 
-### Anthropic官方文档
+#### Anthropic官方文档
 
 11. **Claude API Documentation**
 
@@ -92,7 +92,7 @@
     - Anthropic, 2026
     - Harness框架特定文档，含权限、路径校验、护栏细节
 
-### 国际标准
+#### 国际标准
 
 14. **NIST AI Agent Standards Initiative**
 
@@ -105,7 +105,7 @@
     - IEEE, 2024
     - 自主系统的行为、安全、可靠性标准
 
-### 开源框架文档
+#### 开源框架文档
 
 16. **LangChain Documentation**
 
@@ -125,9 +125,9 @@
     - https://microsoft.github.io/autogen
     - 多智能体框架和对话工程
 
-## 开源项目与工具
+### 开源项目与工具
 
-### 智能体框架
+#### 智能体框架
 
 19. **OpenClaw**（开源）
 
@@ -159,7 +159,7 @@
     - https://github.com/OpenGVLab/AgentLego
     - 开源，工具集成框架
 
-### 可观测性与评估
+#### 可观测性与评估
 
 25. **Langfuse**
 
@@ -181,7 +181,7 @@
     - https://prometheus.io
     - 开源时序数据库，指标收集与告警
 
-### 安全工具
+#### 安全工具
 
 29. **OWASP Top 10 for LLM Applications & Agentic Applications**
 
@@ -198,9 +198,9 @@
     - https://pytest.org
     - Python标准测试框架
 
-## 行业报告
+### 行业报告
 
-### LangChain官方报告
+#### LangChain官方报告
 
 32. **State of AI Intelligent Agents in Production**
 
@@ -208,16 +208,16 @@
     - 57%的组织已在生产运行智能体系统
     - 智能体工程的成熟度和挑战分析
 
-### Gartner魔力象限
+#### Gartner魔力象限
 
 33. **Magic Quadrant for Generative AI Development Platforms**
 
     - Gartner, 2024
     - 智能体框架和工具的市场定位和评估
 
-## 社区资源
+### 社区资源
 
-### 官方社区
+#### 官方社区
 
 34. **Anthropic Discord Community**
 
@@ -234,7 +234,7 @@
     - https://www.nist.gov/artificial-intelligence
     - AI 安全研究和标准制定
 
-### 学习资源
+#### 学习资源
 
 37. **Anthropic Blog**
 
@@ -254,21 +254,21 @@
 
     - Medium出版物，定期发布智能体工程文章
 
-## 推荐阅读路径
+### 推荐阅读路径
 
-### 初学者
+#### 初学者
 
 - 从GAIA、WebArena论文了解智能体基准
 - 阅读Claude API文档掌握基础
 - 学习LangChain快速上手开发
 
-### 进阶
+#### 进阶
 
 - 研究ReAct论文理解推理框架
 - 深入MCP规范和实现
 - 学习安全防护（OWASP、Bandit等）
 
-### 专家
+#### 专家
 
 - 跟踪MCP 2.0和NIST标准进展
 - 研究多智能体系统和涌现行为
