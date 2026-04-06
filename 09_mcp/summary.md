@@ -46,8 +46,8 @@
 
 **选择决策**：
 
-- 本地开发/单机 →**stdio**
-- 网络部署/多Client →**Streamable HTTP**（MCP 2025年3月标准）
+- 本地开发/单机 → **stdio**
+- 网络部署/多Client → **Streamable HTTP**（MCP 2025年3月标准）
 
 **连接管理**：
 
