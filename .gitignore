@@ -41,4 +41,12 @@ Thumbs.db
 AUDIT_*.md
 AUDIT_*.txt
 *_AUDIT_*.md
+QUALITY_SCAN_*.md
+README_QUALITY_SCAN*.md
+quality_scan*.json
+quality_scan*.py
+check_bold_spacing.py
+check_headers.py
+commits.bundle
+mcp_cache/
 .git.old/
