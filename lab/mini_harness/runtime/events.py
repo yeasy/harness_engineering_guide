@@ -5,7 +5,7 @@ mini_harness/runtime/events.py
 
 from dataclasses import dataclass, field
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import AsyncIterator, Any, Dict
 import json
 
@@ -24,7 +24,7 @@ class EventType(Enum):
 @dataclass
 class Event:
     event_type: EventType
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_json(self) -> str:
