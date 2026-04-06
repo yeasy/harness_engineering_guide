@@ -15,33 +15,9 @@
    - Claude Code（单模型绑定）：适合深度优化和特性集成
 3. **故障转移机制**：熔断器 + 备用链路，透明切换，无感于上层应用
 
-**架构图 7-1**：
+**架构图**（同图 7-1）：
 
-```mermaid
-graph TD
-    A["User Request"] --> B["ModelSelectionEngine"]
-    B --> C["Provider Interface"]
-    C --> D["<b>CircuitBreaker</b><br/>(healthy check)"]
-    D --> E["Primary Provider"]
-    D --> F["Fallback-1 Provider"]
-    D --> G["Fallback-2 Provider"]
-    D --> H["Circuit Open"]
-    E --> Success["Success"]
-    F --> Success
-    G --> Success
-    H --> Error["Error"]
-
-    style A fill:#e8f4f8,stroke:#4a90a4,stroke-width:2px,color:#000000
-    style B fill:#e8f4f8,stroke:#4a90a4,stroke-width:2px,color:#000000
-    style C fill:#e8f4f8,stroke:#4a90a4,stroke-width:2px,color:#000000
-    style D fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
-    style E fill:#e8f4e8,stroke:#4a9044,stroke-width:2px,color:#000000
-    style F fill:#e8f4e8,stroke:#4a9044,stroke-width:2px,color:#000000
-    style G fill:#e8f4e8,stroke:#4a9044,stroke-width:2px,color:#000000
-    style H fill:#f4e8e8,stroke:#904a4a,stroke-width:2px,color:#000000
-    style Success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000000
-    style Error fill:#ffcccc,stroke:#c62828,stroke-width:2px,color:#000000
-```
+详见第 7.1 节的模型抽象层架构设计。
 
 ### 7.2 结构化输出解析与校验
 
@@ -54,21 +30,9 @@ graph TD
    - 流式：增量解析，事件驱动，支持实时反馈
 3. **Pydantic 校验**：在解析后立即进行参数验证
 
-**解析管道流程 7-2**：
+**解析管道流程**（同图 7-2）：
 
-```mermaid
-graph TD
-    A["Raw API Response"] --> B["<b>Parser.parse_response()</b><br/>or<br/>StreamingParser.process_event()"]
-    B --> C["<b>ParsedMessage</b><br/>(content_blocks,<br/>stop_reason,<br/>tokens_used)"]
-    C --> D["ToolCallValidator.validate()"]
-    D --> E["<b>✓ Validated</b><br/>Structured Output"]
-
-    style A fill:#f4e8e8,stroke:#904a4a,stroke-width:2px,color:#000000
-    style B fill:#e8f4f8,stroke:#4a90a4,stroke-width:2px,color:#000000
-    style C fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
-    style D fill:#e8f4f8,stroke:#4a90a4,stroke-width:2px,color:#000000
-    style E fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000000
-```
+输出解析的关键步骤包括：解析原始API响应、构建类型安全的消息对象、验证工具调用参数。完整流程请参考第 7.2 节。
 
 ### 7.3 输出质量门控与过滤
 
@@ -85,27 +49,9 @@ graph TD
 
 2. **一票否决制**：任何一层失败即阻止执行
 
-**门控流程图 7-3**：
+**门控流程图**（同图 7-3）：
 
-```mermaid
-graph TD
-    A["Tool Call"] --> B["<b>格式检查</b><br/>✓"]
-    B --> C["<b>工具存在</b><br/>✓"]
-    C --> D["<b>参数类型</b><br/>✓"]
-    D --> E["<b>范围检查</b><br/>✓"]
-    E --> F["<b>业务规则</b><br/>✓"]
-    F --> G["<b>权限检查</b><br/>✓"]
-    G --> H["✓ Execute Tool"]
-
-    style A fill:#f4e8e8,stroke:#904a4a,stroke-width:2px,color:#000000
-    style B fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
-    style C fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
-    style D fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
-    style E fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
-    style F fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
-    style G fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
-    style H fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000000
-```
+详见第 7.3 节的质量门控多层验证流程设计。
 
 ### 7.4 幻觉检测与工具调用验证
 
@@ -125,33 +71,9 @@ graph TD
    - 参数幻觉 → 安全风险 + 数据泄露
    - 事实幻觉 → 级联失败 + 用户困惑
 
-**检测流程图 7-4**：
+**检测流程图**（同图 7-4）：
 
-```mermaid
-graph TD
-    A["Tool Call"] --> B["Tool Name Check"]
-    B --> C{Found?}
-    C -->|No| D["<b>Hallucination Detected</b><br/>Suggest: Did you mean X?"]
-    C -->|Yes| E["Parameter Range Check"]
-    E --> F{Valid?}
-    F -->|No| G["<b>Hallucination Detected</b><br/>Suggest: Valid range is 1-100"]
-    F -->|Yes| H["<b>Fact Check</b><br/>Knowledge Base"]
-    H --> I{True?}
-    I -->|No| J["<b>Hallucination Detected</b><br/>Suggest: Use endpoint /api/v2"]
-    I -->|Yes| K["✓ Execute"]
-
-    style A fill:#f4e8e8,stroke:#904a4a,stroke-width:2px,color:#000000
-    style B fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
-    style C fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
-    style E fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
-    style F fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
-    style H fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
-    style I fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
-    style D fill:#ffcccc,stroke:#c62828,stroke-width:2px,color:#000000
-    style G fill:#ffcccc,stroke:#c62828,stroke-width:2px,color:#000000
-    style J fill:#ffcccc,stroke:#c62828,stroke-width:2px,color:#000000
-    style K fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000000
-```
+详见第 7.4 节的幻觉检测三层防线设计。
 
 ### 7.5 推理预算与思考过程管理
 
