@@ -21,7 +21,7 @@ class QualityToolRegistry:
     def __init__(self):
         self.tools = {}
 
-    def register(self, name: str, handler, schema):
+    def register(self, name: str, handler, schema) -> None:
         self.tools[name] = {
             "handler": handler,
             "schema": schema,
@@ -31,7 +31,7 @@ class QualityToolRegistry:
     def is_tool_available(self, name: str) -> bool:
         return name in self.tools and self.tools[name]["enabled"]
 
-    def get_tool_schema(self, name: str):
+    def get_tool_schema(self, name: str) -> Optional[Any]:
         return self.tools.get(name, {}).get("schema")
 
 

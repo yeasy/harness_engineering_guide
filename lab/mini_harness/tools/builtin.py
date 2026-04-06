@@ -2,51 +2,14 @@
 mini_harness/tools/builtin.py - Built-in tools and execution pipeline
 """
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Dict, Any, Optional
 import subprocess
 import time
 import os
 
-
-# ============ Tool Base Class and Results ============
-
-@dataclass
-class ToolResult:
-    """工具执行结果"""
-    success: bool
-    content: str
-    execution_time: float
-    error_type: Optional[str] = None
-
-
-class Tool(ABC):
-    """工具基类"""
-
-    @abstractmethod
-    async def call(self, params: Dict[str, Any]) -> ToolResult:
-        """执行工具"""
-        pass
-
-    @abstractmethod
-    def name(self) -> str:
-        """工具名称"""
-        pass
-
-    @abstractmethod
-    def description(self) -> str:
-        """工具描述"""
-        pass
-
-    @abstractmethod
-    def input_schema(self) -> Dict[str, Any]:
-        """输入 Schema"""
-        pass
-
-    def check_permissions(self, context: Any) -> bool:
-        """权限检查"""
-        return True
+from mini_harness.core.tool import Tool, ToolResult
 
 
 # ============ Built-in Tools ============

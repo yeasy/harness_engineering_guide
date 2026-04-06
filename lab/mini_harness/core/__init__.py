@@ -9,6 +9,7 @@ from .message import (
 )
 from .tool import (
     Tool,
+    ToolResult,
     ToolDefinition,
     ToolInputSchema
 )
@@ -31,6 +32,7 @@ __all__ = [
     "ToolResultMessage",
     # Tool
     "Tool",
+    "ToolResult",
     "ToolDefinition",
     "ToolInputSchema",
     # Agent

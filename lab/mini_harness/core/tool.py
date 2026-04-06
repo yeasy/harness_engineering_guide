@@ -1,8 +1,17 @@
 """工具接口定义"""
 
-from typing import Protocol, Optional, Any, Dict, List
+from typing import Optional, Any, Dict, List
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
+
+
+@dataclass
+class ToolResult:
+    """工具执行结果"""
+    success: bool
+    content: str
+    execution_time: float
+    error_type: Optional[str] = None
 
 
 @dataclass
@@ -39,30 +48,34 @@ class ToolDefinition:
 class Tool(ABC):
     """工具的抽象基类"""
 
-    def __init__(self, definition: ToolDefinition):
-        self.definition = definition
-
-    @property
-    def name(self) -> str:
-        return self.definition.name
-
-    @property
-    def description(self) -> str:
-        return self.definition.description
-
     @abstractmethod
-    async def execute(self, **kwargs) -> Any:
+    async def call(self, params: Dict[str, Any]) -> "ToolResult":
         """执行工具"""
         pass
+
+    @abstractmethod
+    def name(self) -> str:
+        """工具名称"""
+        pass
+
+    @abstractmethod
+    def description(self) -> str:
+        """工具描述"""
+        pass
+
+    @abstractmethod
+    def input_schema(self) -> Dict[str, Any]:
+        """输入 Schema"""
+        pass
+
+    def check_permissions(self, context: Any) -> bool:
+        """权限检查"""
+        return True
 
     def get_definition_dict(self) -> Dict[str, Any]:
         """获取工具定义的字典格式"""
         return {
-            "name": self.definition.name,
-            "description": self.definition.description,
-            "input_schema": {
-                "type": self.definition.input_schema.type,
-                "properties": self.definition.input_schema.properties,
-                "required": self.definition.input_schema.required
-            }
+            "name": self.name(),
+            "description": self.description(),
+            "input_schema": self.input_schema()
         }

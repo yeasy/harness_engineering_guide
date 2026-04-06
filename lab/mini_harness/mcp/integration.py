@@ -95,12 +95,15 @@ class ToolSchemaCache:
 
         # 磁盘缓存
         disk_path = self._get_disk_path(schema.server_id, schema.tool_name)
-        os.makedirs(os.path.dirname(disk_path), exist_ok=True)
+        try:
+            os.makedirs(os.path.dirname(disk_path), exist_ok=True)
 
-        with open(disk_path, 'w') as f:
-            data = asdict(schema)
-            data['cached_at'] = schema.cached_at.isoformat()
-            json.dump(data, f, indent=2)
+            with open(disk_path, 'w') as f:
+                data = asdict(schema)
+                data['cached_at'] = schema.cached_at.isoformat()
+                json.dump(data, f, indent=2)
+        except (IOError, OSError) as e:
+            print(f"[ToolSchemaCache] Warning: Failed to write schema to disk: {e}")
 
     def _get_disk_path(self, server_id: str, tool_name: str) -> str:
         """生成磁盘缓存路径"""

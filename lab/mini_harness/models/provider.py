@@ -19,7 +19,7 @@ _anthropic = None
 _openai = None
 
 
-def _get_anthropic():
+def _get_anthropic() -> Any:
     global _anthropic
     if _anthropic is None:
         import anthropic
@@ -27,7 +27,7 @@ def _get_anthropic():
     return _anthropic
 
 
-def _get_openai():
+def _get_openai() -> Any:
     global _openai
     if _openai is None:
         import openai
@@ -94,7 +94,7 @@ class CircuitBreaker:
         self.success_threshold_half_open = success_threshold_half_open
         self.success_count_half_open = 0
 
-    def record_failure(self):
+    def record_failure(self) -> None:
         """记录失败"""
         self.failure_count += 1
         self.success_count_half_open = 0
@@ -103,7 +103,7 @@ class CircuitBreaker:
             self.state = "open"
             self.last_failure_time = time.time()
 
-    def record_success(self):
+    def record_success(self) -> None:
         """记录成功"""
         if self.state == "closed":
             self.failure_count = 0
@@ -367,7 +367,7 @@ class ModelSelectionEngine:
         self.breakers = {}
         self._init_breakers()
 
-    def _init_breakers(self):
+    def _init_breakers(self) -> None:
         for config in [self.primary] + self.fallback_chain:
             self.breakers[config.model_id] = CircuitBreaker()
 
@@ -380,10 +380,10 @@ class ModelSelectionEngine:
                 return create_provider(config)
         raise Exception("所有模型不可用")
 
-    def mark_failure(self, model_id: str):
+    def mark_failure(self, model_id: str) -> None:
         if model_id in self.breakers:
             self.breakers[model_id].record_failure()
 
-    def mark_success(self, model_id: str):
+    def mark_success(self, model_id: str) -> None:
         if model_id in self.breakers:
             self.breakers[model_id].record_success()
