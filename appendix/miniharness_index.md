@@ -427,7 +427,7 @@ graph TD
     B --> H["<b>基础设施层</b><br/>文件系统、数据库、外部API、容器运行时"]
 
     style A fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
-    style B fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    style B fill:#fff3e0,stroke:#ffb74d,stroke-width:2px
     style C fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
     style G fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
     style H fill:#fce4ec,stroke:#c2185b,stroke-width:2px

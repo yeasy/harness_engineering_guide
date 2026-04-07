@@ -84,7 +84,7 @@ flowchart TD
     B --> C["<b>第11章：可靠架构</b><br/>如何在失败时保持"]
 
     style A fill:#e3f2fd
-    style B fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+    style B fill:#fff9c4,stroke:#ffb74d,stroke-width:2px
     style C fill:#e8f5e9
 ```
 

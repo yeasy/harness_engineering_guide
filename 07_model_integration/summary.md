@@ -115,13 +115,13 @@ graph TD
     style A fill:#e8f4f8,stroke:#4a90a4,stroke-width:2px,color:#000000
     style B fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
     style C fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000000
-    style D fill:#fff8c4,stroke:#f57f17,stroke-width:2px,color:#000000
+    style D fill:#fff8c4,stroke:#ffb74d,stroke-width:2px,color:#000000
     style E fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
     style F fill:#e8f4f8,stroke:#4a90a4,stroke-width:2px,color:#000000
     style G fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
     style I fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
     style J fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
-    style L fill:#fff8c4,stroke:#f57f17,stroke-width:2px,color:#000000
+    style L fill:#fff8c4,stroke:#ffb74d,stroke-width:2px,color:#000000
 ```
 
 ### 7.6 实战：MiniHarness 输出治理层

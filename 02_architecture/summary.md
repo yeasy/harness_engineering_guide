@@ -203,7 +203,7 @@ flowchart TD
     E -->|生产部署、可靠性、安全加固| F["完成"]
 
     style A fill:#e8f5e9
-    style B fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+    style B fill:#fff9c4,stroke:#ffb74d,stroke-width:2px
     style C fill:#e8f5e9
     style D fill:#e3f2fd
     style E fill:#f3e5f5

@@ -92,7 +92,7 @@ flowchart TD
     style A fill:#e8f5e9,stroke:#388e3c
     style B fill:#e3f2fd,stroke:#1565c0
     style C fill:#f3e5f5,stroke:#7b1fa2
-    style D fill:#fff3e0,stroke:#e65100
+    style D fill:#fff3e0,stroke:#ffb74d
 ```
 
 关键组件对应关系：
