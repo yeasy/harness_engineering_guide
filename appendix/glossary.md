@@ -10,6 +10,8 @@
 
 **Always-On Assistant**（持久化助手）：长期在线的Agent，能跨会话维持状态和目标。OpenClaw的Heartbeat模式是其实现。
 
+**Auto Mode Classifier**：Claude Code 中约 52KB 的 ML 分类器模块，用于在 Auto Mode 下评估工具调用的风险并自动决策是否批准。
+
 ### C
 
 **Capability**(能力/功能)：智能体能执行的原子操作或工具。MCP中用schema定义。
@@ -50,9 +52,9 @@
 
 ### I
 
-**Interoperability**（互操作性）：不同框架和系统之间的兼容性和协作能力。
-
 **Injection Attack**（注入攻击）：通过恶意输入改变系统行为的攻击。包括提示注入、路径穿越等。
+
+**Interoperability**（互操作性）：不同框架和系统之间的兼容性和协作能力。
 
 ### L
 
@@ -116,11 +118,11 @@
 
 ### T
 
+**Token Efficiency**(Token效率)：完成任务所消耗的Token数，越少越高效。
+
 **Tool**（工具）：Agent可调用的原子操作，包括API调用、文件操作、代码执行等。
 
 **Tool Calling**（工具调用）：LLM根据推理结果调用工具的过程。
-
-**Token Efficiency**(Token效率)：完成任务所消耗的Token数，越少越高效。
 
 **Trajectory**（轨迹）：智能体执行过程中的工具调用序列。
 
@@ -141,8 +143,6 @@
 ### Y
 
 **YOLO Mode**：Claude Code 中的非正式称呼，指使用 `--dangerously-skip-permissions` 标志跳过所有权限检查的模式。注意与 Auto Mode(使用 ML 分类器自动决策)不同。
-
-**Auto Mode Classifier**：Claude Code 中约 52KB 的 ML 分类器模块，用于在 Auto Mode 下评估工具调用的风险并自动决策是否批准。
 
 ### Z
 
