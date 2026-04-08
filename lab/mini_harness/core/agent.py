@@ -23,7 +23,7 @@ class ExecutionResult:
     status: str  # "success", "error", "timeout"
     output: Optional[str] = None
     error: Optional[str] = None
-    metadata: Dict[str, Any] = None
+    metadata: Optional[Dict[str, Any]] = None
 
     def __post_init__(self):
         if self.metadata is None:
@@ -40,7 +40,7 @@ class Agent:
     system_prompt: str
     model_name: str = "claude-sonnet-4-20250514"
     max_steps: int = 10
-    metadata: Dict[str, Any] = None
+    metadata: Optional[Dict[str, Any]] = None
 
     def __post_init__(self):
         if self.metadata is None:

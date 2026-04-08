@@ -5,7 +5,6 @@ mini_harness/tools/builtin.py - Built-in tools and execution pipeline
 import os
 import subprocess
 import time
-from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 

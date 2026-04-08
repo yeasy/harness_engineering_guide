@@ -20,8 +20,8 @@ class ToolInputSchema:
     """工具输入schema"""
 
     type: str = "object"
-    properties: Dict[str, Dict[str, Any]] = None
-    required: List[str] = None
+    properties: Optional[Dict[str, Dict[str, Any]]] = None
+    required: Optional[List[str]] = None
 
     def __post_init__(self):
         if self.properties is None:
@@ -37,9 +37,9 @@ class ToolDefinition:
     name: str
     description: str
     input_schema: ToolInputSchema
-    permissions_required: List[str] = None
+    permissions_required: Optional[List[str]] = None
     timeout_seconds: int = 30
-    tags: List[str] = None
+    tags: Optional[List[str]] = None
 
     def __post_init__(self):
         if self.permissions_required is None:
