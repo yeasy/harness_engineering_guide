@@ -1,5 +1,7 @@
 ## 附录 D：MiniHarness 架构与代码
 
+MiniHarness是本书示例系统，通过完整的代码实现展示Harness框架的核心设计原理。
+
 ### 项目概览
 
 [MiniHarness](../lab/README.md)是本书示例系统，展示了一个完整的Harness框架。从架构、工具调用、优化、安全、评估等全方位覆盖。
