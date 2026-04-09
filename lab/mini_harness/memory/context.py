@@ -3,7 +3,6 @@ mini_harness/memory/context.py - Context assembly and memory requirements
 """
 
 import asyncio
-from typing import Any, Dict, List, Optional
 
 from mini_harness.memory.storage import MemoryStore
 
@@ -106,6 +105,23 @@ class ContextAssembler:
 
         return "## References\n\n" + "\n\n".join(sections)
 
+    async def _gather_recent_history(self) -> str:
+        """收集最近的对话历史"""
+        # 查询episodic类型的记忆，这些通常包含对话历史
+        histories = await self.memory_store.list_by_type("episodic")
+
+        if not histories:
+            return ""
+
+        sections = []
+        # 仅获取最近的10条历史记录
+        for hist_id in histories[-10:]:
+            entry = await self.memory_store.load(hist_id, "episodic")
+            if entry:
+                sections.append(entry.content)
+
+        return "## Recent History\n\n" + "\n\n".join(sections)
+
     async def _gather_feedback(self) -> str:
         """收集反馈记录"""
         feedbacks = await self.memory_store.list_by_type("feedback")
@@ -138,6 +154,9 @@ class ContextAssembler:
         if requirement.needs_project_context:
             tasks.append(("project", self._gather_project_context()))
 
+        if requirement.needs_recent_history:
+            tasks.append(("recent_history", self._gather_recent_history()))
+
         if requirement.needs_references:
             tasks.append(("references", self._gather_references()))
 
@@ -151,7 +170,7 @@ class ContextAssembler:
             gathered[key] = result
 
         # 按优先级排序，限制总大小
-        priority_order = ["user_profile", "project", "references", "feedback"]
+        priority_order = ["user_profile", "project", "recent_history", "references", "feedback"]
         assembled_parts = []
         current_tokens = 0
 

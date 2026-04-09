@@ -1,3 +1,5 @@
+"""Quality assurance for tool calls: validation, hallucination detection, and schema registry."""
+
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, List, Optional

@@ -3,9 +3,8 @@ mini_harness/runtime/engine.py
 智能体循环实现
 """
 
-import asyncio
 import uuid
-from typing import AsyncIterator, List, Optional
+from typing import AsyncIterator, Optional
 
 from mini_harness.runtime.events import (
     AgentEndEvent,

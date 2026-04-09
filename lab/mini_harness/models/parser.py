@@ -1,3 +1,5 @@
+"""Parser for API responses: extracts text, tool calls, and thinking blocks into structured content."""
+
 import json
 from dataclasses import dataclass
 from enum import Enum

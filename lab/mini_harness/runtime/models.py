@@ -3,7 +3,6 @@ mini_harness/runtime/models.py
 基础数据模型定义
 """
 
-import json
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone

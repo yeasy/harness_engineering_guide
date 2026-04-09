@@ -1,10 +1,9 @@
 # orchestration.py
-# MiniHarness编排引擎实现
+"""Orchestration engine: manages task execution, workflows, and state machines with subagent support."""
 
 import asyncio
 import json
 import uuid
-from abc import ABC, abstractmethod
 from collections import deque
 from contextvars import ContextVar
 from dataclasses import asdict, dataclass, field

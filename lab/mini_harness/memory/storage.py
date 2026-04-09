@@ -3,12 +3,10 @@ mini_harness/memory/storage.py - Memory storage layer
 """
 
 import asyncio
-import hashlib
 import json
-import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 
 class MemoryEntry:

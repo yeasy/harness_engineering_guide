@@ -321,6 +321,42 @@ class TestContextAssembler:
         assert tokens > 0
         assert isinstance(tokens, int)
 
+    @pytest.mark.asyncio
+    async def test_assemble_with_recent_history(self, tmp_dir):
+        """Test that needs_recent_history is properly handled in assemble()"""
+        store = MemoryStore(tmp_dir)
+
+        # Add some episodic history
+        await store.save(MemoryEntry("hist-1", "We discussed the API design.", memory_type="episodic"))
+        await store.save(MemoryEntry("hist-2", "Decided to use REST endpoints.", memory_type="episodic"))
+
+        assembler = ContextAssembler(store)
+        # Query that triggers needs_recent_history
+        result = await assembler.assemble("What did we discuss before?")
+
+        # The result should contain the recent history
+        assert "Recent History" in result
+        assert "API design" in result or "REST endpoints" in result
+
+    @pytest.mark.asyncio
+    async def test_gather_recent_history(self, tmp_dir):
+        """Test _gather_recent_history method directly"""
+        store = MemoryStore(tmp_dir)
+        assembler = ContextAssembler(store)
+
+        # No history yet
+        result = await assembler._gather_recent_history()
+        assert result == ""
+
+        # Add some episodic entries
+        await store.save(MemoryEntry("h1", "First memory", memory_type="episodic"))
+        await store.save(MemoryEntry("h2", "Second memory", memory_type="episodic"))
+
+        result = await assembler._gather_recent_history()
+        assert "Recent History" in result
+        assert "First memory" in result
+        assert "Second memory" in result
+
 
 # ============ ConsolidationEngine Tests ============
 

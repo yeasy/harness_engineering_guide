@@ -1,5 +1,5 @@
 # mcp_integration.py
-# MiniHarness的MCP集成模块
+"""MCP integration for MiniHarness: tool schema caching, registry, and LLM adapter."""
 
 import asyncio
 import hashlib
