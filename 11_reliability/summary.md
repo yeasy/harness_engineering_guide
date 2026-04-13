@@ -100,8 +100,8 @@ async def call_tool(tool_name, args):
 ```python
 async def verify_tool_call(tool_name, arguments, result):
     # 1. 用不同的提示词再次查询
-    # 2. 如果结果不一致，标记为低置信度
-    # 3. 如果是高风险操作，申请人工审批
+    # 2. 如果结果不一致,标记为低置信度
+    # 3. 如果是高风险操作,申请人工审批
     pass
 ```
 

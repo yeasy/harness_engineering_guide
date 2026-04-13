@@ -539,7 +539,7 @@ async def test_my_feature():
     pass
 ```
 
-#### 集成新的LLM
+#### 集成新的大语言模型
 
 示例如下：
 

@@ -106,7 +106,7 @@
 - 社区智能体工程文章和讨论
 - 推荐度：参考，更新频率：日
 
-**AI工程化分享**（中文）
+**AI工程化分享** （中文）
 
 - 国内从业者的实践经验分享
 - 推荐度：本地化参考，更新频率：不定
@@ -148,7 +148,7 @@
 
 #### 可观测性工具
 
-**Langfuse**（推荐）
+**Langfuse** （推荐）
 
 - https://langfuse.com
 - LLM应用监控、调试、评估
@@ -216,7 +216,7 @@
 
 #### 安全工具
 
-**Bandit**(Python)
+**Bandit** (Python)
 
 - https://github.com/PyCQA/bandit
 - 危险模式检测
@@ -260,7 +260,7 @@
 
 **Anthropic Claude Issues**
 
-- https://github.com/anthropics/mcp/issues
+- https://github.com/modelcontextprotocol/specification/issues
 - 官方问题追踪和讨论
 - 推荐度：跟踪问题和建议，4星
 
@@ -272,17 +272,17 @@
 
 #### 会议与线下活动
 
-**AI工程化论坛**（中国区）
+**AI工程化论坛** （中国区）
 
 - 不定期举办
 - 推荐度：本地化交流，4星
 
-**Code with Claude**(Anthropic 开发者活动)
+**Code with Claude** (Anthropic 开发者活动)
 
 - Anthropic 官方开发者大会
 - 推荐度：前沿进展分享，5星
 
-**NeurIPS / ICML / ICLR**（学术会议）
+**NeurIPS / ICML / ICLR** （学术会议）
 
 - 年度举办
 - 推荐度：研究前沿，4星

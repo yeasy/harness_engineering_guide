@@ -159,7 +159,7 @@ graph TB
         MemorySystem["<b>记忆系统</b><br/>上下文<br/>组装"]
         ModelIntegration["<b>模型集成</b><br/>推理调用<br/>输出治理"]
 
-        ToolLayer -->|消息流转| CoreEngine["<b>核心：消息流转</b><br/>状态管理<br/>事件驱动"]
+        ToolLayer -->|消息流转| CoreEngine["<b>核心:消息流转</b><br/>状态管理<br/>事件驱动"]
         MemorySystem -->|消息流转| CoreEngine
         ModelIntegration -->|消息流转| CoreEngine
     end

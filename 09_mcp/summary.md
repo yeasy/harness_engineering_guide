@@ -49,7 +49,7 @@
 **选择决策**：
 
 - 本地开发/单机 → **stdio**
-- 网络部署/多Client → **Streamable HTTP**(MCP 2025年3月标准)
+- 网络部署/多Client → **Streamable HTTP** (标准MCP传输方式)
 
 **连接管理**：
 

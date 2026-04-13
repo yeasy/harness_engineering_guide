@@ -129,12 +129,12 @@
 
 #### 智能体框架
 
-19. **OpenClaw**（开源）
+19. **OpenClaw** （开源）
 
     - https://github.com/openclaw/openclaw
     - 由 Peter Steinberger 创建的自驱型智能体框架，支持 Heartbeat 模式、SOUL.md 行为约束
 
-20. **Claude Code**(Anthropic 官方)
+20. **Claude Code** (Anthropic 官方)
 
     - https://github.com/anthropics/claude-code
     - 智能体编码工具，含完整的 Harness 实现（权限、安全、评估功能）
@@ -156,7 +156,7 @@
 
 24. **AgentLego**
 
-    - https://github.com/OpenGVLab/AgentLego
+    - https://github.com/InternLM/agentlego
     - 开源，工具集成框架
 
 #### 可观测性与评估
@@ -188,12 +188,12 @@
     - https://genai.owasp.org/
     - AI 系统的常见安全风险和防护建议，包含 LLM 应用和智能体应用两个 Top 10 列表
 
-30. **Bandit**(Python安全检查)
+30. **Bandit** (Python安全检查)
 
     - https://github.com/PyCQA/bandit
     - 静态分析工具，检测危险模式
 
-31. **pytest**(测试框架)
+31. **pytest** (测试框架)
 
     - https://pytest.org
     - Python标准测试框架

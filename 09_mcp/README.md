@@ -27,7 +27,7 @@ MCP通过统一的协议规范解决了这些问题。现在，一个MCP Server�
 ## 核心问题
 
 1. **MCP协议的设计哲学是什么？** 为什么选择Client/Server模型和三种原语？
-2. **如何在生产环境中可靠地传输MCP消息？**stdio、HTTP、Streamable HTTP的权衡是什么？
+2. **如何在生产环境中可靠地传输MCP消息？** stdio、HTTP、Streamable HTTP的权衡是什么？
 3. **如何开发一个MCP Server？** 什么是必要的，什么是可选的？
 4. **Harness如何高效地集成大量MCP Server？** 动态发现、缓存、权限管理如何设计？
 5. **企业级部署需要哪些考量？** 审计、SSO、网关等。
@@ -95,3 +95,11 @@ Level 5: 实现 - MiniHarness中的完整代码
 - 开源MCP Server示例库
 
 这一章将逐步构建一个深入的MCP工程实践体系，从理论到代码，从协议到生产。
+
+## 本章结构
+
+- 9.1：Harness中的MCP集成设计
+- 9.2：传输层：stdio、HTTP与Streamable HTTP
+- 9.3：MCP服务端开发
+- 9.4：Harness中的MCP集成模式
+- 9.5：实战：为MiniHarness集成MCP
