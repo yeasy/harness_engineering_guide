@@ -6,7 +6,6 @@ Tests for mini_harness.models module:
 """
 
 import time
-from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -14,14 +13,11 @@ from mini_harness.models.parser import ParsedMessage, ResponseParser, TextBlock,
 from mini_harness.models.parser import ToolUseBlock
 from mini_harness.models.parser import ToolUseBlock as ParserToolUseBlock
 from mini_harness.models.provider import CircuitBreaker
-from mini_harness.models.provider import Message as ProviderMessage
 from mini_harness.models.provider import ModelConfig, ModelProviderType, ModelSelectionEngine
 from mini_harness.models.quality import (
     HallucinationDetector,
-    HallucinationResult,
     QualityGate,
     QualityToolRegistry,
-    ValidationReport,
     ValidationResult,
 )
 

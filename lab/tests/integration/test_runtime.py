@@ -5,8 +5,6 @@ Integration tests for mini_harness.runtime module:
 - runtime/events.py: Event types
 """
 
-import asyncio
-
 import pytest
 
 from mini_harness.runtime.engine import RuntimeEngine
@@ -24,9 +22,7 @@ from mini_harness.runtime.events import (
 )
 from mini_harness.runtime.models import (
     AgentState,
-    ContentBlockType,
     Message,
-    MessageRole,
     TextBlock,
     ToolResultBlock,
     ToolUseBlock,

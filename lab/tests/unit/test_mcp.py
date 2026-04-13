@@ -3,9 +3,7 @@ Tests for mini_harness.mcp module:
 - integration.py: ToolSchemaCache, CachedToolSchema, MCPToolRegistry, MCPToolAdapter, MiniHarnessWithMCP
 """
 
-import asyncio
 import json
-import os
 from datetime import datetime, timedelta
 
 import pytest

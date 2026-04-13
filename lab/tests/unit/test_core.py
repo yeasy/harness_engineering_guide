@@ -9,8 +9,6 @@ Tests for mini_harness.core module:
 import json
 from datetime import datetime
 
-import pytest
-
 from mini_harness.core.agent import Agent, AgentState, ExecutionResult
 from mini_harness.core.event import Event, EventType
 from mini_harness.core.message import (

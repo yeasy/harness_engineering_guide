@@ -3,8 +3,6 @@ Tests for mini_harness.orchestration module:
 - engine.py: TaskManager, WorkflowStateMachine, AgentContext, SubAgentFactory, OrchestrationEngine
 """
 
-import asyncio
-
 import pytest
 
 from mini_harness.orchestration.engine import (
@@ -12,10 +10,8 @@ from mini_harness.orchestration.engine import (
     OrchestrationEngine,
     StateDefinition,
     StateType,
-    SubAgent,
     SubAgentFactory,
     TaskDefinition,
-    TaskExecution,
     TaskManager,
     TaskNotification,
     TaskState,

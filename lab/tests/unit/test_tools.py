@@ -4,9 +4,7 @@ Tests for mini_harness.tools module:
 - registry.py: ToolRegistry
 """
 
-import asyncio
 import os
-import tempfile
 
 import pytest
 

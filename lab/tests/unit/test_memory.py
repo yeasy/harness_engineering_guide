@@ -5,7 +5,6 @@ Tests for mini_harness.memory module:
 - consolidation.py: ConsolidationState, ConsolidationEngine
 """
 
-import asyncio
 import os
 from datetime import datetime, timedelta
 
