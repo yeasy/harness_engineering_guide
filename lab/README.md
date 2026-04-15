@@ -71,7 +71,7 @@ python examples/simple_agent.py
 --- Turn 1 ---
 🔧 执行 1 个工具调用:
    → bash_exec({"command": "ls -la && echo '---' && find . -name '*.py' | wc -l"})
-   ← (523 字符)
+   ← （523 字符）
 
 --- Turn 2 ---
 当前目录共有 15 个文件，其中 Python 文件有 29 个。

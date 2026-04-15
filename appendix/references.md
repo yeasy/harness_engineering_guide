@@ -8,7 +8,7 @@
 
 1. **GAIA: A Benchmark for General AI Assistants**
 
-   - Mialon, Fourrier 等(Meta, Hugging Face 等机构)，2023
+   - Mialon, Fourrier 等（Meta, Hugging Face 等机构），2023
    - https://arxiv.org/abs/2311.12983
    - 涵盖三个难度等级的约 466 个任务，用于评估智能体推理和工具使用能力
 
@@ -26,7 +26,7 @@
 
 4. **AgentBench: Evaluating LLMs as Intelligent Agents**
 
-   - Liu 等(Tsinghua University 等)，2023
+   - Liu 等（Tsinghua University 等），2023
    - https://arxiv.org/abs/2308.03688
    - 跨 8 个领域的多类别基准任务
 
@@ -134,7 +134,7 @@
     - https://github.com/openclaw/openclaw
     - 由 Peter Steinberger 创建的自驱型智能体框架，支持 Heartbeat 模式、SOUL.md 行为约束
 
-20. **Claude Code** (Anthropic 官方)
+20. **Claude Code** （Anthropic 官方）
 
     - https://github.com/anthropics/claude-code
     - 智能体编码工具，含完整的 Harness 实现（权限、安全、评估功能）
@@ -188,12 +188,12 @@
     - https://genai.owasp.org/
     - AI 系统的常见安全风险和防护建议，包含 LLM 应用和智能体应用两个 Top 10 列表
 
-30. **Bandit** (Python安全检查)
+30. **Bandit** （Python安全检查）
 
     - https://github.com/PyCQA/bandit
     - 静态分析工具，检测危险模式
 
-31. **pytest** (测试框架)
+31. **pytest** （测试框架）
 
     - https://pytest.org
     - Python标准测试框架
@@ -266,7 +266,7 @@
 
 - 研究ReAct论文理解推理框架
 - 深入MCP规范和实现
-- 学习安全防护(OWASP、Bandit等)
+- 学习安全防护（OWASP、Bandit等）
 
 #### 专家
 

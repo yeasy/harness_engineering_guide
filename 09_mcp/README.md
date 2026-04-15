@@ -62,7 +62,7 @@ Level 5: 实现 - MiniHarness中的完整代码
 
 - **Client/Server模型**：MCP Agent (Client) 与 MCP Server 的异步通信
 - **三种原语**：Tools（可调用的函数）、Resources（可访问的数据）、Prompts（提示词模板）
-- **双向通信**：Server可以向Client发起请求(如approval)
+- **双向通信**：Server可以向Client发起请求（如approval）
 - **流式传输**：支持大型数据的分块传输
 - **Schema缓存**：减少重复的Schema定义和令牌消耗
 - **权限网关**：在Agent和Server间的访问控制和审计
@@ -77,7 +77,7 @@ Level 5: 实现 - MiniHarness中的完整代码
 | Resources | 可访问的数据或内容资源 |
 | Prompts | 预定义的提示词模板 |
 | Schema | 工具/资源/提示词的JSON Schema定义 |
-| Sampling | Server向Client发起的请求(如LLM采样) |
+| Sampling | Server向Client发起的请求（如LLM采样） |
 | Roots | 资源的根目录或基础路径 |
 
 ## 与其他章节的关联

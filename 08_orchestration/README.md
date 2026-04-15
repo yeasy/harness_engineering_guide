@@ -6,7 +6,7 @@ AI Agent的核心竞争力不仅在于单个决策能力，更在于协调多个
 
 ## 核心问题
 
-1. **单Agent如何处理多个不可原子的任务？** Claude Code提供的7种Task类型(local_bash、local_agent、remote_agent等)为分解任务提供了基础。
+1. **单Agent如何处理多个不可原子的任务？** Claude Code提供的7种Task类型（local_bash、local_agent、remote_agent等）为分解任务提供了基础。
 2. **如何定义复杂的工作流逻辑？** Claude Code的Coordinator模式采用Research→Synthesis→Implementation→Verification的四阶段方式；OpenClaw的Lobster引擎使用YAML工作流定义，支持条件分支、循环和错误处理。
 3. **多智能体如何高效协作？** Claude Code提供了Task协调机制，OpenClaw支持多层级Agent组织。
 4. **智能体间如何可靠通信？** 我们需要设计消息传递协议和共享状态管理机制。
