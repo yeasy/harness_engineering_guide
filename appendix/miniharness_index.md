@@ -40,7 +40,6 @@ graph TD
     B --> B3["<b>mini_harness/</b><br/>主包"]
 
     B3 --> B3a["__init__.py"]
-    B3 --> B3b["<b>harness.py</b><br/>核心Harness类第1-2章"]
 
     B3 --> C1["<b>core/</b><br/>核心模块第2章"]
     C1 --> C1a["__init__.py"]
@@ -83,19 +82,19 @@ graph TD
     C7 --> C7a["__init__.py"]
     C7 --> C7b["integration.py"]
 
-    B3 --> C8["<b>observability/</b><br/>可观测性第11章"]
+    B3 --> C8["<b>reliability/</b><br/>可观测性和可靠性第11章"]
     C8 --> C8a["__init__.py"]
     C8 --> C8b["tracing.py"]
-    C8 --> C8c["metrics.py"]
+    C8 --> C8c["monitoring.py"]
     C8 --> C8d["logging.py"]
+    C8 --> C8e["resilience.py"]
 
-    B3 --> C9["<b>safety/</b><br/>安全防护第12章"]
+    B3 --> C9["<b>security/</b><br/>安全防护第12章"]
     C9 --> C9a["__init__.py"]
     C9 --> C9b["permissions.py"]
     C9 --> C9c["path_validator.py"]
     C9 --> C9d["guardrails.py"]
-    C9 --> C9e["sandbox.py"]
-    C9 --> C9f["audit_log.py"]
+    C9 --> C9e["secure_executor.py"]
 
     B3 --> C10["<b>utils/</b><br/>工具函数第10章"]
     C10 --> C10a["__init__.py"]
@@ -262,23 +261,24 @@ graph TD
 
 **代码位置**：第10章完整实现
 
-#### 11. 可观测性
+#### 11. 可观测性和可靠性
 
-`mini_harness/observability/tracing.py`、`mini_harness/observability/metrics.py`、`mini_harness/observability/logging.py`
+`mini_harness/reliability/tracing.py`、`mini_harness/reliability/monitoring.py`、`mini_harness/reliability/logging.py`、`mini_harness/reliability/resilience.py`
 
-**关键类**：`Tracer`、`MetricsCollector`、`Logger`
+**关键类**：`Tracer`、`MonitoringCollector`、`Logger`、`ResilienceManager`
 
 **主要方法**：
 
 - 链路追踪
 - 指标收集
 - 日志记录
+- 可靠性保障
 
 **代码位置**：第11章详细代码实现
 
 #### 12. 权限系统
 
-`mini_harness/safety/permissions.py`
+`mini_harness/security/permissions.py`
 
 **关键类**：
 
@@ -295,7 +295,7 @@ graph TD
 
 #### 13. 路径校验
 
-`mini_harness/safety/path_validator.py`
+`mini_harness/security/path_validator.py`
 
 **关键类**：`PathValidator`
 
@@ -312,7 +312,7 @@ graph TD
 
 #### 14. 护栏框架
 
-`mini_harness/safety/guardrails.py`
+`mini_harness/security/guardrails.py`
 
 **关键类**：
 
@@ -370,23 +370,24 @@ export ANTHROPIC_API_KEY=your_key_here
 
 ```python
 # examples/01_basic_agent.py
-from mini_harness.harness import MiniHarness
+from mini_harness.runtime import RuntimeEngine
+from mini_harness.tools.registry import ToolRegistry
 import asyncio
 
-# 创建Harness实例
-harness = MiniHarness()
+# 创建工具注册表
+registry = ToolRegistry()
+registry.register("read_file", lambda path: open(path).read())
+registry.register("write_file", lambda path, content: open(path, 'w').write(content))
 
-# 注册工具
-harness.register_tool("read_file", lambda path: open(path).read())
-harness.register_tool("write_file", lambda path, content: open(path, 'w').write(content))
+# 创建运行时引擎
+engine = RuntimeEngine(tool_registry=registry)
 
 # 运行Agent
-result = asyncio.run(harness.run(
-    user_message="读取test.txt并分析",
-    max_steps=10
-))
+async def main():
+    async for event in engine.run("读取test.txt并分析"):
+        print(event)
 
-print(result)
+asyncio.run(main())
 ```
 
 #### 运行测试
@@ -439,7 +440,6 @@ graph TD
 
 | 文件 | 对应章节 | 关键概念 |
 |-----|---------|--------|
-| harness.py | 1-2 | Harness 核心定义 |
 | core/message.py | 2 | 消息类型定义 |
 | core/tool.py | 2 | Tool基类定义 |
 | core/agent.py | 2 | Agent定义 |
@@ -459,12 +459,12 @@ graph TD
 | orchestration/engine.py | 8 | 编排引擎 |
 | mcp/integration.py | 9 | MCP集成 |
 | utils/config.py | 10 | 生产化加固 |
-| observability/tracing.py | 11 | 链路追踪 |
-| observability/metrics.py | 11 | 指标收集 |
-| observability/logging.py | 11 | 日志系统 |
-| safety/permissions.py | 12.2 | 权限系统 |
-| safety/path_validator.py | 12.4 | 路径校验 |
-| safety/guardrails.py | 12.3 | 护栏防护 |
+| reliability/tracing.py | 11 | 链路追踪 |
+| reliability/monitoring.py | 11 | 指标收集 |
+| reliability/logging.py | 11 | 日志系统 |
+| security/permissions.py | 12.2 | 权限系统 |
+| security/path_validator.py | 12.4 | 路径校验 |
+| security/guardrails.py | 12.3 | 护栏防护 |
 | tests/ | 13 | 测试框架 |
 
 ### 运行完整测试套件
@@ -521,8 +521,10 @@ class MyCustomTool(Tool):
         # 实现逻辑
         pass
 
-# 在 harness.py 中注册
-harness.register_tool("my_tool", MyCustomTool())
+# 通过工具注册表注册
+from mini_harness.tools.registry import ToolRegistry
+registry = ToolRegistry()
+registry.register("my_tool", MyCustomTool())
 ```
 
 #### 自定义测试
@@ -531,12 +533,17 @@ harness.register_tool("my_tool", MyCustomTool())
 
 ```python
 # 在 tests/ 目录创建 test_custom.py
-from mini_harness.harness import MiniHarness
+from mini_harness.runtime import RuntimeEngine
+from mini_harness.tools.registry import ToolRegistry
+import pytest
 
+@pytest.mark.asyncio
 async def test_my_feature():
-    harness = MiniHarness()
+    registry = ToolRegistry()
+    engine = RuntimeEngine(tool_registry=registry)
     # 自定义测试逻辑
-    pass
+    async for event in engine.run("test input"):
+        pass
 ```
 
 #### 集成新的大语言模型
@@ -545,12 +552,19 @@ async def test_my_feature():
 
 ```python
 # 在 models/ 目录创建 new_llm_provider.py
-from mini_harness.models.provider import ModelProvider
+from mini_harness.models.provider import BaseProvider, ModelConfig, ModelProviderType, ProviderResponse
+from typing import List, Dict, Optional, Generator
 
-class MyLLMProvider(ModelProvider):
-    async def generate(self, prompt, tools):
+class MyLLMProvider(BaseProvider):
+    def complete(self, messages: List, tools: Optional[List[Dict]] = None) -> ProviderResponse:
         # 调用新的LLM
-        pass
+        return ProviderResponse(content="Response", tokens_used=0, model="custom-llm")
+    
+    def stream(self, messages: List, tools: Optional[List[Dict]] = None) -> Generator[str, None, None]:
+        yield "Streamed response"
+    
+    def complete_with_tools(self, messages: List, tools: List[Dict]) -> ProviderResponse:
+        return self.complete(messages, tools=tools)
 ```
 
 ### 性能基准
@@ -560,7 +574,7 @@ class MyLLMProvider(ModelProvider):
 | 操作 | 延迟 | 吞吐量 |
 |-----|-----|-------|
 | 工具调用 | 10-50ms | 100-200 calls/sec |
-| 路径校验 | <1ms (缓存) | 10000+ validations/sec |
+| 路径校验 | <1ms （缓存） | 10000+ validations/sec |
 | 权限决策 | 5-10ms | 1000-2000 decisions/sec |
 | 测试执行 | <100ms | 可实时运行 |
 
