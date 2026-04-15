@@ -67,3 +67,6 @@ commits.bundle
 mcp_cache/
 pytest-cache-files-*
 .git.old/
+lab/find_english_commas.py
+lab/verify_markdown_links.py
+lab/LINK_VERIFICATION_RESULTS.txt
