@@ -2,7 +2,7 @@
 
 import json
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List, Optional, Union
 
 
 @dataclass
@@ -16,7 +16,7 @@ class ToolUseBlock:
     type: str = "tool_use"
     id: str = ""
     name: str = ""
-    input: dict = None
+    input: Optional[dict] = None
 
 
 @dataclass

@@ -226,8 +226,8 @@ graph TD
     E --> E7["<b>mcp/</b><br/>MCP集成第9章"]
     E7 --> E7a["integration.py"]
 
-    E --> E8["<b>safety/</b><br/>安全层第12章"]
-    E --> E9["<b>observability/</b><br/>可观测性第11章"]
+    E --> E8["<b>reliability/</b><br/>可靠性与可观测性第11章"]
+    E --> E9["<b>security/</b><br/>安全防护第12章"]
 
     E --> E10["<b>utils/</b><br/>工具函数"]
     E10 --> E10a["config.py"]
@@ -266,8 +266,8 @@ graph TD
 | `models/` | 第7章：模型集成 | 模型抽象、输出解析、质量门控、熔断器 |
 | `orchestration/` | 第8章：任务编排 | 状态机、任务管理、子智能体 |
 | `mcp/` | 第9章：MCP 集成 | 动态发现、Schema 缓存、工具适配 |
-| `safety/` | 第12章：安全体系 | 权限、路径校验、护栏 |
-| `observability/` | 第11章：可靠性 | 日志、追踪、监控 |
+| `reliability/` | 第11章：可靠性 | 日志、追踪、监控、容错机制 |
+| `security/` | 第12章：安全体系 | 权限、路径校验、护栏、安全执行 |
 
 ## 许可证
 

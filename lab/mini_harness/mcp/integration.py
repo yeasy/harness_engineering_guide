@@ -4,10 +4,13 @@
 import asyncio
 import hashlib
 import json
+import logging
 import os
 from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
+
+logger = logging.getLogger(__name__)
 
 # ============================================================================
 # 1. MCP Client基础类（复用第9.2节）
@@ -48,7 +51,7 @@ class CachedToolSchema:
             tool_name=tool_dict["name"],
             description=tool_dict.get("description", ""),
             input_schema=tool_dict.get("inputSchema", {}),
-            cached_at=datetime.now(),
+            cached_at=datetime.now(timezone.utc),
             schema_hash=schema_hash,
         )
 
@@ -69,7 +72,7 @@ class ToolSchemaCache:
         # 尝试内存缓存
         if cache_key in self.memory_cache:
             cached = self.memory_cache[cache_key]
-            if datetime.now() - cached.cached_at < timedelta(seconds=self.ttl_seconds):
+            if datetime.now(timezone.utc) - cached.cached_at < timedelta(seconds=self.ttl_seconds):
                 return cached
 
         # 尝试磁盘缓存
@@ -84,8 +87,8 @@ class ToolSchemaCache:
                     # 晋升到内存缓存
                     self.memory_cache[cache_key] = cached
                     return cached
-            except Exception:
-                pass
+            except (IOError, OSError, ValueError, KeyError, json.JSONDecodeError) as e:
+                logger.warning("Failed to load cached schema from %s: %s", disk_path, e)
 
         return None
 

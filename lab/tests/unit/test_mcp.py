@@ -4,7 +4,7 @@ Tests for mini_harness.mcp module:
 """
 
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -29,7 +29,7 @@ class TestCachedToolSchema:
             tool_name="read_file",
             description="Read a file",
             input_schema={"type": "object"},
-            cached_at=datetime.now(),
+            cached_at=datetime.now(timezone.utc),
             schema_hash="abc123",
         )
         assert schema.server_id == "test-server"
@@ -74,7 +74,7 @@ class TestToolSchemaCache:
             tool_name="tool1",
             description="A tool",
             input_schema={"type": "object"},
-            cached_at=datetime.now(),
+            cached_at=datetime.now(timezone.utc),
             schema_hash="hash1",
         )
         await cache.put(schema)
@@ -98,7 +98,7 @@ class TestToolSchemaCache:
             tool_name="persistent",
             description="Persistent tool",
             input_schema={"type": "object"},
-            cached_at=datetime.now(),
+            cached_at=datetime.now(timezone.utc),
             schema_hash="hash_p",
         )
         await cache1.put(schema)
@@ -117,7 +117,7 @@ class TestToolSchemaCache:
             tool_name="expiring",
             description="Will expire",
             input_schema={},
-            cached_at=datetime.now() - timedelta(seconds=10),  # Already old
+            cached_at=datetime.now(timezone.utc) - timedelta(seconds=10),  # Already old
             schema_hash="h",
         )
         # Put directly in memory cache (bypassing normal put which sets fresh cached_at)

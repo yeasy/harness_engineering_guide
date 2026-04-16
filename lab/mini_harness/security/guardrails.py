@@ -1,7 +1,7 @@
 """Command guardrails for dangerous command detection."""
 
 import shlex
-from typing import List, Optional, Set
+from typing import Dict, List, Optional, Set
 
 
 class DangerousCommandDetector:
@@ -15,7 +15,7 @@ class DangerousCommandDetector:
     }
 
     # Commands allowed only with specific subcommands
-    RESTRICTED_COMMANDS: dict[str, Set[str]] = {
+    RESTRICTED_COMMANDS: Dict[str, Set[str]] = {
         "apt": {"list", "search", "show"},
         "yum": {"list", "search"},
         "pip": {"list", "show"},
