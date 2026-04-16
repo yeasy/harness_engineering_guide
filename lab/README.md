@@ -65,11 +65,11 @@ python examples/simple_agent.py
 
 运行效果：
 
-🤖 Agent 启动（模型: deepseek-chat，工具: 3 个）
-📝 用户: 列出当前目录的文件，并统计 Python 文件数量
+🤖 Agent 启动（模型：deepseek-chat，工具：3 个）
+📝 用户：列出当前目录的文件，并统计 Python 文件数量
 
 --- Turn 1 ---
-🔧 执行 1 个工具调用:
+🔧 执行 1 个工具调用：
    → bash_exec({"command": "ls -la && echo '---' && find . -name '*.py' | wc -l"})
    ← （523 字符）
 

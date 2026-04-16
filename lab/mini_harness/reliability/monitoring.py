@@ -6,7 +6,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 
 class AlertLevel(str, Enum):
@@ -224,7 +224,11 @@ class MonitoringSystem:
                     alert_type=f"tool_{tool_name}_unreliable",
                     level=AlertLevel.WARNING,
                     value=tool_metrics.failure_rate,
-                    message=f"Tool '{tool_name}' failure rate is {tool_metrics.failure_rate:.2%}, threshold is {self.tool_failure_threshold:.2%}",
+                    message=(
+                        f"Tool '{tool_name}' failure rate is "
+                        f"{tool_metrics.failure_rate:.2%}, threshold is "
+                        f"{self.tool_failure_threshold:.2%}"
+                    ),
                     metadata={"tool_name": tool_name},
                 )
                 alerts.append(alert)

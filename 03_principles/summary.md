@@ -208,7 +208,7 @@ graph TD
 # 第2章已经定义了ToolRegistry
 # 第3章应该添加权限检查
 
-from mini_harness.safety.permissions import PermissionManager
+from mini_harness.security.permissions import PermissionDecisionEngine
 
 class ToolRegistry:
     async def call_tool(self, tool_name, params):
@@ -227,7 +227,7 @@ class ToolRegistry:
 ```python
 # 添加审计日志
 
-from mini_harness.observability.logging import StructuredLogger
+from mini_harness.reliability.logging import StructuredLogger
 
 class ToolExecutor:
     async def execute(self, tool_name, params):
@@ -254,17 +254,22 @@ class ToolExecutor:
 ```python
 # 添加权限等级管理
 
-from mini_harness.safety.trust_levels import TrustLevel, TrustEvaluator
+from mini_harness.security.permissions import PermissionLevel
 
 class AgentTrustManager:
     async def update_trust_level(self, agent_id):
         # 评估是否应该提升信任等级
-        new_level = await TrustEvaluator.evaluate_promotion(
-            agent_id,
-            await self.get_agent_history(agent_id)
-        )
+        # 根据agent历史记录调整权限等级
+        history = await self.get_agent_history(agent_id)
+        
+        # 简化的信任提升逻辑 - 实际实现可更复杂
+        if history.success_rate > 0.95:
+            new_level = PermissionLevel.AUTO
+        else:
+            new_level = PermissionLevel.ASK
 
-        if new_level and new_level > current_level:
+        current_level = await self.get_agent_level(agent_id)
+        if new_level and new_level.value > current_level.value:
             await self.promote_agent(agent_id, new_level)
 ```
 
@@ -275,27 +280,33 @@ class AgentTrustManager:
 ```python
 # 添加重试和降级机制
 
-from mini_harness.runtime.resilience import RetryStrategy, FallbackStrategy
+from mini_harness.reliability.resilience import RetryConfig, CircuitBreaker
 
 class ResilientToolExecutor:
     async def execute(self, tool_name, params):
-        # 重试策略
-        retry = RetryStrategy(max_retries=3)
+        # 重试配置
+        retry_config = RetryConfig(max_attempts=3, initial_delay=1.0)
 
         try:
-            return await retry.execute_with_retry(
-                self.tool_registry.call_tool,
-                tool_name,
-                params
-            )
+            # 使用重试机制执行工具调用
+            attempt = 1
+            while attempt <= retry_config.max_attempts:
+                try:
+                    return await self.tool_registry.call_tool(tool_name, params)
+                except Exception as e:
+                    if not retry_config.should_retry(e):
+                        raise
+                    if attempt >= retry_config.max_attempts:
+                        raise
+                    delay = retry_config.calculate_delay(attempt)
+                    await asyncio.sleep(delay)
+                    attempt += 1
         except Exception as e:
             # 降级到缓存结果或默认值
-            fallback = FallbackStrategy([
-                lambda: self.cached_results.get(tool_name),
-                lambda: self.default_value_for(tool_name)
-            ])
-
-            return await fallback.execute_with_fallback()
+            cached = self.cached_results.get(tool_name)
+            if cached:
+                return cached
+            return self.default_value_for(tool_name)
 ```
 
 ### 评估清单

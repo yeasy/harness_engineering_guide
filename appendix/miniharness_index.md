@@ -559,10 +559,10 @@ class MyLLMProvider(BaseProvider):
     def complete(self, messages: List, tools: Optional[List[Dict]] = None) -> ProviderResponse:
         # 调用新的LLM
         return ProviderResponse(content="Response", tokens_used=0, model="custom-llm")
-    
+
     def stream(self, messages: List, tools: Optional[List[Dict]] = None) -> Generator[str, None, None]:
         yield "Streamed response"
-    
+
     def complete_with_tools(self, messages: List, tools: List[Dict]) -> ProviderResponse:
         return self.complete(messages, tools=tools)
 ```

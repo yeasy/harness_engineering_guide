@@ -5,7 +5,7 @@ mini_harness/reliability/logging.py - Structured logging system
 import json
 import uuid
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Optional
 
 
 class StructuredLogger:

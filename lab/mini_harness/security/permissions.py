@@ -1,8 +1,8 @@
 """Permission system for MiniHarness security module."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, Set, Tuple
+from typing import Set, Tuple
 
 
 class PermissionLevel(Enum):
