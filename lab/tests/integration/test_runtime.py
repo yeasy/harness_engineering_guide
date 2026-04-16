@@ -245,3 +245,33 @@ class TestRuntimeEngine:
         tool_results = [e for e in events if e.event_type == EventType.TOOL_RESULT]
         if tool_results:
             assert tool_results[0].metadata.get("is_error") is True
+
+    @pytest.mark.asyncio
+    async def test_tool_result_unpacked_for_registered_tool(self):
+        """Regression test: when a registered Tool returns a ToolResult dataclass,
+        the engine must unpack it so that ToolResultBlock.content is a str.
+
+        Previously, engine._execute_tool wrapped the ToolResult object as the
+        'content' field, causing `len(result.content)` on line 76 of engine.py
+        to fail with TypeError on the happy path (real tool usage).
+        """
+        from mini_harness.tools.builtin import BashTool
+        from mini_harness.tools.registry import ToolRegistry
+
+        registry = ToolRegistry()
+        registry.register(BashTool())
+        engine = RuntimeEngine(tool_registry=registry)
+
+        events = []
+        async for event in engine.run("Run a bash command"):
+            events.append(event)
+
+        # Must reach AgentEnd without crashing
+        assert any(e.event_type == EventType.AGENT_END for e in events)
+
+        # Tool result events must have numeric content_length (i.e. content was a str)
+        tool_results = [e for e in events if e.event_type == EventType.TOOL_RESULT]
+        assert tool_results, "expected at least one tool result event"
+        for ev in tool_results:
+            assert isinstance(ev.metadata.get("content_length"), int)
+            assert ev.metadata.get("is_error") is False

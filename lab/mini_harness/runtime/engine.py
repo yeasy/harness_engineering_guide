@@ -137,7 +137,17 @@ class RuntimeEngine:
 
         try:
             result = await tool.call(tool_use.input)
-            return ToolResultBlock(tool_use_id=tool_use.id, content=result, is_error=False)
+            # Tool.call() 返回的是 ToolResult 数据类（见 core/tool.py）
+            # 将其映射到 ToolResultBlock（携带字符串 content + 错误元数据）
+            if hasattr(result, "success") and hasattr(result, "content"):
+                return ToolResultBlock(
+                    tool_use_id=tool_use.id,
+                    content=str(result.content),
+                    is_error=not result.success,
+                    error_type=getattr(result, "error_type", None),
+                )
+            # 向后兼容：若工具直接返回字符串，按成功处理
+            return ToolResultBlock(tool_use_id=tool_use.id, content=str(result), is_error=False)
         except Exception as e:
             return ToolResultBlock(
                 tool_use_id=tool_use.id, content=str(e), is_error=True, error_type=type(e).__name__
