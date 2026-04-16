@@ -83,9 +83,9 @@ response = await client.send_request("tools/list")
 
 **关键代码框架**：
 
-```python
+```text
 class MCPServerBase:
-    def register_tool(name, description, input_schema, handler):
+    def register_tool(name, description, input_schema, handler)
     def register_resource(uri, name, description, mime_type, reader)
     def register_prompt(name, description, arguments, generator)
     async def handle_request(request)

@@ -58,9 +58,6 @@ graph TD
     C3 --> C3a["__init__.py"]
     C3 --> C3b["registry.py"]
     C3 --> C3c["builtin.py"]
-    C3 --> C3d["bash_tool.py"]
-    C3 --> C3e["file_tool.py"]
-    C3 --> C3f["web_tool.py"]
 
     B3 --> C4["<b>memory/</b><br/>记忆层第6章"]
     C4 --> C4a["__init__.py"]
@@ -99,26 +96,23 @@ graph TD
     B3 --> C10["<b>utils/</b><br/>工具函数第10章"]
     C10 --> C10a["__init__.py"]
     C10 --> C10b["config.py"]
-    C10 --> C10c["logging.py"]
-    C10 --> C10d["error_handling.py"]
 
     B --> D["<b>examples/</b><br/>使用示例"]
-    D --> D1["01_basic_agent.py"]
-    D --> D2["02_file_analysis.py"]
-    D --> D3["03_secure_execution.py"]
-    D --> D4["04_e2e_test.py"]
-    D --> D5["05_monitoring.py"]
+    D --> D1["simple_agent.py"]
 
     B --> E["<b>tests/</b><br/>测试套件第13章"]
     E --> E1["conftest.py"]
-    E --> E2["test_unit.py"]
-    E --> E3["test_integration.py"]
-    E --> E4["test_e2e.py"]
-    E --> E5["test_security.py"]
-    E --> E6["test_performance.py"]
-    E --> E7["fixtures/"]
-    E7 --> E7a["sample_data/"]
-    E7 --> E7b["mock_llm.py"]
+    E --> E2["unit/"]
+    E2 --> E2a["test_core.py"]
+    E2 --> E2b["test_tools.py"]
+    E2 --> E2c["test_memory.py"]
+    E2 --> E2d["test_models.py"]
+    E2 --> E2e["test_orchestration.py"]
+    E2 --> E2f["test_mcp.py"]
+    E2 --> E2g["test_reliability.py"]
+    E2 --> E2h["test_security.py"]
+    E --> E3["integration/"]
+    E3 --> E3a["test_runtime.py"]
 
     style A fill:#e3f2fd
     style B3 fill:#fff3e0
@@ -369,15 +363,17 @@ export ANTHROPIC_API_KEY=your_key_here
 代码如下：
 
 ```python
-# examples/01_basic_agent.py
+# examples/simple_agent.py （实际文件）
 from mini_harness.runtime import RuntimeEngine
 from mini_harness.tools.registry import ToolRegistry
+from mini_harness.tools.builtin import BashTool, FileReadTool, FileWriteTool
 import asyncio
 
-# 创建工具注册表
+# 创建工具注册表并注册内置工具
 registry = ToolRegistry()
-registry.register("read_file", lambda path: open(path).read())
-registry.register("write_file", lambda path, content: open(path, 'w').write(content))
+registry.register(BashTool())
+registry.register(FileReadTool())
+registry.register(FileWriteTool())
 
 # 创建运行时引擎
 engine = RuntimeEngine(tool_registry=registry)
@@ -399,8 +395,8 @@ asyncio.run(main())
 pytest tests/ -v
 
 # 运行特定测试类别
-pytest tests/test_security.py -v        # 安全测试
-pytest tests/test_performance.py -v     # 性能测试
+pytest tests/unit/test_security.py -v        # 安全单元测试
+pytest tests/integration/ -v                 # 集成测试
 
 # 生成覆盖率报告
 pytest tests/ --cov=mini_harness --cov-report=html
@@ -448,8 +444,7 @@ graph TD
 | runtime/models.py | 4 | 模型管理 |
 | runtime/events.py | 4 | 运行时事件 |
 | tools/registry.py | 5 | 工具注册和管理 |
-| tools/builtin.py | 5 | 工具实现 |
-| 各 tool 文件 | 5 | 工具层设计 |
+| tools/builtin.py | 5 | 内置工具实现（BashTool、FileReadTool、FileWriteTool、ExecutionPipeline） |
 | memory/storage.py | 6 | 记忆存储 |
 | memory/context.py | 6 | 上下文管理 |
 | memory/consolidation.py | 6 | 记忆整合 |
@@ -481,19 +476,13 @@ echo "Installing dependencies..."
 pip install -e .
 
 echo "Running unit tests..."
-pytest tests/test_unit.py -v
+pytest tests/unit/ -v
 
 echo "Running integration tests..."
-pytest tests/test_integration.py -v
+pytest tests/integration/ -v
 
-echo "Running E2E tests..."
-pytest tests/test_e2e.py -v
-
-echo "Running security tests..."
-pytest tests/test_security.py -v
-
-echo "Running performance benchmarks..."
-pytest tests/test_performance.py -v
+echo "Running security unit tests..."
+pytest tests/unit/test_security.py -v
 
 echo "Generating coverage report..."
 pytest tests/ --cov=mini_harness --cov-report=html
