@@ -195,7 +195,7 @@ graph TD
 
 **Claude Code** （官方智能体工具）：
 
-- 优势：Claude 特性深度集成(Extended Thinking)、高效的工具调用
+- 优势：Claude 特性深度集成(Adaptive Thinking)、高效的工具调用
 - 劣势：受限于单一模型
 - 本章学习：推理预算、消息规范化的最佳实践
 
