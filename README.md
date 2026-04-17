@@ -20,7 +20,7 @@ Harness 一词意为“驾驭”，原指骑手用以驾驭烈马的缰绳和鞍
 
 全书以三个具有代表性的生产级开源系统作为核心参考案例，贯穿始终：
 
-**[OpenAI Codex](https://github.com/openai/codex)** 代表 **性能型智能体** 的 Harness 范式。它以 Rust 为核心语言（占比约 95%），通过系统级编程实现了高性能、内存安全的 Harness 架构。其特色包括：基于 Starlark 的执行策略引擎(execpolicy)、平台原生沙箱（Linux 上使用 Bubblewrap + seccomp，macOS 使用 sandbox-exec，Windows 使用 restricted-token）、skills/core-skills 技能模块体系、OpenTelemetry 原生可观测性（otel 模块），以及内置 MCP 服务端支持等。
+**[OpenAI Codex](https://github.com/openai/codex)** 代表 **性能型智能体** 的 Harness 范式。它以 Rust 为核心实现语言，通过系统级编程实现了高性能、内存安全的 Harness 架构。其特色包括：基于 Starlark 的执行策略引擎(execpolicy)、平台原生沙箱（Linux 上使用 Bubblewrap + seccomp，macOS 使用 sandbox-exec，Windows 使用 restricted-token）、skills/core-skills 技能模块体系、OpenTelemetry 原生可观测性（otel 模块），以及内置 MCP 服务端支持等。
 
 **[Claude Code](https://github.com/anthropics/claude-code)** 代表 **任务型智能体** 的 Harness 范式。它围绕终端交互场景构建了一套精密的工程系统，约 50 万行 TypeScript 代码实现了完整的 Harness 架构。其特色包括：基于异步生成器的 Agent 循环引擎(QueryEngine)、24+内置工具的类型安全注册体系、分层权限系统（含 ML 自动审批）、autoDream 记忆整合引擎、40+ 编译时特性门控、以及 Coordinator 多智能体编排模式等。
 
@@ -30,7 +30,7 @@ Harness 一词意为“驾驭”，原指骑手用以驾驭烈马的缰绳和鞍
 
 | 维度 | Codex（性能型） | Claude Code（任务型） | OpenClaw（自驱型） |
 |------|--------------------|-----------------------|--------------------|
-| 核心语言 | Rust(~95%) | TypeScript（~50万行） | TypeScript |
+| 核心语言 | Rust | TypeScript（~50万行） | TypeScript |
 | 触发方式 | 用户指令驱动 | 用户指令驱动 | Heartbeat 自主唤醒 + 定时任务 |
 | 运行模式 | 按需启动、完成即停 | 按需启动、完成即停 | 持续后台运行 |
 | 工具生态 | skills + core-skills 模块 + MCP | 24+ 内置工具 + MCP 扩展 | ClawHub 技能注册中心（13000+预构建skills） |
