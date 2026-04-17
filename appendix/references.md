@@ -9,7 +9,7 @@
 1. **GAIA: A Benchmark for General AI Assistants**
 
    - Mialon, Fourrier 等（Meta, Hugging Face 等机构），2023
-   - https://arxiv.org/abs/2311.12983
+   - https://arxiv.org/abs/2311.12983 | [archive.org](https://web.archive.org/web/*/arxiv.org/abs/2311.12983)
    - 涵盖三个难度等级的约 466 个任务，用于评估智能体推理和工具使用能力
 
 2. **WebArena: A Realistic Web Environment for Building Autonomous Agents**
@@ -21,7 +21,7 @@
 3. **SWE-bench: Can Language Models Resolve Real-world Github Issues?**
 
    - Princeton & OpenAI, 2024
-   - https://arxiv.org/abs/2310.06770
+   - https://arxiv.org/abs/2310.06770 | [archive.org](https://web.archive.org/web/*/arxiv.org/abs/2310.06770)
    - 2294个真实GitHub问题，评估代码理解和修改能力
 
 4. **AgentBench: Evaluating LLMs as Intelligent Agents**
@@ -78,13 +78,13 @@
 11. **Claude API Documentation**
 
     - Anthropic, 2026
-    - https://docs.anthropic.com
+    - https://docs.anthropic.com | [archive.org](https://web.archive.org/web/*/docs.anthropic.com)
     - Claude模型的API使用、限制、最佳实践
 
 12. **Model Context Protocol (MCP) Specification**
 
     - Anthropic 发起，Linux Foundation 托管，2024-2026
-    - https://github.com/modelcontextprotocol/specification
+    - https://github.com/modelcontextprotocol/specification | [archive.org](https://web.archive.org/web/*/github.com/modelcontextprotocol/specification)
     - 工具定义和交互的开放标准协议，最新规范版本 2025-11-25
 
 13. **Claude Code Documentation**
@@ -97,7 +97,7 @@
 14. **NIST AI Agent Standards Initiative**
 
     - NIST CAISI(Center for AI Standards and Innovation)，2026
-    - https://www.nist.gov/caisi/ai-agent-standards-initiative
+    - https://www.nist.gov/caisi/ai-agent-standards-initiative | [archive.org](https://web.archive.org/web/*/nist.gov/caisi/ai-agent-standards-initiative)
     - 美国国家标准与技术研究院发起的 AI 智能体标准化工作，涵盖互操作性和安全等方面
 
 15. **IEEE Standards for Autonomous Systems**

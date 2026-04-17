@@ -10,7 +10,7 @@
 
 **Always-On Assistant** （持久化助手）：长期在线的Agent，能跨会话维持状态和目标。OpenClaw的Heartbeat模式是其实现。
 
-**Auto Mode Classifier**：Claude Code 中约 52KB 的 ML 分类器模块，用于在 Auto Mode 下评估工具调用的风险并自动决策是否批准。
+**Auto Mode Classifier**：Claude Code 中约 50KB 量级的 ML 分类器模块，用于在 Auto Mode 下评估工具调用的风险并自动决策是否批准。
 
 ### C
 
