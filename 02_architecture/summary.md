@@ -131,7 +131,7 @@ flowchart TD
 
 #### OpenAI Codex
 
-- **语言**：Rust(~95%)，60+ Cargo crate 模块化
+- **语言**：Rust（核心语言，具体比例以官方代码库统计为准），60+ Cargo crate 模块化
 - **安全**：execpolicy 策略引擎 + 平台原生沙箱双层防御
 - **上下文**：提示缓存 + 异步压缩，线性成本增长
 - **编排**：Subagent 层级委派，支持 3+ 层深度
