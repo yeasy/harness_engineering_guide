@@ -1,28 +1,38 @@
-## 附录 D：MiniHarness 架构与代码
+## 附录 D：MiniHarness 实战项目
 
-MiniHarness是本书示例系统，通过完整的代码实现展示Harness框架的核心设计原理。
+MiniHarness 是本书配套的实战项目——一个最小但完整的 Agent Harness 系统，使用 Python 实现。源代码位于 `lab/` 目录。
 
 ### 项目概览
 
-[MiniHarness](../lab/README.md)是本书示例系统，展示了一个完整的Harness框架。从架构、工具调用、优化、安全、评估等全方位覆盖。
+MiniHarness 从架构、工具调用、记忆、编排、安全、评估等方面全方位展示 Harness 框架的核心设计原理。通过本项目，读者可以理解 Harness 系统的完整架构，学习安全防护的具体实现，掌握评估框架的搭建，并在此基础上构建生产级系统。
 
-#### 项目目标
+项目特性包括：完整的工具调用框架、多层安全防护（权限、路径校验、护栏）、沙箱隔离支持、全面的评估系统（230 个测试用例）、生产级监控和日志。
 
-通过MiniHarness，读者可以：
+### 工作原理
 
-1. 理解Harness系统的完整架构
-2. 学习安全防护的具体实现
-3. 掌握评估框架的搭建
-4. 在此基础上构建生产级系统
+`examples/simple_agent.py` 实现了一个大约 200 行的完整 Agent，展示了 Harness 的核心循环：
 
-#### 项目特性
+```mermaid
+flowchart TD
+    A["用户输入"] --> B["LLM 推理(流式响应)"]
+    B -->|"返回文本"| C["输出给用户"]
+    B -->|"返回 tool_call"| D["工具执行<br/>bash_exec / file_read / file_write"]
+    D -->|"工具结果反馈"| B
 
-- ✅ 完整的工具调用框架
-- ✅ 多层安全防护（权限、路径校验、护栏）
-- ✅ 沙箱隔离支持
-- ✅ 全面的评估系统
-- ✅ 生产级监控和日志
-- ✅ 完整的测试套件
+    style A fill:#e8f5e9,stroke:#388e3c
+    style B fill:#e3f2fd,stroke:#1565c0
+    style C fill:#f3e5f5,stroke:#7b1fa2
+    style D fill:#fff3e0,stroke:#ffb74d
+```
+
+关键组件对应关系：
+
+| 示例中的代码 | MiniHarness 模块 | 书中章节 |
+|-------------|-----------------|---------|
+| `LLMClient` | `models/provider.py` → `OpenAIProvider` | 第7章 |
+| `ToolRegistry` + `BashTool` | `tools/registry.py` + `tools/builtin.py` | 第5章 |
+| `SimpleAgent.run()` 循环 | `runtime/engine.py` → `RuntimeEngine` | 第4章 |
+| 流式事件输出 | `runtime/events.py` | 第4章 |
 
 ### 目录结构
 
@@ -336,70 +346,113 @@ graph TD
 
 **代码位置**：第13章完整实现
 
-### 快速开始指南
+### 快速开始
 
-#### 安装
-
-MiniHarness的安装步骤如下：
+#### 安装与配置
 
 ```bash
 # 克隆仓库
 git clone https://github.com/yeasy/harness_engineering_guide.git
 cd harness_engineering_guide/lab
 
-# 创建虚拟环境
+# 创建虚拟环境并安装
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# 安装依赖
-pip install -e .
-
-# 设置环境变量
-export ANTHROPIC_API_KEY=your_key_here
+pip install -e ".[dev]"
 ```
 
-#### 基础示例
+MiniHarness 兼容所有 OpenAI API 格式的 LLM 服务。复制 `.env.example` 并配置：
 
-代码如下：
+```bash
+cp .env.example .env
+
+# 支持的服务（任选其一）
+# OpenAI
+export LLM_API_KEY="sk-xxx" LLM_BASE_URL="https://api.openai.com/v1" LLM_MODEL="gpt-5.4-mini"
+# DeepSeek
+export LLM_API_KEY="sk-xxx" LLM_BASE_URL="https://api.deepseek.com" LLM_MODEL="deepseek-chat"
+# Ollama 本地模型(无需付费 API Key)
+export LLM_API_KEY="ollama" LLM_BASE_URL="http://localhost:11434/v1" LLM_MODEL="qwen2.5:7b"
+```
+
+#### 运行示例
+
+```bash
+# 命令行传入任务
+python examples/simple_agent.py "列出当前目录的文件，并统计 Python 文件数量"
+
+# 交互式输入
+python examples/simple_agent.py
+```
+
+#### 运行测试
+
+```bash
+# 全部测试（230 个用例）
+pytest tests/ -v
+
+# 只跑某个模块
+pytest tests/unit/test_security.py -v
+pytest tests/integration/ -v
+
+# 覆盖率报告
+pytest tests/ --cov=mini_harness --cov-report=html
+```
+
+### 使用 MiniHarness 库
+
+除了运行示例，还可以在自己的代码中导入 MiniHarness 模块：
 
 ```python
-# examples/simple_agent.py （实际文件）
-from mini_harness.runtime import RuntimeEngine
-from mini_harness.tools.registry import ToolRegistry
-from mini_harness.tools.builtin import BashTool, FileReadTool, FileWriteTool
 import asyncio
+from mini_harness.tools.builtin import BashTool, FileReadTool, FileWriteTool
+from mini_harness.tools.registry import ToolRegistry
+from mini_harness.models.provider import (
+    ModelConfig, ModelProviderType, create_provider, Message
+)
 
-# 创建工具注册表并注册内置工具
+# 1. 注册工具
 registry = ToolRegistry()
 registry.register(BashTool())
 registry.register(FileReadTool())
 registry.register(FileWriteTool())
 
-# 创建运行时引擎
-engine = RuntimeEngine(tool_registry=registry)
+# 2. 创建 LLM Provider
+config = ModelConfig(
+    provider=ModelProviderType.OPENAI,
+    model_id="deepseek-chat",
+    api_key="sk-xxx",
+    base_url="https://api.deepseek.com",
+)
+provider = create_provider(config)
 
-# 运行Agent
-async def main():
-    async for event in engine.run("读取test.txt并分析"):
-        print(event)
-
-asyncio.run(main())
+# 3. 调用 LLM（带工具）
+tools = registry.list_tools()
+response = provider.complete_with_tools(
+    messages=[Message("user", "用 bash 查看系统信息")],
+    tools=tools,
+)
+print(response.content)
+print(response.tool_calls)
 ```
 
-#### 运行测试
+**使用熔断器做故障转移**
 
-命令示例如下：
+```python
+from mini_harness.models.provider import ModelConfig, ModelProviderType, ModelSelectionEngine
 
-```bash
-# 运行所有测试
-pytest tests/ -v
+primary = ModelConfig(ModelProviderType.OPENAI, "gpt-5.4", api_key="sk-xxx")
+fallback = ModelConfig(ModelProviderType.OPENAI, "gpt-5.4-mini", api_key="sk-xxx")
 
-# 运行特定测试类别
-pytest tests/unit/test_security.py -v        # 安全单元测试
-pytest tests/integration/ -v                 # 集成测试
+engine = ModelSelectionEngine(primary, fallback_chain=[fallback])
+provider = engine.select_model()  # 自动选择可用的模型
 
-# 生成覆盖率报告
-pytest tests/ --cov=mini_harness --cov-report=html
+try:
+    response = provider.complete([Message("user", "Hello")])
+    engine.mark_success(provider.config.model_id)
+except Exception:
+    engine.mark_failure(provider.config.model_id)
+    # 下次调用 select_model() 会自动切换到 fallback
 ```
 
 ### 架构总览图
@@ -461,34 +514,6 @@ graph TD
 | security/path_validator.py | 12.4 | 路径校验 |
 | security/guardrails.py | 12.3 | 护栏防护 |
 | tests/ | 13 | 测试框架 |
-
-### 运行完整测试套件
-
-脚本示例如下：
-
-```bash
-# 脚本: scripts/run_tests.sh
-
-#!/bin/bash
-set -e
-
-echo "Installing dependencies..."
-pip install -e .
-
-echo "Running unit tests..."
-pytest tests/unit/ -v
-
-echo "Running integration tests..."
-pytest tests/integration/ -v
-
-echo "Running security unit tests..."
-pytest tests/unit/test_security.py -v
-
-echo "Generating coverage report..."
-pytest tests/ --cov=mini_harness --cov-report=html
-
-echo "All tests completed! Coverage report: htmlcov/index.html"
-```
 
 ### 扩展和集成点
 

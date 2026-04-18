@@ -1,6 +1,6 @@
 ## 附录 C：推荐资源
 
-本附录汇总了学习和实践Harness工程所需的关键资源和参考资料。
+本附录汇总了学习和实践 Harness 工程所需的关键资源和参考资料。学术论文和技术规范见附录 B。
 
 ### 官方框架文档
 
@@ -43,6 +43,67 @@
 - https://microsoft.github.io/autogen/
 - 多智能体对话、协作框架（注意：Microsoft 已将 AutoGen 与 Semantic Kernel 整合为 Microsoft Agent Framework）
 - 推荐度：多智能体项目参考，3星
+
+### 开源项目与工具
+
+#### 智能体框架
+
+**OpenClaw**
+
+- https://github.com/openclaw/openclaw
+- 由 Peter Steinberger 创建的自驱型智能体框架（前身 Clawdbot），支持 Heartbeat 模式、SOUL.md 行为约束
+- 推荐度：架构参考，5星
+
+**Claude Code**
+
+- https://github.com/anthropics/claude-code
+- Anthropic 官方智能体编码工具，含完整的 Harness 实现（权限、安全、评估功能），2026-03 开源
+- 推荐度：必读，5星
+
+**AgentLego**
+
+- https://github.com/InternLM/agentlego
+- 工具集成框架，支持多模态工具组合
+- 推荐度：参考，3星
+
+#### 可观测性与监控
+
+**Langfuse**
+
+- https://github.com/langfuse/langfuse
+- 开源 LLM 应用可观测性平台，支持智能体轨迹追踪
+- 推荐度：生产环境必用，5星
+
+**LangSmith**
+
+- LangChain 官方产品，智能体调试、评估、监控
+- 推荐度：LangChain 用户首选，4星
+
+**OpenTelemetry**
+
+- https://opentelemetry.io
+- 开源可观测性标准，应用性能监控
+- 推荐度：标准化部署推荐，3星
+
+**Prometheus**
+
+- https://prometheus.io
+- 开源时序数据库，指标收集与告警
+- 推荐度：大规模系统推荐，4星
+
+#### 安全工具
+
+**OWASP GenAI Security Project**
+
+- https://genai.owasp.org/
+- AI 系统安全风险和防护，包含 LLM 应用和智能体应用两个 Top 10 列表
+- 推荐度：安全评估必读，5星
+
+**Bandit**
+
+- https://github.com/PyCQA/bandit
+- Python 静态分析工具，检测危险模式
+- 推荐度：CI/CD 集成，4星
 
 ### 学习资源
 
@@ -146,33 +207,6 @@
 - 异步HTTP客户端
 - CLI测试工具推荐
 
-#### 可观测性工具
-
-**Langfuse** （推荐）
-
-- https://langfuse.com
-- LLM应用监控、调试、评估
-- 推荐度：生产环境必用，5星
-- 特别推荐原因：支持智能体轨迹追踪
-
-**LangSmith**
-
-- LangChain官方产品
-- 调试、评估、监控
-- 推荐度：LangChain用户首选，4星
-
-**Prometheus + Grafana**
-
-- https://prometheus.io + https://grafana.com
-- 指标和可视化
-- 推荐度：大规模系统推荐，4星
-
-**OpenTelemetry**
-
-- https://opentelemetry.io
-- 可观测性标准
-- 推荐度：标准化部署推荐，3星
-
 #### 测试框架
 
 **pytest**
@@ -194,14 +228,6 @@
 
 ### 安全资源
 
-#### 安全指南
-
-**OWASP GenAI Security Project**
-
-- https://genai.owasp.org/
-- AI 应用的安全风险和防护，包含 LLM 应用和智能体应用 Top 10
-- 推荐度：安全评估必读，5星
-
 **NIST AI Safety Institute (AISI) / CAISI**
 
 - https://www.nist.gov/caisi
@@ -213,14 +239,6 @@
 - https://cwe.mitre.org
 - 常见编码漏洞分类
 - 推荐度：安全审计参考，4星
-
-#### 安全工具
-
-**Bandit** (Python)
-
-- https://github.com/PyCQA/bandit
-- 危险模式检测
-- 推荐度：CI/CD集成，4星
 
 **SonarQube**
 
@@ -430,6 +448,26 @@
 
 - 行业论坛和会议
 - 标准化讨论
+
+### 推荐阅读路径
+
+#### 初学者
+
+- 从 GAIA、WebArena 论文（附录 B）了解智能体基准
+- 阅读 Claude API 文档掌握基础
+- 学习 LangChain 快速上手开发
+
+#### 进阶
+
+- 研究 ReAct 论文理解推理框架
+- 深入 MCP 规范和实现
+- 学习安全防护（OWASP、ToolEmu 等）
+
+#### 专家
+
+- 跟踪 NIST AI Agent Standards Initiative 进展
+- 研究多智能体系统和涌现行为
+- 探索智能体操作系统架构
 
 ---
 

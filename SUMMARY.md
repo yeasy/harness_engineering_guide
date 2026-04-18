@@ -119,8 +119,4 @@
   * [附录 A：术语表](appendix/glossary.md)
   * [附录 B：参考文献](appendix/references.md)
   * [附录 C：推荐资源](appendix/resources.md)
-  * [附录 D：MiniHarness 架构与代码](appendix/miniharness_index.md)
-
-## 实战项目
-
-* [MiniHarness 实战项目](lab/README.md)
+  * [附录 D：MiniHarness 实战项目](appendix/miniharness_index.md)
