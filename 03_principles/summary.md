@@ -261,7 +261,7 @@ class AgentTrustManager:
         # 评估是否应该提升信任等级
         # 根据agent历史记录调整权限等级
         history = await self.get_agent_history(agent_id)
-        
+
         # 简化的信任提升逻辑 - 实际实现可更复杂
         if history.success_rate > 0.95:
             new_level = PermissionLevel.AUTO
