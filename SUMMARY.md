@@ -23,6 +23,7 @@
   * [3.2 可验证性原则](03_principles/3.2_verifiability.md)
   * [3.3 渐进信任原则](03_principles/3.3_progressive_trust.md)
   * [3.4 故障假设原则](03_principles/3.4_design_for_failure.md)
+  * [3.5 Agent体工学原则](03_principles/3.5_agent_ergonomics.md)
   * [本章小结](03_principles/summary.md)
 
 ## 第二部分：Harness 核心子系统
