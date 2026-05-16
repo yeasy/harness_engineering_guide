@@ -20,9 +20,11 @@ Harness 一词意为“驾驭”，原指骑手用以驾驭烈马的缰绳和鞍
 
 全书以三个具有代表性的生产级开源系统作为核心参考案例，贯穿始终：
 
+> 版本说明：以下代码规模、工具数量、特性门控数量、技能数量与权限术语是 2026-05-16 的参考系统快照，属于高波动信息；精确数字和命名应以对应官方仓库、文档与当前 checkout 为准。
+
 **[OpenAI Codex](https://github.com/openai/codex)** 代表 **性能型智能体** 的 Harness 范式。它以 Rust 为核心实现语言，通过系统级编程实现了高性能、内存安全的 Harness 架构。其特色包括：基于 Starlark 的执行策略引擎(execpolicy)、平台原生沙箱（Linux 上使用 Bubblewrap + seccomp，macOS 使用 sandbox-exec，Windows 使用 restricted-token）、skills/core-skills 技能模块体系、OpenTelemetry 原生可观测性（otel 模块），以及内置 MCP 服务端支持等。
 
-**[Claude Code](https://github.com/anthropics/claude-code)** 代表 **任务型智能体** 的 Harness 范式。它围绕终端交互场景构建了一套精密的工程系统，约 50 万行 TypeScript 代码实现了完整的 Harness 架构。其特色包括：基于异步生成器的 Agent 循环引擎(QueryEngine)、24+内置工具的类型安全注册体系、分层权限系统（含 ML 自动审批）、autoDream 记忆整合引擎、40+ 编译时特性门控、以及 Coordinator 多智能体编排模式等。
+**[Claude Code](https://github.com/anthropics/claude-code)** 代表 **任务型智能体** 的 Harness 范式。它围绕终端交互场景构建了一套精密的工程系统，约 50 万行 TypeScript 代码实现了完整的 Harness 架构。其特色包括：基于异步生成器的 Agent 循环引擎(QueryEngine)、24+内置工具的类型安全注册体系、分层权限系统（含低风险操作的自动放行/拒绝决策）、可由 memory/compact/hooks/subagents 等公开机制组合出的记忆整合流程、40+ 编译时特性门控、以及 Coordinator 多智能体编排模式等。
 
 **[OpenClaw](https://github.com/openclaw/openclaw)** 代表 **自驱型智能体** 的 Harness 范式。它通过 Gateway 控制平面、Heartbeat 心跳机制和多渠道接入层，实现了无需用户持续指令即可自主运行的 Agent 架构。其 Harness 特色包括：基于 WebSocket 的 Gateway 协议、三级权限模型(Free/Ask-first/Approve-once)、MEMORY.md + 每日记忆的双层记忆体系、Lobster 确定性工作流引擎，以及 ClawHub 技能注册中心等。更多内容可参考 [《OpenClaw 从入门到精通》](https://yeasy.gitbook.io/openclaw_guide)。
 
@@ -34,8 +36,8 @@ Harness 一词意为“驾驭”，原指骑手用以驾驭烈马的缰绳和鞍
 | 触发方式 | 用户指令驱动 | 用户指令驱动 | Heartbeat 自主唤醒 + 定时任务 |
 | 运行模式 | 按需启动、完成即停 | 按需启动、完成即停 | 持续后台运行 |
 | 工具生态 | skills + core-skills 模块 + MCP | 24+ 内置工具 + MCP 扩展 | ClawHub 技能注册中心（13000+预构建skills） |
-| 记忆模型 | state 模块会话管理 | autoDream 自动整合 | MEMORY.md + 每日日志 |
-| 安全模型 | execpolicy 策略引擎(allow/prompt/forbidden) | 风险分级 + ML 自动审批 | 三级权限(Free/Ask/Approve) |
+| 记忆模型 | state 模块会话管理 | 公开记忆/compact/hooks 机制；autoDream 仅作示意名 | MEMORY.md + 每日日志 |
+| 安全模型 | execpolicy 策略引擎(allow/prompt/forbidden) | 风险分级 + 自动放行/询问/拒绝策略 | 三级权限(Free/Ask/Approve) |
 | 沙箱实现 | 平台原生沙箱(Bubblewrap/seccomp/Landlock) | 进程级隔离 | 容器级隔离 |
 | 多智能体 | 分层 Agent 消息协议 | Coordinator 模式 + 子 Agent | Lobster 工作流引擎 |
 | 可观测性 | OpenTelemetry 原生集成 | 内置结构化日志 | 每日记忆日志 |
