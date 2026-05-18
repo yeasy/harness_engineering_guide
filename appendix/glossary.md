@@ -38,7 +38,7 @@
 
 **Drift Detection** （漂移检测）：在长时任务中监测智能体行为是否偏离预期目标，并在必要时进行纠正。参见第 4.5 节。
 
-**Dynamic Tool Discovery** （动态工具发现）：运行时查询和发现可用工具，而非启动时静态加载。MCP 规范（2025-11-25 版本）已支持。
+**Dynamic Tool Discovery** （动态工具发现）：运行时查询和发现可用工具，而非启动时静态加载。MCP 支持 `tools/list` 查询，并可通过 `notifications/tools/list_changed` 通知工具列表变化。
 
 ### E
 
@@ -92,7 +92,7 @@
 
 ### M
 
-**MCP** (Model Context Protocol)：Anthropic 发起、现由 Linux Foundation 托管的工具和 LLM 交互的开放标准协议。最新规范（2025-11-25 版本）支持动态能力协商和 Streamable HTTP 传输等特性。
+**MCP** (Model Context Protocol)：Anthropic 发起的开放协议，用于让 LLM 应用与外部工具、资源和提示词集成。当前规范支持 JSON-RPC 2.0 消息、stdio 与 Streamable HTTP 等机制。
 
 **Mock Testing** （模拟测试）：用模拟对象代替真实依赖的测试方式，快速但可能不够真实。
 

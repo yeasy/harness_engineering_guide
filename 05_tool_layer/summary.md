@@ -78,7 +78,7 @@ flowchart LR
 
 | 方面 | Claude Code | OpenClaw |
 |------|------------|---------|
-| 工具数量 | 24+内置工具 | 通用工具 + 技能 |
+| 工具数量 | 内置工具 + 扩展工具 | 通用工具 + 技能 |
 | 执行模式 | 并发 | 顺序 |
 | 接口设计 | Tool<I,O,P> 泛型 | Tool Protocol |
 | 权限模型 | check_permissions() | 工具策略和访问级别 |

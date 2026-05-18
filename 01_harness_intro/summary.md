@@ -94,15 +94,15 @@ Harness明确了自己的职责：
 
 - 任务型设计，强调流式执行效率
 - QueryEngine异步生成器循环
-- 24+内置工具的类型安全注册
-- autoDream 摘要压缩，持久化到 CLAUDE.md
+- 内置工具、MCP 与 skills 扩展
+- memory/compact/hooks 等公开机制
 - Coordinator动态多智能体编排
 
 **OpenClaw**：
 
 - 自驱型设计，支持持久化长期运行
 - WebSocket + 30分钟心跳机制
-- ClawHub 13000+ skills，多平台接入
+- ClawHub skills/plugins 注册中心
 - MEMORY.md + SOUL.md双层记忆
 - Lobster确定性工作流
 

@@ -124,7 +124,7 @@ class MCPServerBase:
    - L1：内存缓存（热工具）
    - L2：磁盘缓存（所有工具）
    - L3：远程缓存(Redis)
-   - 可减少80%以上令牌消耗
+   - 可减少重复工具描述带来的令牌消耗
 
 3. **权限隔离**：PermissionGateway
 

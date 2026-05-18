@@ -36,8 +36,9 @@ dev = [
 Homepage = "https://github.com/yeasy/harness_engineering_guide"
 Documentation = "https://yeasy.gitbook.io/harness_engineering_guide/"
 
-[tool.setuptools]
-packages = ["mini_harness"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mini_harness*"]
 
 [tool.black]
 line-length = 100

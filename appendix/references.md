@@ -88,7 +88,7 @@
 
     - Anthropic 发起，Linux Foundation 托管，2024-2026
     - https://github.com/modelcontextprotocol/specification | [archive.org](https://web.archive.org/web/*/github.com/modelcontextprotocol/specification)
-    - 工具定义和交互的开放标准协议，最新规范版本 2025-11-25
+    - 工具定义和交互的开放标准协议；最新版本以官方 specification/latest 页面为准
 
 13. **Claude Code Documentation**
 
