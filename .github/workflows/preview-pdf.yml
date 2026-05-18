@@ -47,7 +47,16 @@ jobs:
       - name: Build latest preview PDF
         run: |
           mkdir -p dist
-          mdpress build --format pdf --output dist/harness_engineering_guide.pdf
+          for attempt in 1 2; do
+            if mdpress build --format pdf --output dist/harness_engineering_guide.pdf; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 2 ]; then
+              exit 1
+            fi
+            pkill -f chrome || true
+            sleep 5
+          done
 
       - name: Write release notes
         run: |

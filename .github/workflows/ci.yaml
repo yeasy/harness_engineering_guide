@@ -37,7 +37,17 @@ jobs:
           sudo mv /tmp/mdpress /usr/local/bin/
           mdpress --version
       - name: Build PDF
-        run: mdpress build --format pdf --output harness_engineering_guide.pdf
+        run: |
+          for attempt in 1 2; do
+            if mdpress build --format pdf --output harness_engineering_guide.pdf; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 2 ]; then
+              exit 1
+            fi
+            pkill -f chrome || true
+            sleep 5
+          done
       - name: Upload PDF as artifact
         uses: actions/upload-artifact@v7
         with:
