@@ -8,6 +8,10 @@ from mini_harness.security.path_validator import PathValidator
 from mini_harness.security.permissions import Decision, PermissionDecisionEngine
 
 
+BASH_TOOL_NAMES = {"bash", "bash_exec"}
+FILE_TOOL_NAMES = {"read_file", "write_file", "file_read", "file_write"}
+
+
 @dataclass
 class ToolCall:
     """Represents a tool call to be executed."""
@@ -66,14 +70,14 @@ class SecureToolExecutor:
             raise PermissionError(f"Tool '{tool_call.tool_name}' is denied by policy")
 
         # Layer 2: Guardrail checks
-        if tool_call.tool_name == "bash" and "command" in tool_call.args:
+        if tool_call.tool_name in BASH_TOOL_NAMES and "command" in tool_call.args:
             command = tool_call.args["command"]
             if self.command_detector.detect(command):
                 reason = self.command_detector.get_reason(command)
                 raise PermissionError(f"Dangerous command blocked: {reason}")
 
         # Layer 2b: Path validation for file operations
-        if tool_call.tool_name in ("read_file", "write_file") and "path" in tool_call.args:
+        if tool_call.tool_name in FILE_TOOL_NAMES and "path" in tool_call.args:
             try:
                 validated_path = self.path_validator.validate(tool_call.args["path"])
                 tool_call.args["path"] = validated_path
@@ -117,14 +121,14 @@ class SecureToolExecutor:
             raise PermissionError(f"Tool '{tool_call.tool_name}' is denied by policy")
 
         # Layer 2: Guardrail checks
-        if tool_call.tool_name == "bash" and "command" in tool_call.args:
+        if tool_call.tool_name in BASH_TOOL_NAMES and "command" in tool_call.args:
             command = tool_call.args["command"]
             if self.command_detector.detect(command):
                 reason = self.command_detector.get_reason(command)
                 raise PermissionError(f"Dangerous command blocked: {reason}")
 
         # Layer 2b: Path validation for file operations
-        if tool_call.tool_name in ("read_file", "write_file") and "path" in tool_call.args:
+        if tool_call.tool_name in FILE_TOOL_NAMES and "path" in tool_call.args:
             try:
                 validated_path = self.path_validator.validate(tool_call.args["path"])
                 tool_call.args["path"] = validated_path

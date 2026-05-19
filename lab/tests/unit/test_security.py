@@ -371,6 +371,46 @@ class TestSecureToolExecutor:
         with pytest.raises(PermissionError, match="Dangerous command blocked"):
             executor.sync_execute(tool_call, execute_func)
 
+    def test_sync_execute_dangerous_builtin_bash_command(self):
+        engine = PermissionDecisionEngine()
+        engine.register_policy("bash_exec", PermissionLevel.OVERRIDE)
+
+        executor = SecureToolExecutor(permission_engine=engine)
+
+        def execute_func(call):
+            return "executed"
+
+        tool_call = ToolCall(
+            tool_name="bash_exec",
+            args={"command": "rm -rf /"},
+            user_id="user_1"
+        )
+
+        with pytest.raises(PermissionError, match="Dangerous command blocked"):
+            executor.sync_execute(tool_call, execute_func)
+
+    def test_sync_execute_builtin_file_read_validates_path(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            engine = PermissionDecisionEngine()
+            engine.register_policy("file_read", PermissionLevel.OVERRIDE)
+
+            executor = SecureToolExecutor(
+                permission_engine=engine,
+                path_validator=PathValidator(base_path=tmpdir)
+            )
+
+            def execute_func(call):
+                return "executed"
+
+            tool_call = ToolCall(
+                tool_name="file_read",
+                args={"path": "../escape.txt"},
+                user_id="user_1"
+            )
+
+            with pytest.raises(PermissionError, match="Path validation failed"):
+                executor.sync_execute(tool_call, execute_func)
+
     def test_sync_execute_safe_bash_command(self):
         engine = PermissionDecisionEngine()
         engine.register_policy("bash", PermissionLevel.OVERRIDE)
