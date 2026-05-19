@@ -13,11 +13,18 @@ ROOT = Path(__file__).resolve().parent
 SKIP_DIRS = {
     ".agent",
     ".git",
+    ".github",
     ".mdpress",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".vuepress",
     "_book",
     "_site",
+    "__pycache__",
     "dist",
+    "mcp_cache",
     "node_modules",
+    "output",
 }
 LINK_RE = re.compile(r"(!?)\[[^\]]*\]\(([^)\s]+(?:\s+\"[^\"]*\")?)\)")
 FENCE_RE = re.compile(r"^\s*(`{3,}|~{3,})")
