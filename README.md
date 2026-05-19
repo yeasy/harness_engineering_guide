@@ -20,7 +20,7 @@ Harness 一词意为“驾驭”，原指骑手用以驾驭烈马的缰绳和鞍
 
 全书以三个具有代表性的生产级开源系统作为核心参考案例，贯穿始终：
 
-> 版本说明：以下参考系统的代码规模、工具数量、特性门控数量、技能数量与权限术语都属于高波动信息；正文只保留稳定架构特征，精确数字和命名应以对应官方仓库、文档与当前 checkout 为准。
+> 版本说明：以下参考系统的代码规模、工具数量、特性门控数量、技能数量与权限术语都属于高波动信息；正文只保留稳定架构特征，精确数字和命名应以对应官方仓库、文档与当前 checkout 为准。 具体产品/特性名以附录 C 的 2026-05 时效快照为准。
 
 **[OpenAI Codex](https://github.com/openai/codex)** 代表 **性能型智能体** 的 Harness 范式。它以 Rust 为核心实现语言，通过系统级编程实现了高性能、内存安全的 Harness 架构。其特色包括：基于 Starlark 的执行策略引擎(execpolicy)、平台原生沙箱（Linux 上使用 Bubblewrap + seccomp，macOS 使用 sandbox-exec，Windows 使用 restricted-token）、skills/core-skills 技能模块体系、OpenTelemetry 原生可观测性（otel 模块），以及内置 MCP 服务端支持等。
 
