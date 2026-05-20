@@ -486,4 +486,3 @@
 | Anthropic Dreaming | Anthropic | Managed Agents 新增特性（离线记忆整合） | 2026-05-06 | anthropic.com/news；影响 §6.1 / §14.3 |
 | claude-agent-sdk 更名 | Anthropic | 由 `claude-code-sdk` 改名，面向 Harness/Agent 应用层 | 2026 | pypi.org/project/claude-agent-sdk；影响附录 C、§4.5 |
 | Claude Code Plugins + Marketplace | Anthropic | GA，提供 `.claude-plugin/marketplace.json` 与 `/plugin` 命令 | 2025-10 | code.claude.com/docs；影响 §10.2 |
-
