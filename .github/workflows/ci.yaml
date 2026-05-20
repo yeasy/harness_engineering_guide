@@ -36,6 +36,11 @@ jobs:
           tar xzf "$archive" -C /tmp mdpress
           sudo mv /tmp/mdpress /usr/local/bin/
           mdpress --version
+      - name: Validate content and MiniHarness tests
+        run: |
+          python3 check_project_rules.py
+          python3 -m pip install -e "./lab[dev]"
+          (cd lab && python3 -m pytest tests/unit tests/integration -q)
       - name: Build PDF
         run: |
           for attempt in 1 2; do

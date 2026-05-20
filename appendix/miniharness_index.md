@@ -111,7 +111,7 @@ graph TD
     D --> D1["simple_agent.py"]
 
     B --> E["<b>tests/</b><br/>测试套件第13章"]
-    E --> E1["conftest.py"]
+    E --> E1["../conftest.py"]
     E --> E2["unit/"]
     E2 --> E2a["test_core.py"]
     E2 --> E2b["test_tools.py"]
@@ -162,13 +162,13 @@ graph TD
 
 `mini_harness/runtime/engine.py`
 
-**关键类**：`ExecutionEngine`
+**关键类**：`RuntimeEngine`
 
 **主要方法**：
 
-- `execute_tool()`: 执行单个工具
-- `run_agent_loop()`: 主智能体循环
-- `_process_tool_call()`: 处理工具调用
+- `run()`: 主智能体循环，生成运行时事件流
+- `_infer()`: 模拟模型推理
+- `_execute_tool()`: 执行工具调用并转换为 `ToolResultBlock`
 
 **代码位置**：第4章详细代码实现
 
@@ -463,7 +463,7 @@ MiniHarness的整体架构由多个层级组成，以下是完整的系统架构
 graph TD
     A["<b>用户应用层</b>"] --> B["<b>MiniHarness 框架</b>"]
 
-    B --> C["<b>核心执行引擎</b><br/>ExecutionEngine<br/>- Agent循环管理<br/>- 工具调用编排<br/>- 提示词构建与优化"]
+    B --> C["<b>核心执行引擎</b><br/>RuntimeEngine<br/>- Agent循环管理<br/>- 工具调用编排<br/>- 提示词构建与优化"]
 
     C --> D["<b>模型</b><br/>Claude"]
     C --> E["<b>工具层</b><br/>Tools"]
@@ -524,21 +524,30 @@ graph TD
 ```python
 # 在 tools/ 目录创建 new_tool.py
 from mini_harness.core.tool import Tool
+from mini_harness.core.tool import ToolResult
 
 class MyCustomTool(Tool):
-    def __init__(self):
-        self.name = "my_tool"
-        self.description = "描述"
-        self.parameters = {...}
+    def name(self) -> str:
+        return "my_tool"
 
-    async def execute(self, **kwargs):
+    def description(self) -> str:
+        return "描述"
+
+    def input_schema(self) -> dict:
+        return {
+            "type": "object",
+            "properties": {"text": {"type": "string"}},
+            "required": ["text"],
+        }
+
+    async def call(self, params: dict) -> ToolResult:
         # 实现逻辑
-        pass
+        return ToolResult(success=True, content=params["text"], execution_time=0.0)
 
 # 通过工具注册表注册
 from mini_harness.tools.registry import ToolRegistry
 registry = ToolRegistry()
-registry.register("my_tool", MyCustomTool())
+registry.register(MyCustomTool())
 ```
 
 #### 自定义测试

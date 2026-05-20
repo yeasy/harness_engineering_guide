@@ -44,6 +44,12 @@ jobs:
           sudo mv /tmp/mdpress /usr/local/bin/
           mdpress --version
 
+      - name: Validate content and MiniHarness tests
+        run: |
+          python3 check_project_rules.py
+          python3 -m pip install -e "./lab[dev]"
+          (cd lab && python3 -m pytest tests/unit tests/integration -q)
+
       - name: Build latest preview PDF
         run: |
           mkdir -p dist

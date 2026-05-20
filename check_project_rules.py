@@ -128,6 +128,9 @@ def check_summary_links() -> list[str]:
 def main() -> int:
     issues: list[str] = []
     files = iter_markdown_files()
+    if not files:
+        print("No Markdown files found; refusing to report success.")
+        return 1
     for path in files:
         text = path.read_text(encoding="utf-8", errors="ignore")
         issues.extend(check_fences(path, text))

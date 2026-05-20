@@ -89,6 +89,15 @@ class TestPermissionDecisionEngine:
         decision = engine.decide("auto_tool", "user_123")
         assert decision == Decision.ALLOW
 
+    def test_decision_auto_policy_cached_approval_can_be_scoped(self):
+        engine = PermissionDecisionEngine()
+        engine.register_policy("auto_tool", PermissionLevel.AUTO)
+
+        engine.record_approval("user_123", "auto_tool", approval_scope="args:a")
+
+        assert engine.decide("auto_tool", "user_123", approval_scope="args:a") == Decision.ALLOW
+        assert engine.decide("auto_tool", "user_123", approval_scope="args:b") == Decision.ASK_USER
+
     def test_decision_override_policy(self):
         engine = PermissionDecisionEngine()
         engine.register_policy("admin_tool", PermissionLevel.OVERRIDE)
@@ -108,8 +117,8 @@ class TestPermissionDecisionEngine:
         engine.record_approval("user_123", "tool_a")
         engine.record_approval("user_456", "tool_a")
 
-        assert ("user_123", "tool_a") in engine.user_approvals
-        assert ("user_456", "tool_a") in engine.user_approvals
+        assert ("user_123", "tool_a", "__tool__") in engine.user_approvals
+        assert ("user_456", "tool_a", "__tool__") in engine.user_approvals
 
     def test_approval_per_user(self):
         engine = PermissionDecisionEngine()
@@ -303,6 +312,14 @@ class TestDangerousCommandDetector:
 
         # All safe commands
         assert detector.detect("cat file.txt | grep pattern | wc -l") is False
+
+    def test_shell_control_operators_are_blocked(self):
+        detector = DangerousCommandDetector()
+
+        assert detector.detect("echo ok && rm -rf /") is True
+        assert detector.detect("echo ok; rm -rf /") is True
+        assert detector.detect("echo $(rm -rf /)") is True
+        assert detector.detect("echo `rm -rf /`") is True
 
     def test_get_reason_dangerous(self):
         detector = DangerousCommandDetector()
@@ -520,6 +537,36 @@ class TestSecureToolExecutor:
         # Second call uses cache
         executor.sync_execute(tool_call, execute_func)
         assert call_count == 1  # No additional approval needed
+
+    def test_sync_execute_auto_approval_cache_is_scoped_to_args(self):
+        engine = PermissionDecisionEngine()
+        engine.register_policy("safe_tool", PermissionLevel.AUTO)
+        approvals = []
+
+        def approval_callback(user_id, tool_call):
+            approvals.append((user_id, dict(tool_call.args)))
+            return True
+
+        executor = SecureToolExecutor(
+            permission_engine=engine,
+            user_approval_callback=approval_callback
+        )
+
+        def execute_func(call):
+            return "executed"
+
+        first_call = ToolCall(tool_name="safe_tool", args={"target": "a"}, user_id="user_1")
+        second_call = ToolCall(tool_name="safe_tool", args={"target": "a"}, user_id="user_1")
+        changed_args_call = ToolCall(tool_name="safe_tool", args={"target": "b"}, user_id="user_1")
+
+        assert executor.sync_execute(first_call, execute_func) == "executed"
+        assert executor.sync_execute(second_call, execute_func) == "executed"
+        assert executor.sync_execute(changed_args_call, execute_func) == "executed"
+
+        assert approvals == [
+            ("user_1", {"target": "a"}),
+            ("user_1", {"target": "b"}),
+        ]
 
     def test_path_validation_in_file_operations(self):
         with tempfile.TemporaryDirectory() as tmpdir:

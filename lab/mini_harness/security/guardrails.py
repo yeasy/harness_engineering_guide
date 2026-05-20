@@ -21,6 +21,16 @@ class DangerousCommandDetector:
         "pip": {"list", "show"},
     }
 
+    SHELL_CONTROL_OPERATORS: Dict[str, str] = {
+        "&&": "command chaining with &&",
+        "||": "command chaining with ||",
+        ";": "command sequencing with ;",
+        "\n": "multi-line shell input",
+        "\r": "multi-line shell input",
+        "$(": "command substitution with $(",
+        "`": "command substitution with backticks",
+    }
+
     def __init__(self, custom_dangerous: Optional[List[str]] = None):
         """Initialize the dangerous command detector.
 
@@ -48,6 +58,9 @@ class DangerousCommandDetector:
 
         if not tokens:
             return False
+
+        if self._shell_control_reason(command) is not None:
+            return True
 
         # Check main command (remove path prefix)
         main_cmd = tokens[0].split('/')[-1]
@@ -114,6 +127,10 @@ class DangerousCommandDetector:
         if not tokens:
             return None
 
+        shell_control_reason = self._shell_control_reason(command)
+        if shell_control_reason is not None:
+            return shell_control_reason
+
         main_cmd = tokens[0].split('/')[-1]
 
         # Check main command
@@ -160,3 +177,15 @@ class DangerousCommandDetector:
             allowed_subcommands: Set of allowed subcommands
         """
         self.RESTRICTED_COMMANDS[cmd] = allowed_subcommands
+
+    def _shell_control_reason(self, command: str) -> Optional[str]:
+        """Return why shell control syntax is blocked, if present.
+
+        MiniHarness allows pipes so benign inspection pipelines remain usable,
+        but rejects shell control syntax that can hide a second command from
+        the first-token blacklist.
+        """
+        for operator, reason in self.SHELL_CONTROL_OPERATORS.items():
+            if operator in command:
+                return f"Shell control operator blocked: {reason}"
+        return None

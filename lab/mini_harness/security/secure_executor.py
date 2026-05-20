@@ -1,5 +1,7 @@
 """Secure tool executor integrating all security layers."""
 
+import hashlib
+import json
 from dataclasses import dataclass
 from typing import Any, Callable, Optional
 
@@ -10,6 +12,12 @@ from mini_harness.security.permissions import Decision, PermissionDecisionEngine
 
 BASH_TOOL_NAMES = {"bash", "bash_exec"}
 FILE_TOOL_NAMES = {"read_file", "write_file", "file_read", "file_write"}
+
+
+def approval_scope_for_args(args: dict[str, Any]) -> str:
+    """Create a stable approval scope from tool arguments."""
+    encoded = json.dumps(args, sort_keys=True, separators=(",", ":"), default=str)
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
 @dataclass
@@ -63,9 +71,12 @@ class SecureToolExecutor:
             PermissionError: If any security layer rejects the call
         """
         user_id = tool_call.user_id or "unknown"
+        approval_scope = approval_scope_for_args(tool_call.args)
 
         # Layer 1: Permission decision
-        decision = self.permission_engine.decide(tool_call.tool_name, user_id)
+        decision = self.permission_engine.decide(
+            tool_call.tool_name, user_id, approval_scope=approval_scope
+        )
         if decision == Decision.DENY:
             raise PermissionError(f"Tool '{tool_call.tool_name}' is denied by policy")
 
@@ -95,7 +106,9 @@ class SecureToolExecutor:
             if not approved:
                 raise PermissionError(f"User rejected tool '{tool_call.tool_name}'")
 
-            self.permission_engine.record_approval(user_id, tool_call.tool_name)
+            self.permission_engine.record_approval(
+                user_id, tool_call.tool_name, approval_scope=approval_scope
+            )
 
         # Layer 4: Execute
         return await executor(tool_call)
@@ -114,9 +127,12 @@ class SecureToolExecutor:
             PermissionError: If any security layer rejects the call
         """
         user_id = tool_call.user_id or "unknown"
+        approval_scope = approval_scope_for_args(tool_call.args)
 
         # Layer 1: Permission decision
-        decision = self.permission_engine.decide(tool_call.tool_name, user_id)
+        decision = self.permission_engine.decide(
+            tool_call.tool_name, user_id, approval_scope=approval_scope
+        )
         if decision == Decision.DENY:
             raise PermissionError(f"Tool '{tool_call.tool_name}' is denied by policy")
 
@@ -146,7 +162,9 @@ class SecureToolExecutor:
             if not approved:
                 raise PermissionError(f"User rejected tool '{tool_call.tool_name}'")
 
-            self.permission_engine.record_approval(user_id, tool_call.tool_name)
+            self.permission_engine.record_approval(
+                user_id, tool_call.tool_name, approval_scope=approval_scope
+            )
 
         # Layer 4: Execute
         return executor(tool_call)
