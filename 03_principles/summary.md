@@ -156,7 +156,7 @@ permissions = {
 
 **可验证性**：记录每个转账操作
 
-```yaml
+```text
 Trace ID: trace-2024-04-01-001
 Step 1: Check balance
 Step 2: Validate transfer
