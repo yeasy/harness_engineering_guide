@@ -111,6 +111,22 @@ class TestBashTool:
         result = await tool.call({"command": "echo test"})
         assert "returncode: 0" in result.content
 
+    @pytest.mark.asyncio
+    async def test_blocks_unlisted_command_by_default(self):
+        tool = BashTool()
+        result = await tool.call({"command": "uname -a"})
+        assert result.success is False
+        assert result.error_type == "PermissionError"
+        assert "allowlist" in result.content
+
+    @pytest.mark.asyncio
+    async def test_blocks_dangerous_command(self):
+        tool = BashTool()
+        result = await tool.call({"command": "rm -rf /tmp/example"})
+        assert result.success is False
+        assert result.error_type == "PermissionError"
+        assert "Dangerous command blocked" in result.content
+
     def test_check_permissions(self):
         tool = BashTool()
         assert tool.check_permissions({}) is True
@@ -132,15 +148,15 @@ class TestFileReadTool:
         with open(filepath, "w") as f:
             f.write("Hello MiniHarness")
 
-        tool = FileReadTool()
+        tool = FileReadTool(base_path=tmp_dir)
         result = await tool.call({"path": filepath})
         assert result.success is True
         assert "Hello MiniHarness" in result.content
 
     @pytest.mark.asyncio
-    async def test_read_nonexistent_file(self):
-        tool = FileReadTool()
-        result = await tool.call({"path": "/nonexistent/path/file.txt"})
+    async def test_read_nonexistent_file(self, tmp_dir):
+        tool = FileReadTool(base_path=tmp_dir)
+        result = await tool.call({"path": "missing.txt"})
         assert result.success is False
         assert result.error_type == "FileNotFoundError"
 
@@ -150,10 +166,17 @@ class TestFileReadTool:
         with open(filepath, "w") as f:
             f.write("A" * 1000)
 
-        tool = FileReadTool()
+        tool = FileReadTool(base_path=tmp_dir)
         result = await tool.call({"path": filepath, "max_bytes": 100})
         assert result.success is True
         assert len(result.content) <= 200  # 100 bytes + truncation notice
+
+    @pytest.mark.asyncio
+    async def test_blocks_path_traversal(self, tmp_dir):
+        tool = FileReadTool(base_path=tmp_dir)
+        result = await tool.call({"path": "../secret.txt"})
+        assert result.success is False
+        assert result.error_type == "ValueError"
 
 
 # ============ FileWriteTool Tests ============
@@ -170,7 +193,7 @@ class TestFileWriteTool:
     @pytest.mark.asyncio
     async def test_write_file(self, tmp_dir):
         filepath = os.path.join(tmp_dir, "output.txt")
-        tool = FileWriteTool()
+        tool = FileWriteTool(base_path=tmp_dir)
         result = await tool.call({"path": filepath, "content": "Test content"})
         assert result.success is True
 
@@ -178,9 +201,17 @@ class TestFileWriteTool:
             assert f.read() == "Test content"
 
     @pytest.mark.asyncio
+    async def test_write_file_in_current_directory(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        tool = FileWriteTool()
+        result = await tool.call({"path": "output.txt", "content": "local"})
+        assert result.success is True
+        assert (tmp_path / "output.txt").read_text() == "local"
+
+    @pytest.mark.asyncio
     async def test_write_creates_directories(self, tmp_dir):
         filepath = os.path.join(tmp_dir, "sub", "dir", "file.txt")
-        tool = FileWriteTool()
+        tool = FileWriteTool(base_path=tmp_dir)
         result = await tool.call({"path": filepath, "content": "nested"})
         assert result.success is True
         assert os.path.exists(filepath)
@@ -188,7 +219,7 @@ class TestFileWriteTool:
     @pytest.mark.asyncio
     async def test_append_mode(self, tmp_dir):
         filepath = os.path.join(tmp_dir, "append.txt")
-        tool = FileWriteTool()
+        tool = FileWriteTool(base_path=tmp_dir)
 
         await tool.call({"path": filepath, "content": "Line 1\n"})
         await tool.call({"path": filepath, "content": "Line 2\n", "append": True})
@@ -201,7 +232,7 @@ class TestFileWriteTool:
     @pytest.mark.asyncio
     async def test_overwrite_mode(self, tmp_dir):
         filepath = os.path.join(tmp_dir, "overwrite.txt")
-        tool = FileWriteTool()
+        tool = FileWriteTool(base_path=tmp_dir)
 
         await tool.call({"path": filepath, "content": "Original"})
         await tool.call({"path": filepath, "content": "Replaced"})
@@ -209,6 +240,13 @@ class TestFileWriteTool:
         with open(filepath, "r") as f:
             content = f.read()
         assert content == "Replaced"
+
+    @pytest.mark.asyncio
+    async def test_write_blocks_path_traversal(self, tmp_dir):
+        tool = FileWriteTool(base_path=tmp_dir)
+        result = await tool.call({"path": "../escape.txt", "content": "blocked"})
+        assert result.success is False
+        assert result.error_type == "ValueError"
 
 
 # ============ ToolRegistry Tests ============
@@ -269,11 +307,11 @@ class TestToolRegistry:
 
 
 class TestExecutionPipeline:
-    def _make_pipeline(self):
+    def _make_pipeline(self, base_path=None):
         registry = ToolRegistry()
         registry.register(BashTool())
-        registry.register(FileReadTool())
-        registry.register(FileWriteTool())
+        registry.register(FileReadTool(base_path=base_path))
+        registry.register(FileWriteTool(base_path=base_path))
         return ExecutionPipeline(registry)
 
     @pytest.mark.asyncio
@@ -321,7 +359,7 @@ class TestExecutionPipeline:
 
     @pytest.mark.asyncio
     async def test_pipeline_file_operations(self, tmp_dir):
-        pipeline = self._make_pipeline()
+        pipeline = self._make_pipeline(base_path=tmp_dir)
 
         # Write
         filepath = os.path.join(tmp_dir, "pipeline_test.txt")

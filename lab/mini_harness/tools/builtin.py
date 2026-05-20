@@ -3,18 +3,37 @@ mini_harness/tools/builtin.py - Built-in tools and execution pipeline
 """
 
 import os
+import shlex
 import subprocess
 import time
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
 from mini_harness.core.tool import Tool, ToolResult
+from mini_harness.security.guardrails import DangerousCommandDetector
+from mini_harness.security.path_validator import PathValidator
 
 # ============ Built-in Tools ============
 
 
 class BashTool(Tool):
-    """Bash 命令执行工具"""
+    """受限命令执行工具。
+
+    默认只允许少量无副作用命令，并使用 shell=False 执行。需要完整 shell
+    能力时应显式设置 allow_shell=True，并继续接受危险命令检测。
+    """
+
+    SAFE_COMMANDS = frozenset({"echo", "pwd", "true", "false", "sleep", "python", "python3"})
+
+    def __init__(
+        self,
+        allow_shell: bool = False,
+        allowed_commands: Optional[set[str]] = None,
+        command_detector: Optional[DangerousCommandDetector] = None,
+    ):
+        self.allow_shell = allow_shell
+        self.allowed_commands = allowed_commands or set(self.SAFE_COMMANDS)
+        self.command_detector = command_detector or DangerousCommandDetector()
 
     async def call(self, params: Dict[str, Any]) -> ToolResult:
         command = params.get("command", "")
@@ -23,8 +42,22 @@ class BashTool(Tool):
         start = time.time()
 
         try:
+            if self.command_detector.detect(command):
+                reason = self.command_detector.get_reason(command)
+                return ToolResult(
+                    success=False,
+                    content=f"Dangerous command blocked: {reason}",
+                    execution_time=time.time() - start,
+                    error_type="PermissionError",
+                )
+
+            run_args: Any = command
+            use_shell = self.allow_shell
+            if not self.allow_shell:
+                run_args = self._parse_safe_command(command)
+
             result = subprocess.run(
-                command, shell=True, capture_output=True, timeout=timeout, text=True
+                run_args, shell=use_shell, capture_output=True, timeout=timeout, text=True
             )
 
             output = (
@@ -43,6 +76,14 @@ class BashTool(Tool):
                 error_type="TimeoutError",
             )
 
+        except ValueError as e:
+            return ToolResult(
+                success=False,
+                content=str(e),
+                execution_time=time.time() - start,
+                error_type="PermissionError",
+            )
+
         except Exception as e:
             return ToolResult(
                 success=False,
@@ -51,17 +92,31 @@ class BashTool(Tool):
                 error_type=type(e).__name__,
             )
 
+    def _parse_safe_command(self, command: str) -> list[str]:
+        tokens = shlex.split(command)
+        if not tokens:
+            raise ValueError("Empty command")
+
+        executable = os.path.basename(tokens[0])
+        if executable not in self.allowed_commands:
+            allowed = ", ".join(sorted(self.allowed_commands))
+            raise ValueError(
+                f"Command '{executable}' is not in the safe allowlist. Allowed: {allowed}"
+            )
+
+        return tokens
+
     def name(self) -> str:
         return "bash_exec"
 
     def description(self) -> str:
-        return "Execute bash commands"
+        return "Execute allowlisted Bash commands without shell expansion"
 
     def input_schema(self) -> Dict[str, Any]:
         return {
             "type": "object",
             "properties": {
-                "command": {"type": "string", "description": "Bash command"},
+                "command": {"type": "string", "description": "Allowlisted command"},
                 "timeout": {"type": "integer", "description": "Timeout in seconds", "default": 30},
             },
             "required": ["command"],
@@ -71,6 +126,10 @@ class BashTool(Tool):
 class FileReadTool(Tool):
     """文件读取工具"""
 
+    def __init__(self, base_path: Optional[str] = None, allow_unsafe_paths: bool = False):
+        self.allow_unsafe_paths = allow_unsafe_paths
+        self.path_validator = None if allow_unsafe_paths else PathValidator(base_path)
+
     async def call(self, params: Dict[str, Any]) -> ToolResult:
         filepath = params.get("path", "")
         max_bytes = params.get("max_bytes", 1024 * 1024)  # 1MB default
@@ -78,6 +137,9 @@ class FileReadTool(Tool):
         start = time.time()
 
         try:
+            if self.path_validator is not None:
+                filepath = self.path_validator.validate(filepath)
+
             with open(filepath, "r") as f:
                 content = f.read(max_bytes)
 
@@ -122,6 +184,10 @@ class FileReadTool(Tool):
 class FileWriteTool(Tool):
     """文件写入工具"""
 
+    def __init__(self, base_path: Optional[str] = None, allow_unsafe_paths: bool = False):
+        self.allow_unsafe_paths = allow_unsafe_paths
+        self.path_validator = None if allow_unsafe_paths else PathValidator(base_path)
+
     async def call(self, params: Dict[str, Any]) -> ToolResult:
         filepath = params.get("path", "")
         content = params.get("content", "")
@@ -132,7 +198,12 @@ class FileWriteTool(Tool):
         try:
             mode = "a" if append else "w"
 
-            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+            if self.path_validator is not None:
+                filepath = self.path_validator.validate(filepath)
+
+            dirname = os.path.dirname(filepath)
+            if dirname:
+                os.makedirs(dirname, exist_ok=True)
 
             with open(filepath, mode) as f:
                 f.write(content)
@@ -155,7 +226,7 @@ class FileWriteTool(Tool):
         return "file_write"
 
     def description(self) -> str:
-        return "Write or append to file"
+        return "Write or append to a file within the configured workspace"
 
     def input_schema(self) -> Dict[str, Any]:
         return {

@@ -15,13 +15,13 @@ MiniHarness 最小智能体示例
   export LLM_API_KEY="sk-xxx"
   export LLM_BASE_URL="https://api.openai.com/v1"
   export LLM_MODEL="gpt-4o-mini"
-  python examples/simple_agent.py "列出当前目录的文件"
+  python examples/simple_agent.py "读取 README.md 并总结项目"
 
   # DeepSeek
   export LLM_API_KEY="sk-xxx"
   export LLM_BASE_URL="https://api.deepseek.com"
   export LLM_MODEL="deepseek-chat"
-  python examples/simple_agent.py "用 Python 计算前 20 个斐波那契数"
+  python examples/simple_agent.py "读取 pyproject.toml 并总结依赖"
 
   # Ollama 本地模型（无需 API Key）
   export LLM_BASE_URL="http://localhost:11434/v1"
@@ -38,7 +38,7 @@ import sys
 # 确保 mini_harness 可被导入
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mini_harness.tools.builtin import BashTool, FileReadTool, FileWriteTool
+from mini_harness.tools.builtin import FileReadTool
 from mini_harness.tools.registry import ToolRegistry
 from mini_harness.utils.config import get_config
 
@@ -53,10 +53,8 @@ LLM_MODEL = cfg.LLM_MODEL
 MAX_TURNS = cfg.MAX_TURNS
 
 SYSTEM_PROMPT = """你是 MiniHarness，一个有帮助的 AI 助手。
-你可以使用以下工具来帮助用户完成任务：
-- bash_exec: 执行 bash 命令
+这个最小示例默认只开放只读工具，避免演示代码直接执行命令或写入文件：
 - file_read: 读取文件内容
-- file_write: 写入文件
 
 当你需要执行操作时，使用工具调用而不是直接回复。
 完成任务后，用自然语言总结结果。"""
@@ -325,9 +323,7 @@ async def main():
 
     # 初始化工具注册表
     registry = ToolRegistry()
-    registry.register(BashTool())
     registry.register(FileReadTool())
-    registry.register(FileWriteTool())
 
     # 初始化 LLM 客户端
     llm = LLMClient(api_key=LLM_API_KEY, base_url=LLM_BASE_URL, model=LLM_MODEL)

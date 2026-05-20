@@ -13,8 +13,8 @@ pip install -e ".[dev]"
 # 配置 LLM（复制并编辑 .env）
 cp .env.example .env
 
-# 运行示例智能体
-python examples/simple_agent.py "列出当前目录的文件，并统计 Python 文件数量"
+# 运行示例智能体（默认只开放只读文件工具）
+python examples/simple_agent.py "读取 README.md 并总结项目"
 
 # 运行全部测试（309 个用例）
 pytest tests/ -v
