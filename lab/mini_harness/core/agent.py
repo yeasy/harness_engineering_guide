@@ -38,7 +38,7 @@ class Agent:
     name: str
     description: str
     system_prompt: str
-    model_name: str = "claude-sonnet-4-20250514"
+    model_name: str = "claude-sonnet-4-6"
     max_steps: int = 10
     metadata: Optional[Dict[str, Any]] = None
 

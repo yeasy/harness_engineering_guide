@@ -60,19 +60,25 @@ class ToolResultBlock:
 
 
 @dataclass
-class Message:
+class RuntimeMessage:
     role: str
     content: List[Any]
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     message_id: str = field(default_factory=lambda: f"msg_{uuid.uuid4().hex[:12]}")
 
     @classmethod
-    def user(cls, text: str) -> "Message":
+    def user(cls, text: str) -> "RuntimeMessage":
         return cls(role="user", content=[TextBlock(text=text)])
 
     @classmethod
-    def assistant(cls, content: List[Any]) -> "Message":
+    def assistant(cls, content: List[Any]) -> "RuntimeMessage":
+        if any(isinstance(block, ToolResultBlock) for block in content):
+            raise ValueError("ToolResultBlock must be returned in a user message")
         return cls(role="assistant", content=content)
+
+    @classmethod
+    def tool_result(cls, result: ToolResultBlock) -> "RuntimeMessage":
+        return cls(role="user", content=[result])
 
     def has_tool_calls(self) -> bool:
         return any(isinstance(block, ToolUseBlock) for block in self.content)
@@ -98,11 +104,11 @@ class AgentState:
     """Agent 会话状态"""
 
     session_id: str
-    messages: List[Message] = field(default_factory=list)
+    messages: List[RuntimeMessage] = field(default_factory=list)
     current_turn: int = 0
     start_time: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
-    def add_message(self, message: Message):
+    def add_message(self, message: RuntimeMessage):
         self.messages.append(message)
         self.current_turn += 1
 

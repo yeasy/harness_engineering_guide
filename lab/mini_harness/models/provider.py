@@ -63,8 +63,8 @@ class ModelConfig:
     max_tokens: int = 4096
 
 
-class Message:
-    """简单消息对象"""
+class ProviderMessage:
+    """Provider 层的简单消息对象，避免与 core/runtime Message 混淆"""
 
     def __init__(self, role: str, content: str):
         self.role = role
@@ -80,6 +80,15 @@ class ProviderResponse:
     model: str
     tool_calls: List[Dict[str, Any]] = field(default_factory=list)
     stop_reason: str = "end_turn"
+
+
+def _anthropic_tokens_used(usage: Any) -> int:
+    return (
+        getattr(usage, "input_tokens", 0)
+        + getattr(usage, "cache_creation_input_tokens", 0)
+        + getattr(usage, "cache_read_input_tokens", 0)
+        + getattr(usage, "output_tokens", 0)
+    )
 
 
 class CircuitBreaker:
@@ -152,20 +161,22 @@ class BaseProvider(ABC):
 
     @abstractmethod
     def complete(
-        self, messages: List[Message], tools: Optional[List[Dict]] = None
+        self, messages: List[ProviderMessage], tools: Optional[List[Dict]] = None
     ) -> ProviderResponse:
         """非流式请求"""
         pass
 
     @abstractmethod
     def stream(
-        self, messages: List[Message], tools: Optional[List[Dict]] = None
+        self, messages: List[ProviderMessage], tools: Optional[List[Dict]] = None
     ) -> Generator[str, None, None]:
         """流式请求（逐 token 输出文本）"""
         pass
 
     @abstractmethod
-    def complete_with_tools(self, messages: List[Message], tools: List[Dict]) -> ProviderResponse:
+    def complete_with_tools(
+        self, messages: List[ProviderMessage], tools: List[Dict]
+    ) -> ProviderResponse:
         """带工具调用的请求"""
         pass
 
@@ -184,7 +195,7 @@ class ClaudeProvider(BaseProvider):
         self.client = anthropic.Anthropic(api_key=config.api_key)
 
     def complete(
-        self, messages: List[Message], tools: Optional[List[Dict]] = None
+        self, messages: List[ProviderMessage], tools: Optional[List[Dict]] = None
     ) -> ProviderResponse:
         api_messages = [{"role": m.role, "content": m.content} for m in messages]
         kwargs = dict(
@@ -213,17 +224,19 @@ class ClaudeProvider(BaseProvider):
 
         return ProviderResponse(
             content="".join(text_parts),
-            tokens_used=response.usage.input_tokens + response.usage.output_tokens,
+            tokens_used=_anthropic_tokens_used(response.usage),
             model=self.config.model_id,
             tool_calls=tool_calls,
             stop_reason=response.stop_reason,
         )
 
-    def complete_with_tools(self, messages: List[Message], tools: List[Dict]) -> ProviderResponse:
+    def complete_with_tools(
+        self, messages: List[ProviderMessage], tools: List[Dict]
+    ) -> ProviderResponse:
         return self.complete(messages, tools=tools)
 
     def stream(
-        self, messages: List[Message], tools: Optional[List[Dict]] = None
+        self, messages: List[ProviderMessage], tools: Optional[List[Dict]] = None
     ) -> Generator[str, None, None]:
         api_messages = [{"role": m.role, "content": m.content} for m in messages]
         with self.client.messages.stream(
@@ -270,7 +283,7 @@ class OpenAIProvider(BaseProvider):
         self.client = openai.OpenAI(**kwargs)
 
     def complete(
-        self, messages: List[Message], tools: Optional[List[Dict]] = None
+        self, messages: List[ProviderMessage], tools: Optional[List[Dict]] = None
     ) -> ProviderResponse:
         api_messages = [{"role": m.role, "content": m.content} for m in messages]
         kwargs = dict(
@@ -316,11 +329,13 @@ class OpenAIProvider(BaseProvider):
             stop_reason=choice.finish_reason or "stop",
         )
 
-    def complete_with_tools(self, messages: List[Message], tools: List[Dict]) -> ProviderResponse:
+    def complete_with_tools(
+        self, messages: List[ProviderMessage], tools: List[Dict]
+    ) -> ProviderResponse:
         return self.complete(messages, tools=tools)
 
     def stream(
-        self, messages: List[Message], tools: Optional[List[Dict]] = None
+        self, messages: List[ProviderMessage], tools: Optional[List[Dict]] = None
     ) -> Generator[str, None, None]:
         """流式输出（兼容 OpenAI response stream 格式）"""
         api_messages = [{"role": m.role, "content": m.content} for m in messages]

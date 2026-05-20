@@ -96,6 +96,7 @@ class PathValidator:
             Normalized path
         """
         # Use posixpath for consistent behavior across platforms
+        path = path.replace('\\', '/')
         normalized = posixpath.normpath(path)
         return normalized
 
@@ -120,10 +121,8 @@ class PathValidator:
 
         # Check that resolved path is within base_path
         try:
-            # Get relative path from base to resolved
-            rel_path = os.path.relpath(resolved, self.base_path)
-            # If relative path starts with .., it's outside base_path
-            if rel_path.startswith('..'):
+            common_path = os.path.commonpath([self.base_path, resolved])
+            if common_path != self.base_path:
                 raise ValueError(f"Path traversal detected: {path} -> {resolved}")
         except ValueError as e:
             if "different drives" in str(e):

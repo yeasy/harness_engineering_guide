@@ -34,7 +34,7 @@
   * [4.3 流式处理与事件驱动架构](04_runtime/4.3_streaming.md)
   * [4.4 错误处理与故障恢复](04_runtime/4.4_error_recovery.md)
   * [4.5 长时任务的漂移检测与纠正](04_runtime/4.5_drift_correction.md)
-  * [4.6 令牌预算与上下文动态管理](04_runtime/4.6_token_budget.md)
+  * [4.6 Token预算与上下文动态管理](04_runtime/4.6_token_budget.md)
   * [4.7 实战：MiniHarness 运行时实现](04_runtime/4.7_miniharness_runtime.md)
   * [4.8 实时控制平面](04_runtime/4.8_realtime_control.md)
   * [本章小结](04_runtime/summary.md)

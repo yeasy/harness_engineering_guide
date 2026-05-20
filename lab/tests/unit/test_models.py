@@ -100,7 +100,7 @@ class TestCircuitBreaker:
 
 class TestModelConfig:
     def test_creation(self):
-        config = ModelConfig(provider=ModelProviderType.CLAUDE, model_id="claude-sonnet-4-20250514")
+        config = ModelConfig(provider=ModelProviderType.CLAUDE, model_id="claude-sonnet-4-6")
         assert config.provider == ModelProviderType.CLAUDE
         assert config.max_tokens == 4096
         assert config.timeout == 30
@@ -108,7 +108,7 @@ class TestModelConfig:
     def test_custom_config(self):
         config = ModelConfig(
             provider=ModelProviderType.CLAUDE,
-            model_id="claude-opus-4-20250514",
+            model_id="claude-opus-4-6",
             api_key="test-key",
             max_tokens=8192,
             timeout=60,
@@ -123,11 +123,11 @@ class TestModelConfig:
 class TestModelSelectionEngine:
     def test_select_primary(self):
         primary = ModelConfig(
-            provider=ModelProviderType.CLAUDE, model_id="claude-sonnet-4-20250514", api_key="test"
+            provider=ModelProviderType.CLAUDE, model_id="claude-sonnet-4-6", api_key="test"
         )
         engine = ModelSelectionEngine(primary)
         provider = engine.select_model()
-        assert provider.config.model_id == "claude-sonnet-4-20250514"
+        assert provider.config.model_id == "claude-sonnet-4-6"
 
     def test_fallback_selection(self):
         primary = ModelConfig(provider=ModelProviderType.CLAUDE, model_id="primary", api_key="test")
@@ -254,6 +254,22 @@ class TestResponseParser:
         assert calls[0].name == "bash_exec"
         assert calls[0].input == {"command": "ls -la"}
         assert msg.tokens_used == 150
+
+    def test_parse_response_counts_cache_tokens(self):
+        raw = {
+            "content": [{"type": "text", "text": "Cached response"}],
+            "stop_reason": "end_turn",
+            "usage": {
+                "input_tokens": 20,
+                "cache_creation_input_tokens": 30,
+                "cache_read_input_tokens": 40,
+                "output_tokens": 10,
+            },
+        }
+
+        msg = ResponseParser.parse_response(raw)
+
+        assert msg.tokens_used == 100
 
     def test_parse_tool_input_as_string(self):
         raw = {

@@ -174,6 +174,29 @@ class TestPathValidator:
             assert tmpdir in resolved
             assert "subdir" in resolved
 
+    def test_path_segment_starting_with_two_dots_is_allowed(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            validator = PathValidator(base_path=tmpdir)
+
+            resolved = validator.validate("..notes/file.txt")
+
+            assert resolved == os.path.realpath(os.path.join(tmpdir, "..notes", "file.txt"))
+
+    def test_backslashes_are_normalized_as_path_separators(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            validator = PathValidator(base_path=tmpdir)
+
+            resolved = validator.validate(r"subdir\file.txt")
+
+            assert resolved == os.path.realpath(os.path.join(tmpdir, "subdir", "file.txt"))
+
+    def test_backslash_directory_traversal_attack_blocked(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            validator = PathValidator(base_path=tmpdir)
+
+            with pytest.raises(ValueError, match="Path traversal"):
+                validator.validate(r"..\escape.txt")
+
     def test_directory_traversal_attack_blocked(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             # Create a parent directory outside the base

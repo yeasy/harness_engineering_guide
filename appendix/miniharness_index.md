@@ -408,7 +408,7 @@ import asyncio
 from mini_harness.tools.builtin import BashTool, FileReadTool, FileWriteTool
 from mini_harness.tools.registry import ToolRegistry
 from mini_harness.models.provider import (
-    ModelConfig, ModelProviderType, create_provider, Message
+    ModelConfig, ModelProviderType, create_provider, ProviderMessage
 )
 
 # 1. 注册工具
@@ -429,7 +429,7 @@ provider = create_provider(config)
 # 3. 调用 LLM（带工具）
 tools = registry.list_tools()
 response = provider.complete_with_tools(
-    messages=[Message("user", "用 bash 查看系统信息")],
+    messages=[ProviderMessage("user", "用 bash 查看系统信息")],
     tools=tools,
 )
 print(response.content)
@@ -439,7 +439,7 @@ print(response.tool_calls)
 **使用熔断器做故障转移**
 
 ```python
-from mini_harness.models.provider import ModelConfig, ModelProviderType, ModelSelectionEngine
+from mini_harness.models.provider import ModelConfig, ModelProviderType, ModelSelectionEngine, ProviderMessage
 
 primary = ModelConfig(ModelProviderType.OPENAI, "gpt-5.4", api_key="sk-xxx")
 fallback = ModelConfig(ModelProviderType.OPENAI, "gpt-5.4-mini", api_key="sk-xxx")
@@ -448,7 +448,7 @@ engine = ModelSelectionEngine(primary, fallback_chain=[fallback])
 provider = engine.select_model()  # 自动选择可用的模型
 
 try:
-    response = provider.complete([Message("user", "Hello")])
+    response = provider.complete([ProviderMessage("user", "Hello")])
     engine.mark_success(provider.config.model_id)
 except Exception:
     engine.mark_failure(provider.config.model_id)

@@ -44,6 +44,15 @@ class ParsedMessage:
 
 class ResponseParser:
     @staticmethod
+    def _count_usage_tokens(usage: dict) -> int:
+        return (
+            usage.get("input_tokens", 0)
+            + usage.get("cache_creation_input_tokens", 0)
+            + usage.get("cache_read_input_tokens", 0)
+            + usage.get("output_tokens", 0)
+        )
+
+    @staticmethod
     def parse_response(raw_response: dict) -> ParsedMessage:
         content_blocks = []
         for block in raw_response.get("content", []):
@@ -65,8 +74,5 @@ class ResponseParser:
         return ParsedMessage(
             content_blocks=content_blocks,
             stop_reason=raw_response.get("stop_reason", "end_turn"),
-            tokens_used=(
-                raw_response.get("usage", {}).get("input_tokens", 0)
-                + raw_response.get("usage", {}).get("output_tokens", 0)
-            ),
+            tokens_used=ResponseParser._count_usage_tokens(raw_response.get("usage", {})),
         )

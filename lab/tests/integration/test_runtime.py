@@ -1,7 +1,7 @@
 """
 Integration tests for mini_harness.runtime module:
 - runtime/engine.py: RuntimeEngine (async generator event stream)
-- runtime/models.py: Message, AgentState, TextBlock, ToolUseBlock, ToolResultBlock
+- runtime/models.py: RuntimeMessage, AgentState, TextBlock, ToolUseBlock, ToolResultBlock
 - runtime/events.py: Event types
 """
 
@@ -22,7 +22,7 @@ from mini_harness.runtime.events import (
 )
 from mini_harness.runtime.models import (
     AgentState,
-    Message,
+    RuntimeMessage,
     TextBlock,
     ToolResultBlock,
     ToolUseBlock,
@@ -73,18 +73,18 @@ class TestRuntimeToolResultBlock:
 
 class TestRuntimeMessage:
     def test_user_message(self):
-        msg = Message.user("Hello")
+        msg = RuntimeMessage.user("Hello")
         assert msg.role == "user"
         assert msg.get_text() == "Hello"
         assert msg.has_tool_calls() is False
 
     def test_assistant_text_message(self):
-        msg = Message.assistant([TextBlock(text="Hi there")])
+        msg = RuntimeMessage.assistant([TextBlock(text="Hi there")])
         assert msg.role == "assistant"
         assert msg.get_text() == "Hi there"
 
     def test_assistant_with_tool_call(self):
-        msg = Message.assistant(
+        msg = RuntimeMessage.assistant(
             [
                 TextBlock(text="Let me run a command."),
                 ToolUseBlock(name="bash_exec", input={"command": "ls"}),
@@ -96,11 +96,11 @@ class TestRuntimeMessage:
         assert calls[0].name == "bash_exec"
 
     def test_multiple_text_blocks(self):
-        msg = Message.assistant([TextBlock(text="Part 1 "), TextBlock(text="Part 2")])
+        msg = RuntimeMessage.assistant([TextBlock(text="Part 1 "), TextBlock(text="Part 2")])
         assert msg.get_text() == "Part 1 Part 2"
 
     def test_to_dict(self):
-        msg = Message.user("Test")
+        msg = RuntimeMessage.user("Test")
         d = msg.to_dict()
         assert d["role"] == "user"
         assert len(d["content"]) == 1
@@ -108,8 +108,8 @@ class TestRuntimeMessage:
         assert "message_id" in d
 
     def test_unique_ids(self):
-        m1 = Message.user("a")
-        m2 = Message.user("b")
+        m1 = RuntimeMessage.user("a")
+        m2 = RuntimeMessage.user("b")
         assert m1.message_id != m2.message_id
 
 
@@ -122,14 +122,14 @@ class TestRuntimeAgentState:
 
     def test_add_message(self):
         state = AgentState(session_id="sess-001")
-        state.add_message(Message.user("Hello"))
+        state.add_message(RuntimeMessage.user("Hello"))
         assert len(state.messages) == 1
         assert state.current_turn == 1
 
     def test_get_total_text_length(self):
         state = AgentState(session_id="sess-001")
-        state.add_message(Message.user("Hello"))  # 5 chars
-        state.add_message(Message.assistant([TextBlock(text="World")]))  # 5 chars
+        state.add_message(RuntimeMessage.user("Hello"))  # 5 chars
+        state.add_message(RuntimeMessage.assistant([TextBlock(text="World")]))  # 5 chars
         assert state.get_total_text_length() == 10
 
 
@@ -275,3 +275,34 @@ class TestRuntimeEngine:
         for ev in tool_results:
             assert isinstance(ev.metadata.get("content_length"), int)
             assert ev.metadata.get("is_error") is False
+
+    @pytest.mark.asyncio
+    async def test_tool_result_is_user_message_for_next_turn(self):
+        """Tool results must be returned as user messages so the next inference
+        turn can consume them using Anthropic-compatible message history.
+        """
+
+        class InspectingEngine(RuntimeEngine):
+            def __init__(self):
+                super().__init__(tool_registry=None)
+                self.seen_states = []
+
+            async def _infer(self, state):
+                self.seen_states.append(
+                    [
+                        (message.role, [block.type for block in message.content])
+                        for message in state.messages
+                    ]
+                )
+                if len(self.seen_states) == 1:
+                    return RuntimeMessage.assistant([ToolUseBlock(name="missing_tool", input={})])
+                return RuntimeMessage.assistant([TextBlock(text="consumed tool result")])
+
+        engine = InspectingEngine()
+        events = []
+        async for event in engine.run("use a tool"):
+            events.append(event)
+
+        assert len(engine.seen_states) == 2
+        assert engine.seen_states[1][-1] == ("user", ["tool_result"])
+        assert events[-1].metadata["final_response"] == "consumed tool result"

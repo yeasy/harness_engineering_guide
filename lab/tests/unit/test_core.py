@@ -301,7 +301,7 @@ class TestAgent:
         )
         assert agent.agent_id == "agent-001"
         assert agent.name == "TestAgent"
-        assert agent.model_name == "claude-sonnet-4-20250514"
+        assert agent.model_name == "claude-sonnet-4-6"
         assert agent.max_steps == 10
         assert agent.metadata == {}
 
@@ -311,11 +311,11 @@ class TestAgent:
             name="CustomAgent",
             description="Custom",
             system_prompt="Custom prompt",
-            model_name="claude-opus-4-20250514",
+            model_name="claude-opus-4-6",
             max_steps=50,
             metadata={"role": "researcher"},
         )
-        assert agent.model_name == "claude-opus-4-20250514"
+        assert agent.model_name == "claude-opus-4-6"
         assert agent.max_steps == 50
         assert agent.metadata["role"] == "researcher"
 
