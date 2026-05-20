@@ -6,7 +6,7 @@ MiniHarness 是本书配套的实战项目——一个最小但完整的 Agent H
 
 MiniHarness 从架构、工具调用、记忆、编排、安全、评估等方面全方位展示 Harness 框架的核心设计原理。通过本项目，读者可以理解 Harness 系统的完整架构，学习安全防护的具体实现，掌握评估框架的搭建，并在此基础上构建生产级系统。
 
-项目特性包括：完整的工具调用框架、多层安全防护（权限、路径校验、护栏）、沙箱隔离支持、全面的评估系统（309 个测试用例）、生产级监控和日志。
+项目特性包括：完整的工具调用框架、多层安全防护（权限、路径校验、护栏）、评估测试体系、可观测性与日志基础设施。
 
 ### 工作原理
 
@@ -16,7 +16,7 @@ MiniHarness 从架构、工具调用、记忆、编排、安全、评估等方�
 flowchart TD
     A["用户输入"] --> B["LLM 推理(流式响应)"]
     B -->|"返回文本"| C["输出给用户"]
-    B -->|"返回 tool_call"| D["工具执行<br/>bash_exec / file_read / file_write"]
+    B -->|"返回 tool_call"| D["工具执行<br/>file_read"]
     D -->|"工具结果反馈"| B
 
     style A fill:#e8f5e9,stroke:#388e3c
@@ -30,7 +30,7 @@ flowchart TD
 | 示例中的代码 | MiniHarness 模块 | 书中章节 |
 |-------------|-----------------|---------|
 | `LLMClient` | `models/provider.py` → `OpenAIProvider` | 第7章 |
-| `ToolRegistry` + `BashTool` | `tools/registry.py` + `tools/builtin.py` | 第5章 |
+| `ToolRegistry` + `FileReadTool` | `tools/registry.py` + `tools/builtin.py` | 第5章 |
 | `SimpleAgent.run()` 循环 | `runtime/engine.py` → `RuntimeEngine` | 第4章 |
 | 流式事件输出 | `runtime/events.py` | 第4章 |
 
@@ -379,7 +379,7 @@ export LLM_API_KEY="ollama" LLM_BASE_URL="http://localhost:11434/v1" LLM_MODEL="
 
 ```bash
 # 命令行传入任务
-python examples/simple_agent.py "列出当前目录的文件，并统计 Python 文件数量"
+python examples/simple_agent.py "读取 README.md 并总结项目"
 
 # 交互式输入
 python examples/simple_agent.py
@@ -388,7 +388,7 @@ python examples/simple_agent.py
 #### 运行测试
 
 ```bash
-# 全部测试（309 个用例）
+# 全部测试
 pytest tests/ -v
 
 # 只跑某个模块
@@ -471,7 +471,7 @@ graph TD
 
     B --> G["<b>基础保障</b>"]
 
-    G --> G1["<b>安全防护</b><br/>Safety<br/>权限/路径/护栏/沙箱"]
+    G --> G1["<b>安全防护</b><br/>Safety<br/>权限/路径/护栏"]
     G --> G2["<b>可观测性</b><br/>Observability<br/>追踪/指标/日志"]
     G --> G3["<b>评估</b><br/>Tests<br/>单元/集成/端到端"]
     G --> G4["<b>编排</b><br/>Orchestration<br/>工作流/多Agent"]

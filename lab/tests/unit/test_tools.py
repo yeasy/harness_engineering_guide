@@ -120,6 +120,14 @@ class TestBashTool:
         assert "allowlist" in result.content
 
     @pytest.mark.asyncio
+    async def test_blocks_python_by_default(self):
+        tool = BashTool()
+        result = await tool.call({"command": "python3 -c 'print(1)'"})
+        assert result.success is False
+        assert result.error_type == "PermissionError"
+        assert "allowlist" in result.content
+
+    @pytest.mark.asyncio
     async def test_blocks_dangerous_command(self):
         tool = BashTool()
         result = await tool.call({"command": "rm -rf /tmp/example"})

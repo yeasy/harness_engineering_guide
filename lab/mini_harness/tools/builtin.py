@@ -23,7 +23,7 @@ class BashTool(Tool):
     能力时应显式设置 allow_shell=True，并继续接受危险命令检测。
     """
 
-    SAFE_COMMANDS = frozenset({"echo", "pwd", "true", "false", "sleep", "python", "python3"})
+    SAFE_COMMANDS = frozenset({"echo", "pwd", "true", "false", "sleep"})
 
     def __init__(
         self,

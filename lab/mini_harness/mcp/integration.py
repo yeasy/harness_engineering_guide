@@ -72,8 +72,9 @@ class ToolSchemaCache:
         # 尝试内存缓存
         if cache_key in self.memory_cache:
             cached = self.memory_cache[cache_key]
-            if datetime.now(timezone.utc) - cached.cached_at < timedelta(seconds=self.ttl_seconds):
+            if self._is_fresh(cached):
                 return cached
+            self.memory_cache.pop(cache_key, None)
 
         # 尝试磁盘缓存
         disk_path = self._get_disk_path(server_id, tool_name)
@@ -84,6 +85,8 @@ class ToolSchemaCache:
                     cached = CachedToolSchema(
                         **{**data, "cached_at": datetime.fromisoformat(data["cached_at"])}
                     )
+                    if not self._is_fresh(cached):
+                        return None
                     # 晋升到内存缓存
                     self.memory_cache[cache_key] = cached
                     return cached
@@ -115,6 +118,14 @@ class ToolSchemaCache:
         """生成磁盘缓存路径"""
         filename = f"{server_id}_{tool_name.replace('/', '_')}.json"
         return os.path.join(self.cache_dir, filename)
+
+    def _is_fresh(self, schema: CachedToolSchema) -> bool:
+        cached_at = schema.cached_at
+        if cached_at.tzinfo is None:
+            cached_at = cached_at.replace(tzinfo=timezone.utc)
+            schema.cached_at = cached_at
+
+        return datetime.now(timezone.utc) - cached_at < timedelta(seconds=self.ttl_seconds)
 
     def get_stats(self) -> Dict[str, Any]:
         """获取缓存统计"""

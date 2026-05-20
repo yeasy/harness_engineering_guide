@@ -45,7 +45,14 @@ jobs:
 
       - name: Extract tag name
         id: tag
-        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            tag_name="${GITHUB_REF_NAME}"
+          else
+            tag_name="manual-${GITHUB_SHA::7}"
+          fi
+          tag_name="${tag_name//\//-}"
+          echo "TAG_NAME=${tag_name}" >> "$GITHUB_OUTPUT"
 
       - name: Build PDF
         run: |

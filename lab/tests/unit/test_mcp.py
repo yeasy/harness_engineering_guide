@@ -131,6 +131,23 @@ class TestToolSchemaCache:
         # So memory cache returns None, disk won't have it
         assert result is None
 
+    @pytest.mark.asyncio
+    async def test_disk_cache_respects_ttl(self, tmp_dir):
+        cache1 = ToolSchemaCache(cache_dir=tmp_dir, ttl_seconds=1)
+        schema = CachedToolSchema(
+            server_id="srv",
+            tool_name="expired_on_disk",
+            description="Expired disk tool",
+            input_schema={},
+            cached_at=datetime.now(timezone.utc) - timedelta(seconds=10),
+            schema_hash="h",
+        )
+        await cache1.put(schema)
+
+        cache2 = ToolSchemaCache(cache_dir=tmp_dir, ttl_seconds=1)
+        result = await cache2.get("srv", "expired_on_disk")
+        assert result is None
+
     def test_get_stats(self, tmp_dir):
         cache = ToolSchemaCache(cache_dir=tmp_dir)
         stats = cache.get_stats()

@@ -16,7 +16,7 @@ cp .env.example .env
 # 运行示例智能体（默认只开放只读文件工具）
 python examples/simple_agent.py "读取 README.md 并总结项目"
 
-# 运行全部测试（309 个用例）
+# 运行全部测试
 pytest tests/ -v
 ```
 
@@ -44,7 +44,7 @@ graph TD
     E --> E9["<b>security/</b><br/>安全防护第12章"]
     E --> E10["<b>utils/</b><br/>工具函数"]
 
-    A --> F["<b>tests/</b><br/>测试套件309个用例"]
+    A --> F["<b>tests/</b><br/>测试套件"]
     A --> G["<b>examples/</b><br/>使用示例"]
 
     style A fill:#e3f2fd
