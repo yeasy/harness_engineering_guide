@@ -215,7 +215,21 @@ class TestRuntimeEngine:
         assert last_event.event_type == EventType.AGENT_END
         assert "session_id" in last_event.metadata
         assert "turn_count" in last_event.metadata
-        assert "final_response" in last_event.metadata
+        assert "final_response" not in last_event.metadata
+        assert "final_response_preview" in last_event.metadata
+
+    @pytest.mark.asyncio
+    async def test_events_do_not_expose_raw_prompt_or_response(self):
+        """Runtime events should not expose raw prompt/response text by default."""
+        engine = RuntimeEngine()
+        secret_prompt = "email user@example.com token sk-test-secret"
+        events = []
+        async for event in engine.run(secret_prompt):
+            events.append(event)
+
+        serialized = " ".join(str(event.metadata) for event in events)
+        assert "user@example.com" not in serialized
+        assert "sk-test-secret" not in serialized
 
     @pytest.mark.asyncio
     async def test_max_turns_respected(self):
@@ -305,4 +319,4 @@ class TestRuntimeEngine:
 
         assert len(engine.seen_states) == 2
         assert engine.seen_states[1][-1] == ("user", ["tool_result"])
-        assert events[-1].metadata["final_response"] == "consumed tool result"
+        assert events[-1].metadata["final_response_preview"] == "consumed tool result"

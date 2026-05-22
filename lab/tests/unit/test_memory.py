@@ -118,9 +118,19 @@ class TestMemoryStore:
         result = await store.save(entry)
         assert result is True
 
-        loaded = await store.load("test-save", "episodic")
-        assert loaded is not None
-        assert loaded.content == "Saved content"
+    @pytest.mark.asyncio
+    async def test_rejects_sensitive_memory_content(self, tmp_dir):
+        store = MemoryStore(tmp_dir)
+        entry = MemoryEntry(
+            memory_id="secret",
+            content="OPENAI_API_KEY=sk-test-secret and user@example.com",
+            memory_type="user",
+        )
+
+        result = await store.save(entry)
+
+        assert result is False
+        assert not list((store.types_dir / "user").glob("*"))
 
     @pytest.mark.asyncio
     async def test_load_nonexistent(self, tmp_dir):

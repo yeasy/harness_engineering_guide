@@ -54,9 +54,27 @@ class TestStructuredLogger:
         assert log_entry["trace_id"] == "test-trace-001"
         assert log_entry["message"] == "test message"
         assert log_entry["level"] == "INFO"
-        assert log_entry["user_id"] == "user-123"
+        assert log_entry["user_id"] == "[REDACTED]"
         assert log_entry["action"] == "test_action"
         assert "timestamp" in log_entry
+
+    def test_log_redacts_sensitive_fields(self, capsys):
+        logger = StructuredLogger(trace_id="test-trace-002")
+        logger.info(
+            "request",
+            api_key="fixture-secret-value",
+            nested={"authorization": "Bearer token-value", "email": "user@example.com"},
+        )
+
+        captured = capsys.readouterr()
+        log_entry = json.loads(captured.out.strip())
+
+        assert log_entry["api_key"] == "[REDACTED]"
+        assert log_entry["nested"]["authorization"] == "[REDACTED]"
+        assert log_entry["nested"]["email"] == "[REDACTED]"
+        assert "fixture-secret-value" not in captured.out
+        assert "token-value" not in captured.out
+        assert "user@example.com" not in captured.out
 
     def test_log_levels(self, capsys):
         logger = StructuredLogger()
@@ -130,6 +148,14 @@ class TestSpan:
 
         assert span.attributes["tool_name"] == "bash_exec"
         assert span.attributes["status"] == "success"
+
+    def test_span_redacts_sensitive_attributes(self):
+        span = Span(name="test_op")
+        span.set_attribute("authorization", "Bearer token-value")
+        span.set_attribute("metadata", {"email": "user@example.com"})
+
+        assert span.attributes["authorization"] == "[REDACTED]"
+        assert span.attributes["metadata"]["email"] == "[REDACTED]"
 
     def test_span_set_error(self):
         span = Span(name="test_op")

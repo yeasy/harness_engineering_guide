@@ -24,6 +24,7 @@ from mini_harness.runtime.models import (
     ToolResultBlock,
     ToolUseBlock,
 )
+from mini_harness.reliability.redaction import sanitize_observability_value
 
 
 class RuntimeEngine:
@@ -37,7 +38,7 @@ class RuntimeEngine:
     async def run(self, user_input: str) -> AsyncIterator[Event]:
         """运行 Agent，生成事件流"""
 
-        yield AgentStartEvent(metadata={"user_input": user_input})
+        yield AgentStartEvent(metadata={"input_length": len(user_input)})
 
         session_id = f"sess_{uuid.uuid4().hex[:8]}"
         state = AgentState(session_id=session_id)
@@ -54,7 +55,8 @@ class RuntimeEngine:
                 break
 
             state.add_message(response)
-            yield TextResponseEvent(metadata={"text": response.get_text()[:200]})
+            safe_text = sanitize_observability_value("model_response", response.get_text()[:200])
+            yield TextResponseEvent(metadata={"text_preview": safe_text})
 
             # 处理工具调用
             tool_calls = response.get_tool_calls()
@@ -90,7 +92,10 @@ class RuntimeEngine:
             metadata={
                 "session_id": session_id,
                 "turn_count": state.current_turn,
-                "final_response": state.messages[-1].get_text()[:200],
+                "final_response_preview": sanitize_observability_value(
+                    "model_response",
+                    state.messages[-1].get_text()[:200],
+                ),
             }
         )
 

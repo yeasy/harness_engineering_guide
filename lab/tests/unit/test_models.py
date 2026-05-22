@@ -13,7 +13,13 @@ from mini_harness.models.parser import ParsedMessage, ResponseParser, TextBlock,
 from mini_harness.models.parser import ToolUseBlock
 from mini_harness.models.parser import ToolUseBlock as ParserToolUseBlock
 from mini_harness.models.provider import CircuitBreaker
-from mini_harness.models.provider import ModelConfig, ModelProviderType, ModelSelectionEngine
+from mini_harness.models.provider import (
+    ModelConfig,
+    ModelProviderType,
+    ModelSelectionEngine,
+    OpenAIProvider,
+    ProviderMessage,
+)
 from mini_harness.models.quality import (
     HallucinationDetector,
     QualityGate,
@@ -115,6 +121,59 @@ class TestModelConfig:
         )
         assert config.api_key == "test-key"
         assert config.max_tokens == 8192
+
+
+class FakeChatCompletions:
+    def __init__(self):
+        self.kwargs = None
+
+    def create(self, **kwargs):
+        self.kwargs = kwargs
+        message = type("Message", (), {"content": "ok", "tool_calls": None})()
+        choice = type("Choice", (), {"message": message, "finish_reason": "stop"})()
+        usage = type("Usage", (), {"prompt_tokens": 1, "completion_tokens": 2})()
+        return type("Response", (), {"choices": [choice], "usage": usage})()
+
+
+class FakeOpenAIClient:
+    def __init__(self):
+        self.chat = type("Chat", (), {"completions": FakeChatCompletions()})()
+
+
+class TestOpenAIProvider:
+    def test_o_series_uses_max_completion_tokens(self):
+        config = ModelConfig(
+            provider=ModelProviderType.OPENAI,
+            model_id="o3-mini",
+            api_key="test",
+            max_tokens=123,
+        )
+        provider = OpenAIProvider.__new__(OpenAIProvider)
+        provider.config = config
+        provider.client = FakeOpenAIClient()
+
+        provider.complete([ProviderMessage("user", "hello")])
+
+        kwargs = provider.client.chat.completions.kwargs
+        assert kwargs["max_completion_tokens"] == 123
+        assert "max_tokens" not in kwargs
+
+    def test_non_reasoning_openai_compatible_uses_max_tokens(self):
+        config = ModelConfig(
+            provider=ModelProviderType.OPENAI,
+            model_id="deepseek-chat",
+            api_key="test",
+            max_tokens=456,
+        )
+        provider = OpenAIProvider.__new__(OpenAIProvider)
+        provider.config = config
+        provider.client = FakeOpenAIClient()
+
+        provider.complete([ProviderMessage("user", "hello")])
+
+        kwargs = provider.client.chat.completions.kwargs
+        assert kwargs["max_tokens"] == 456
+        assert "max_completion_tokens" not in kwargs
 
 
 # ============ ModelSelectionEngine Tests ============

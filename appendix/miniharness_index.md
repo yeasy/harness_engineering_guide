@@ -202,7 +202,7 @@ graph TD
 
 `mini_harness/memory/storage.py`、`mini_harness/memory/context.py`、`mini_harness/memory/consolidation.py`
 
-**关键类**：`Storage`、`ContextManager`、`MemoryConsolidation`
+**关键类**：`MemoryStore`、`MemoryEntry`、`ContextAssembler`、`ConsolidationEngine`
 
 **主要方法**：
 
@@ -216,7 +216,7 @@ graph TD
 
 `mini_harness/models/provider.py`、`mini_harness/models/parser.py`、`mini_harness/models/quality.py`
 
-**关键类**：`ModelProvider`、`OutputParser`、`QualityEvaluator`
+**关键类**：`BaseProvider`、`OpenAIProvider`、`ClaudeProvider`、`ResponseParser`、`QualityGate`
 
 **主要方法**：
 
@@ -243,7 +243,7 @@ graph TD
 
 `mini_harness/mcp/integration.py`
 
-**关键类**：`MCPIntegration`
+**关键类**：`MiniHarnessWithMCP`
 
 **主要方法**：
 
@@ -269,7 +269,7 @@ graph TD
 
 `mini_harness/reliability/tracing.py`、`mini_harness/reliability/monitoring.py`、`mini_harness/reliability/logging.py`、`mini_harness/reliability/resilience.py`
 
-**关键类**：`Tracer`、`MonitoringCollector`、`Logger`、`ResilienceManager`
+**关键类**：`Span`、`TraceCollector`、`MonitoringSystem`、`StructuredLogger`、`RetryDecorator`、`CircuitBreaker`
 
 **主要方法**：
 
@@ -287,7 +287,7 @@ graph TD
 **关键类**：
 
 - `PermissionDecisionEngine`: 权限决策核心
-- `ToolPermissionPolicy`: 工具权限策略
+- `PermissionPolicy`: 工具权限策略
 
 **主要方法**：
 
@@ -321,12 +321,11 @@ graph TD
 **关键类**：
 
 - `DangerousCommandDetector`: 危险命令检测
-- `GuardrailFramework`: 统一护栏框架
 
 **主要方法**：
 
 - `detect()`: 检测危险命令
-- `check_tool_call()`: 完整护栏检查
+- `get_reason()`: 返回危险命令命中的原因
 
 **代码位置**：第12.3节完整实现
 
@@ -340,9 +339,8 @@ graph TD
 
 - 单元测试
 - 集成测试
-- 端到端测试
 - 安全测试
-- 性能测试
+- 端到端和性能测试属于扩展目标，当前仓库未提供独立测试层
 
 **代码位置**：第13章完整实现
 
@@ -368,9 +366,9 @@ cp .env.example .env
 
 # 支持的服务（任选其一）
 # OpenAI
-export LLM_API_KEY="sk-xxx" LLM_BASE_URL="https://api.openai.com/v1" LLM_MODEL="gpt-5.4-mini"
+export LLM_API_KEY="<LLM_API_KEY>" LLM_BASE_URL="https://api.openai.com/v1" LLM_MODEL="gpt-5.4-mini"
 # DeepSeek
-export LLM_API_KEY="sk-xxx" LLM_BASE_URL="https://api.deepseek.com" LLM_MODEL="deepseek-chat"
+export LLM_API_KEY="<LLM_API_KEY>" LLM_BASE_URL="https://api.deepseek.com" LLM_MODEL="deepseek-chat"
 # Ollama 本地模型(无需付费 API Key)
 export LLM_API_KEY="ollama" LLM_BASE_URL="http://localhost:11434/v1" LLM_MODEL="qwen2.5:7b"
 ```
@@ -421,7 +419,7 @@ registry.register(FileWriteTool())
 config = ModelConfig(
     provider=ModelProviderType.OPENAI,
     model_id="deepseek-chat",
-    api_key="sk-xxx",
+    api_key="<LLM_API_KEY>",
     base_url="https://api.deepseek.com",
 )
 provider = create_provider(config)
@@ -441,8 +439,8 @@ print(response.tool_calls)
 ```python
 from mini_harness.models.provider import ModelConfig, ModelProviderType, ModelSelectionEngine, ProviderMessage
 
-primary = ModelConfig(ModelProviderType.OPENAI, "gpt-5.4", api_key="sk-xxx")
-fallback = ModelConfig(ModelProviderType.OPENAI, "gpt-5.4-mini", api_key="sk-xxx")
+primary = ModelConfig(ModelProviderType.OPENAI, "gpt-5.4", api_key="<LLM_API_KEY>")
+fallback = ModelConfig(ModelProviderType.OPENAI, "gpt-5.4-mini", api_key="<LLM_API_KEY>")
 
 engine = ModelSelectionEngine(primary, fallback_chain=[fallback])
 provider = engine.select_model()  # 自动选择可用的模型

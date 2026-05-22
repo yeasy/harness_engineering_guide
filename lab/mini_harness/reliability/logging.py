@@ -7,6 +7,8 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
+from mini_harness.reliability.redaction import sanitize_observability_value
+
 
 class StructuredLogger:
     """结构化日志系统 - JSON 序列化日志便于日志聚合与分析"""
@@ -27,12 +29,16 @@ class StructuredLogger:
             message: 日志消息
             **fields: 自定义字段 (工具名、耗时等)
         """
+        safe_fields = {
+            key: sanitize_observability_value(key, value)
+            for key, value in fields.items()
+        }
         log_entry = {
             "timestamp": datetime.now().isoformat(),
             "trace_id": self.trace_id,
             "message": message,
             "level": level,
-            **fields,
+            **safe_fields,
         }
         print(json.dumps(log_entry))
 

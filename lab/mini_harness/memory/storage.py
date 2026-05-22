@@ -8,6 +8,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
+from mini_harness.reliability.redaction import contains_sensitive_value
+
 
 class MemoryEntry:
     """记忆条目的完整定义"""
@@ -149,6 +151,9 @@ class MemoryStore:
     async def save(self, entry: MemoryEntry) -> bool:
         """保存记忆条目"""
         try:
+            if contains_sensitive_value(entry.content):
+                raise ValueError("Memory content appears to contain secrets or PII")
+
             path = self._get_path(entry.id, entry.type)
             path.parent.mkdir(parents=True, exist_ok=True)
 

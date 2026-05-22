@@ -10,6 +10,8 @@ from contextlib import contextmanager
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
+from mini_harness.reliability.redaction import sanitize_observability_value
+
 # 上下文变量，用于在异步调用中追踪 trace_id 和当前 span
 _trace_id_var: contextvars.ContextVar[str] = contextvars.ContextVar(
     "trace_id", default=None
@@ -65,7 +67,7 @@ class Span:
             key: 属性名
             value: 属性值
         """
-        self.attributes[key] = value
+        self.attributes[key] = sanitize_observability_value(key, value)
 
     def set_error(self, error_message: str) -> None:
         """标记 Span 为错误状态
@@ -73,7 +75,7 @@ class Span:
         Args:
             error_message: 错误消息
         """
-        self.error = error_message
+        self.error = sanitize_observability_value("error", error_message)
         self.set_attribute("error", True)
 
     def _calculate_duration_ms(self) -> float:

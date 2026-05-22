@@ -12,13 +12,13 @@ MiniHarness 最小智能体示例
 
 使用方式：
   # OpenAI
-  export LLM_API_KEY="sk-xxx"
+  export LLM_API_KEY="<LLM_API_KEY>"
   export LLM_BASE_URL="https://api.openai.com/v1"
   export LLM_MODEL="gpt-4o-mini"
   python examples/simple_agent.py "读取 README.md 并总结项目"
 
   # DeepSeek
-  export LLM_API_KEY="sk-xxx"
+  export LLM_API_KEY="<LLM_API_KEY>"
   export LLM_BASE_URL="https://api.deepseek.com"
   export LLM_MODEL="deepseek-chat"
   python examples/simple_agent.py "读取 pyproject.toml 并总结依赖"
@@ -305,7 +305,7 @@ async def main():
         print("❌ 请设置 LLM_API_KEY 环境变量")
         print()
         print("示例（DeepSeek）：")
-        print('  export LLM_API_KEY="sk-xxx"')
+        print('  export LLM_API_KEY="<LLM_API_KEY>"')
         print('  export LLM_BASE_URL="https://api.deepseek.com"')
         print('  export LLM_MODEL="deepseek-chat"')
         print()

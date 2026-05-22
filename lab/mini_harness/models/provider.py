@@ -267,7 +267,7 @@ class OpenAIProvider(BaseProvider):
         config = ModelConfig(
             provider=ModelProviderType.OPENAI,
             model_id="deepseek-chat",
-            api_key="sk-xxx",
+            api_key="<LLM_API_KEY>",
             base_url="https://api.deepseek.com",  # 关键：指定 base_url
         )
     """
@@ -286,9 +286,8 @@ class OpenAIProvider(BaseProvider):
         self, messages: List[ProviderMessage], tools: Optional[List[Dict]] = None
     ) -> ProviderResponse:
         api_messages = [{"role": m.role, "content": m.content} for m in messages]
-        kwargs = dict(
+        kwargs = self._chat_completion_kwargs(
             model=self.config.model_id,
-            max_tokens=self.config.max_tokens,
             messages=api_messages,
         )
         if tools:
@@ -339,9 +338,8 @@ class OpenAIProvider(BaseProvider):
     ) -> Generator[str, None, None]:
         """流式输出（兼容 OpenAI response stream 格式）"""
         api_messages = [{"role": m.role, "content": m.content} for m in messages]
-        kwargs = dict(
+        kwargs = self._chat_completion_kwargs(
             model=self.config.model_id,
-            max_tokens=self.config.max_tokens,
             messages=api_messages,
             stream=True,
         )
@@ -352,6 +350,18 @@ class OpenAIProvider(BaseProvider):
         for chunk in response:
             if chunk.choices and chunk.choices[0].delta.content:
                 yield chunk.choices[0].delta.content
+
+    def _chat_completion_kwargs(self, **kwargs) -> Dict[str, Any]:
+        token_param = (
+            "max_completion_tokens"
+            if self._uses_reasoning_completion_tokens()
+            else "max_tokens"
+        )
+        kwargs[token_param] = self.config.max_tokens
+        return kwargs
+
+    def _uses_reasoning_completion_tokens(self) -> bool:
+        return self.config.base_url is None and self.config.model_id.startswith("o")
 
     @staticmethod
     def _convert_tools(tools: List[Dict]) -> List[Dict]:
