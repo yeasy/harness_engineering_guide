@@ -32,13 +32,13 @@ Harness 一词意为“驾驭”，原指骑手用以驾驭烈马的缰绳和鞍
 
 | 维度 | Codex（性能型） | Claude Code（任务型） | OpenClaw（自驱型） |
 |------|--------------------|-----------------------|--------------------|
-| 核心语言 | Rust | TypeScript | TypeScript |
+| 核心实现 | Rust | 以官方发布形态为准 | TypeScript/Gateway 架构 |
 | 触发方式 | 用户指令驱动 | 用户指令驱动 | Heartbeat 自主唤醒 + 定时任务 |
 | 运行模式 | 按需启动、完成即停 | 按需启动、完成即停 | 持续后台运行 |
 | 工具生态 | skills + core-skills 模块 + MCP | 内置工具 + MCP + skills 扩展 | ClawHub skills/plugins 注册中心 |
 | 记忆模型 | state 模块会话管理 | 公开记忆/compact/hooks 机制 | `MEMORY.md` + 每日记忆文件 |
 | 安全模型 | execpolicy 策略引擎(allow/prompt/forbidden) | 分模式权限控制 + 规则配置 | 工具 allow/deny + exec 审批策略 |
-| 沙箱实现 | 平台原生沙箱(Bubblewrap/seccomp/Landlock) | 进程级隔离 | 容器级隔离 |
+| 沙箱实现 | 平台原生沙箱(Bubblewrap/seccomp/Landlock) | 权限模式 + 可选 dev container/VM 隔离 | main 默认主机执行，non-main 可启用 Docker/SSH/OpenShell 沙箱 |
 | 多智能体 | 分层 Agent 消息协议 | Coordinator 模式 + 子 Agent | Lobster 工作流引擎 |
 | 可观测性 | OpenTelemetry 原生集成 | 内置结构化日志 | 每日记忆日志 |
 
@@ -162,7 +162,7 @@ mdpress serve
 ## 约定
 
 - **代码示例** 使用 Python，实战项目 MiniHarness 为完整的 Python 实现。
-- **参考实现** 主要引用 Codex(Rust)、Claude Code(TypeScript)和 OpenClaw（TypeScript/Gateway 架构）的源码，用于说明生产级系统的设计决策。
+- **参考实现** 主要引用 Codex(Rust)、Claude Code（官方发布形态以当前仓库和文档为准）和 OpenClaw（TypeScript/Gateway 架构）的源码，用于说明生产级系统的设计决策。
 - **术语处理**：非常见术语首次出现时给出中英文对照和解释，后续直接使用。
 - **架构图**：使用 Mermaid 绘制，辅以文字说明，便于理解和复现。
 - **交叉引用**：涉及其他图书已深入覆盖的主题时，给出引用链接而非重复讲解。
