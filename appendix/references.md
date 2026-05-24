@@ -18,7 +18,7 @@
    - https://arxiv.org/abs/2307.13854
    - 812 个现实网站自动化任务，包含电商、社交、政府等域
 
-3. **SWE-bench: Can Language Models Resolve Real-world Github Issues?**
+3. **SWE-bench: Can Language Models Resolve Real-World GitHub Issues?**
 
    - Princeton & OpenAI, 2024
    - https://arxiv.org/abs/2310.06770 | [archive.org](https://web.archive.org/web/*/arxiv.org/abs/2310.06770)
