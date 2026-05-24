@@ -158,12 +158,48 @@ class TestOpenAIProvider:
         assert kwargs["max_completion_tokens"] == 123
         assert "max_tokens" not in kwargs
 
+    def test_o_series_with_explicit_openai_base_url_uses_max_completion_tokens(self):
+        config = ModelConfig(
+            provider=ModelProviderType.OPENAI,
+            model_id="o3-mini",
+            api_key="test",
+            max_tokens=123,
+            base_url="https://api.openai.com/v1",
+        )
+        provider = OpenAIProvider.__new__(OpenAIProvider)
+        provider.config = config
+        provider.client = FakeOpenAIClient()
+
+        provider.complete([ProviderMessage("user", "hello")])
+
+        kwargs = provider.client.chat.completions.kwargs
+        assert kwargs["max_completion_tokens"] == 123
+        assert "max_tokens" not in kwargs
+
     def test_non_reasoning_openai_compatible_uses_max_tokens(self):
         config = ModelConfig(
             provider=ModelProviderType.OPENAI,
             model_id="deepseek-chat",
             api_key="test",
             max_tokens=456,
+        )
+        provider = OpenAIProvider.__new__(OpenAIProvider)
+        provider.config = config
+        provider.client = FakeOpenAIClient()
+
+        provider.complete([ProviderMessage("user", "hello")])
+
+        kwargs = provider.client.chat.completions.kwargs
+        assert kwargs["max_tokens"] == 456
+        assert "max_completion_tokens" not in kwargs
+
+    def test_o_series_on_third_party_compatible_endpoint_uses_max_tokens(self):
+        config = ModelConfig(
+            provider=ModelProviderType.OPENAI,
+            model_id="o3-mini",
+            api_key="test",
+            max_tokens=456,
+            base_url="https://llm-gateway.example/v1",
         )
         provider = OpenAIProvider.__new__(OpenAIProvider)
         provider.config = config

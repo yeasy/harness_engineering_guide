@@ -13,6 +13,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, Generator, List, Optional
+from urllib.parse import urlparse
 
 # 延迟导入，避免未安装时直接报错
 _anthropic = None
@@ -361,7 +362,16 @@ class OpenAIProvider(BaseProvider):
         return kwargs
 
     def _uses_reasoning_completion_tokens(self) -> bool:
-        return self.config.base_url is None and self.config.model_id.startswith("o")
+        if not self.config.model_id.startswith("o"):
+            return False
+        return self.config.base_url is None or self._is_first_party_openai_base_url(
+            self.config.base_url
+        )
+
+    @staticmethod
+    def _is_first_party_openai_base_url(base_url: str) -> bool:
+        parsed = urlparse(base_url)
+        return parsed.scheme in {"http", "https"} and parsed.netloc == "api.openai.com"
 
     @staticmethod
     def _convert_tools(tools: List[Dict]) -> List[Dict]:
