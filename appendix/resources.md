@@ -57,7 +57,7 @@
 **Claude Code**
 
 - https://github.com/anthropics/claude-code
-- Anthropic 官方智能体编码工具，含完整的 Harness 实现（权限、安全、评估功能），2026-03 开源
+- Anthropic 官方智能体编码工具，含完整的 Harness 实现（权限、安全、评估功能）；仓库公开但许可证为 Anthropic 商业条款约束，不应称为开源
 - 推荐度：必读，5星
 
 **AgentLego**
