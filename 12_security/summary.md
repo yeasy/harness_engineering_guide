@@ -17,7 +17,7 @@ Harness系统面临十一类主要威胁，其中 **恶意工具调用** 和 **�
 - **权限** 控制“是否允许”执行
 - **沙箱** 限制“执行的破坏范围”
 
-Claude Code 的 default、acceptEdits、plan、auto、dontAsk、bypassPermissions 六类权限模式更灵活；OpenClaw 的三级权限(deny/allowlist/full)适合自驱型 Agent。最佳实践是 **基于风险的自适应权限决策**。
+Claude Code 的 default、acceptEdits、plan、auto、dontAsk、bypassPermissions 权限模式配合 allow/deny 工具规则；OpenClaw 的三级权限(deny/allowlist/full)适合自驱型 Agent。最佳实践是 **基于风险的自适应权限决策**。
 
 沙箱隔离从进程级(setrlimit)→ 容器级(Docker)→ VM级(Firecracker)，隔离强度与开销递增。
 

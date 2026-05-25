@@ -14,7 +14,7 @@
 
 ## 相关工程实现
 
-- **Claude Code**：default、acceptEdits、plan、auto、dontAsk、bypassPermissions 六类权限模式，pathValidation.ts 的多层路径防护，以及 dangerousPatterns.ts 危险命令库。
+- **Claude Code**：default、acceptEdits、plan、auto、dontAsk、bypassPermissions 权限模式，allow/deny 工具规则、组织级策略，以及危险命令防护。
 - **OpenClaw**：三级权限系统(deny/allowlist/full)、SOUL.md 行为约束、Docker 容器沙箱。
 
 ## 本章阅读路线

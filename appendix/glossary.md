@@ -116,7 +116,7 @@
 
 **Path Validation** （路径校验）：防止路径穿越攻击的5层防护机制（长度、解码、Unicode、平台、realpath）。
 
-**PermissionMode**：Claude Code 的权限管理模式，主要包括 default（逐次询问）、auto（ML 分类器自动决策）和 bypass（跳过全部权限检查）等。
+**PermissionMode**：Claude Code 的权限管理模式，主要包括 default（按需询问）、acceptEdits（自动接受编辑）、plan（只读计划）、auto、dontAsk 和 bypassPermissions（跳过权限检查，仅限隔离环境）等。
 
 **Prompt Injection** （提示注入）：通过恶意输入改变LLM的行为，使其执行非预期操作。
 
