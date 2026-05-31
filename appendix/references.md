@@ -146,6 +146,14 @@
     - Gartner, 2024
     - 智能体框架和工具的市场定位和评估
 
+### 工程实践博客
+
+22. **Building workflows for agents with Skills and Interpreters**
+
+    - Hunter Lovell（LangChain），2026-05-29
+    - https://www.langchain.com/blog/interpreter-skills
+    - Deep Agents 的 Interpreter Skills：将确定性子流程封装为可导入的 TypeScript 模块，由 `SKILL.md` 声明何时调用、由解释器在 Harness 内执行，兼顾工作流确定性与智能体自主性
+
 ---
 
 **获取方法**：大多数论文可通过 arXiv、Google Scholar、官方网站免费获取。开源项目均可通过 GitHub 访问。商业工具通常提供免费试用。
