@@ -154,6 +154,12 @@
     - https://www.langchain.com/blog/interpreter-skills
     - Deep Agents 的 Interpreter Skills：将确定性子流程封装为可导入的 TypeScript 模块，由 `SKILL.md` 声明何时调用、由解释器在 Harness 内执行，兼顾工作流确定性与智能体自主性
 
+23. **Harness design for long-running application development**
+
+    - Prithvi Rajasekaran（Anthropic），2026-03
+    - https://www.anthropic.com/engineering/harness-design-long-running-apps
+    - 长程智能体应用的 Harness 设计实践；定义“上下文焦虑”(context anxiety)，主张以上下文重置等手段支撑长时自主任务（本书 2.2、4.5、8.3.4、14.3 引用）
+
 ---
 
 **获取方法**：大多数论文可通过 arXiv、Google Scholar、官方网站免费获取。开源项目均可通过 GitHub 访问。商业工具通常提供免费试用。
