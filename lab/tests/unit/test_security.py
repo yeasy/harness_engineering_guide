@@ -321,6 +321,22 @@ class TestDangerousCommandDetector:
         assert detector.detect("echo $(rm -rf /)") is True
         assert detector.detect("echo `rm -rf /`") is True
 
+    @pytest.mark.parametrize(
+        "command",
+        [
+            'bash -c "rm -rf /tmp/x"',
+            'sh -c "rm -rf /tmp/x"',
+            "python -c \"open('/tmp/x', 'w').write('x')\"",
+            "python3 -c \"open('/tmp/x', 'w').write('x')\"",
+            "node -e \"require('fs').writeFileSync('/tmp/x', 'x')\"",
+        ],
+    )
+    def test_interpreter_wrappers_are_blocked(self, command):
+        detector = DangerousCommandDetector()
+
+        assert detector.detect(command) is True
+        assert detector.get_reason(command) is not None
+
     def test_get_reason_dangerous(self):
         detector = DangerousCommandDetector()
 

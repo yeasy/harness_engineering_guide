@@ -275,7 +275,7 @@ L5: 应用 (MiniHarness / Agent)
 **答**：
 
 1. **API Key**：在HTTP头中传递 `Authorization: Bearer <key>`
-2. **OAuth**：使用标准的OAuth 2.0流程
+2. **OAuth**：HTTP Server 应按 MCP 授权规范暴露 Protected Resource Metadata；客户端从 `WWW-Authenticate` challenge 发现授权服务器，并在 token 请求中带 `resource`
 3. **mTLS**：在HTTP Client中配置证书
 4. **Custom**：Server可以定义任何认证方式
 

@@ -31,6 +31,15 @@ class DangerousCommandDetector:
         "`": "command substitution with backticks",
     }
 
+    INLINE_EXEC_FLAGS: Dict[str, Set[str]] = {
+        "bash": {"-c"},
+        "sh": {"-c"},
+        "zsh": {"-c"},
+        "python": {"-c"},
+        "python3": {"-c"},
+        "node": {"-e", "--eval"},
+    }
+
     def __init__(self, custom_dangerous: Optional[List[str]] = None):
         """Initialize the dangerous command detector.
 
@@ -67,6 +76,9 @@ class DangerousCommandDetector:
 
         # Layer 1: Check main command against blacklist
         if main_cmd in self.dangerous_commands:
+            return True
+
+        if self._inline_exec_reason(main_cmd, tokens) is not None:
             return True
 
         # Layer 2: Check restricted commands with allowed subcommands
@@ -137,6 +149,10 @@ class DangerousCommandDetector:
         if main_cmd in self.dangerous_commands:
             return f"Command '{main_cmd}' is in the dangerous commands blacklist"
 
+        inline_exec_reason = self._inline_exec_reason(main_cmd, tokens)
+        if inline_exec_reason is not None:
+            return inline_exec_reason
+
         # Check restricted commands
         if main_cmd in self.RESTRICTED_COMMANDS:
             if len(tokens) < 2:
@@ -177,6 +193,19 @@ class DangerousCommandDetector:
             allowed_subcommands: Set of allowed subcommands
         """
         self.RESTRICTED_COMMANDS[cmd] = allowed_subcommands
+
+    def _inline_exec_reason(self, main_cmd: str, tokens: List[str]) -> Optional[str]:
+        flags = self.INLINE_EXEC_FLAGS.get(main_cmd)
+        if not flags:
+            return None
+
+        for token in tokens[1:]:
+            if token in flags or any(token.startswith(f"{flag}=") for flag in flags):
+                return (
+                    f"Inline interpreter execution via '{main_cmd} {token}' is blocked "
+                    "by the command allowlist"
+                )
+        return None
 
     def _shell_control_reason(self, command: str) -> Optional[str]:
         """Return why shell control syntax is blocked, if present.
