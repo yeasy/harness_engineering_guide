@@ -39,7 +39,7 @@ graph TB
     style H fill:#f0f0f0
 ```
 
-图 2-4：Harness三层+横切关注点架构总览
+图 2-5：Harness三层+横切关注点架构总览
 
 这个架构与第一章的星型子系统模型一致：模型调用、工具执行、记忆更新在运行时引擎的同一循环中交替发生，因此归属同一层（智能体核心层），而非人为分到不同层级。
 
@@ -121,7 +121,7 @@ flowchart TD
     style B fill:#e8f5e9
 ```
 
-图 2-5：工具调用的请求-响应模式
+图 2-6：工具调用的请求-响应模式
 
 #### 事件流规范
 
@@ -211,7 +211,7 @@ flowchart TD
     style E fill:#f3e5f5
 ```
 
-图 2-6：Harness工程指南全书的章节结构与学习路径
+图 2-7：Harness工程指南全书的章节结构与学习路径
 
 ### 关键学习点总结
 
@@ -221,7 +221,7 @@ flowchart TD
 | 执行循环 | 智能体的核心是感知-推理-决策-执行的循环 | RuntimeEngine的步骤实现 |
 | 工具抽象 | 统一各种外部系统的接口 | ToolRegistry和Tool基类 |
 | 三层记忆 | 短期+长期+向量，支持学习 | MemoryManager的设计 |
-| 权限管理 | 梯度化信任，从Free到Approve-always | PermissionManager和AuditLog |
+| 权限管理 | 梯度化信任，从Free到Approve-once | PermissionManager和AuditLog |
 | 可观测性 | 日志+追踪+指标 | Logger, Tracer, MetricsCollector |
 | 接口规范 | 清晰的消息格式和协议 | Message, ToolCallRequest/Response |
 
