@@ -140,7 +140,7 @@
 
 **SOUL.md**：OpenClaw中的智能体行为约束文档，定义智能体的工作原则和限制。
 
-**Sub-Agent** （子Agent）：由父 Agent 创建的 Agent，权限可能受限。MCP 规范支持权限委托机制。
+**Sub-Agent** （子Agent）：由父 Agent 创建的 Agent，权限边界通常由父 Agent 或宿主应用的策略控制。MCP 的 HTTP 授权规范提供 OAuth 2.1、scope、resource 绑定和 step-up auth 等机制，但不是通用的子 Agent 权限委托层。
 
 **Streaming** （流式处理）：将模型输出按 token 或事件逐步返回给客户端的方式，降低首字延迟并支持实时反馈。参见第 4.3 节。
 
