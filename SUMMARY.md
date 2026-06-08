@@ -72,7 +72,7 @@
   * [本章小结](08_orchestration/summary.md)
 * [第九章：MCP 与工具生态集成](09_mcp/README.md)
   * [9.1 Harness中的MCP集成设计](09_mcp/9.1_protocol_design.md)
-  * [9.2 传输层：stdio、HTTP与Streamable HTTP](09_mcp/9.2_transport.md)
+  * [9.2 传输层：stdio 与 Streamable HTTP](09_mcp/9.2_transport.md)
   * [9.3 MCP服务端开发](09_mcp/9.3_server_dev.md)
   * [9.4 Harness中的MCP集成模式](09_mcp/9.4_integration_patterns.md)
   * [9.5 实战：为MiniHarness集成MCP](09_mcp/9.5_miniharness_mcp.md)
