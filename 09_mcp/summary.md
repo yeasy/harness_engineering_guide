@@ -4,7 +4,9 @@
 
 ### 核心知识点回顾
 
-#### 9.1 MCP协议架构与设计哲学
+#### 9.1 Harness中的MCP集成设计
+
+（MCP 协议基础已移交《Claude 技术指南》第四章，本节仅回顾理解集成设计所需的要点。）
 
 **MCP的核心定义**：
 
@@ -65,8 +67,8 @@ client = StdioMCPClient("/path/to/server")
 client.start()
 response = client.send_request("tools/list")
 
-# HTTP客户端
-client = HttpMCPClient("http://localhost:8000")
+# Streamable HTTP客户端
+client = StreamableHttpMCPClient("http://localhost:8000")
 await client.connect()
 response = await client.send_request("tools/list")
 ```
@@ -228,7 +230,7 @@ result = await harness.process_tool_call(
 ```yaml
 L1: 协议 (MCP规范)
   ↓
-L2: 传输 (stdio / HTTP / Streamable HTTP)
+L2: 传输 (stdio / Streamable HTTP)
   ↓
 L3: Server (工具/资源/提示词实现)
   ↓
@@ -248,11 +250,13 @@ L5: 应用 (MiniHarness / Agent)
 
 #### 性能指标
 
-| 指标 | 值 | 备注 |
+（以下为示意量级的设计目标，实际数值取决于工具数量、Schema 大小与缓存命中率，见 9.4/9.5 的讨论。）
+
+| 指标 | 示例量级 | 备注 |
 |------|-----|------|
 | Schema缓存命中率 | 95%+ | 热工具快速发现 |
 | 工具发现延迟（缓存） | <5ms | vs 无缓存 200-500ms |
-| Token节省 | 80%+ | Schema缓存减少重复发送 |
+| Token节省 | 取决于负载 | Schema缓存减少重复发送 |
 | 连接复用率 | 90%+ | 减少TCP握手 |
 
 #### 可靠性指标

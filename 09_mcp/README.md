@@ -22,7 +22,7 @@ MCP通过统一的协议规范解决了这些问题。现在，一个MCP Server�
 
 ## 本章的定位
 
-本章从协议设计哲学讲起，逐步深入到传输层、服务端开发、Harness中的集成模式，最后在MiniHarness中实现完整的MCP客户端。本章与《Claude最佳实践指南》中的MCP章节互补，本章聚焦于Harness框架中的工程实现。
+本章从协议设计哲学讲起，逐步深入到传输层、服务端开发、Harness中的集成模式，最后在MiniHarness中实现完整的MCP客户端。本章与《Claude 技术指南》中的MCP章节互补，本章聚焦于Harness框架中的工程实现。
 
 ## 核心问题
 
@@ -99,7 +99,7 @@ Level 5: 实现 - MiniHarness中的完整代码
 ## 本章结构
 
 - 9.1：Harness中的MCP集成设计
-- 9.2：传输层：stdio、HTTP与Streamable HTTP
+- 9.2：传输层：stdio 与 Streamable HTTP
 - 9.3：MCP服务端开发
 - 9.4：Harness中的MCP集成模式
 - 9.5：实战：为MiniHarness集成MCP
