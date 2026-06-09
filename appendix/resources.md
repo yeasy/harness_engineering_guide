@@ -353,7 +353,7 @@
 
 - 多智能体系统原型
 - 标准化和互操作性探索
-- 关注MCP 2.0进展
+- 关注 MCP 新版规范进展（MCP 采用日期版本号，无“2.0”版本）
 
 **周11-12**
 
@@ -396,7 +396,7 @@
 
 - 本书全部
 - NIST AI Safety文档
-- LangChain State of Intelligent Agents报告
+- LangChain State of Agent Engineering 报告
 
 **推荐阅读**
 
@@ -440,7 +440,7 @@
 
 **推荐阅读**
 
-- LangChain State of Intelligent Agents
+- LangChain State of Agent Engineering
 - Gartner Magic Quadrant
 - 竞品分析
 
@@ -485,4 +485,4 @@
 | Anthropic Cowork GA | Anthropic | GA | 2026-04-09 | anthropic.com/news；影响 §14.2 |
 | Anthropic Dreaming | Anthropic | Managed Agents 新增特性（离线记忆整合） | 2026-05-06 | anthropic.com/news；影响 §6.1 / §14.3 |
 | claude-agent-sdk 更名 | Anthropic | 由 `claude-code-sdk` 改名，面向 Harness/Agent 应用层 | 2026 | pypi.org/project/claude-agent-sdk；影响附录 C、§4.5 |
-| Claude Code Plugins + Marketplace | Anthropic | GA，提供 `.claude-plugin/marketplace.json` 与 `/plugin` 命令 | 2025-10 | code.claude.com/docs；影响 §10.2 |
+| Claude Code Plugins + Marketplace | Anthropic | 公测（public beta）上线，提供 `.claude-plugin/marketplace.json` 与 `/plugin` 命令 | 2025-10 | code.claude.com/docs；影响 §10.2 |

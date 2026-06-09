@@ -22,9 +22,9 @@
 
 **Capability** （能力/功能）：智能体能执行的原子操作或工具。MCP中用schema定义。
 
-**Circuit Breaker** （熔断器）：借鉴电路保护的容错模式——当连续失败次数达到阈值时自动切断调用，避免雪崩。MiniHarness 的 `ModelSelectionEngine` 中有实现。
-
 **Checkpoint** （检查点）：智能体推理过程的保存点，用于恢复和持久化。
+
+**Circuit Breaker** （熔断器）：借鉴电路保护的容错模式——当连续失败次数达到阈值时自动切断调用，避免雪崩。MiniHarness 的 `ModelSelectionEngine` 中有实现。
 
 **Claude Code**：Anthropic 官方提供的智能体编码工具(Agentic Coding Tool)，内置权限管理、路径校验、危险命令检测。
 
@@ -140,9 +140,9 @@
 
 **SOUL.md**：OpenClaw中的智能体行为约束文档，定义智能体的工作原则和限制。
 
-**Sub-Agent** （子Agent）：由父 Agent 创建的 Agent，权限边界通常由父 Agent 或宿主应用的策略控制。MCP 的 HTTP 授权规范提供 OAuth 2.1、scope、resource 绑定和 step-up auth 等机制，但不是通用的子 Agent 权限委托层。
-
 **Streaming** （流式处理）：将模型输出按 token 或事件逐步返回给客户端的方式，降低首字延迟并支持实时反馈。参见第 4.3 节。
+
+**Sub-Agent** （子Agent）：由父 Agent 创建的 Agent，权限边界通常由父 Agent 或宿主应用的策略控制。MCP 的 HTTP 授权规范提供 OAuth 2.1、scope、resource 绑定和 step-up auth 等机制，但不是通用的子 Agent 权限委托层。
 
 **SWE-Bench**：软件工程基准，包含2294个真实GitHub问题，用于评估代码修改能力。
 

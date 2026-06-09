@@ -16,15 +16,15 @@
 
    - Zhou 等(CMU)，2023
    - https://arxiv.org/abs/2307.13854
-   - 812 个现实网站自动化任务，包含电商、社交、政府等域
+   - 812 个现实网站自动化任务，覆盖电商、社交论坛、协作软件开发与内容管理四域
 
 3. **SWE-bench: Can Language Models Resolve Real-World GitHub Issues?**
 
-   - Princeton & OpenAI, 2024
+   - Jimenez 等（Princeton & UChicago），2023（ICLR 2024）
    - https://arxiv.org/abs/2310.06770 | [archive.org](https://web.archive.org/web/*/arxiv.org/abs/2310.06770)
    - 2294个真实GitHub问题，评估代码理解和修改能力
 
-4. **AgentBench: Evaluating LLMs as Intelligent Agents**
+4. **AgentBench: Evaluating LLMs as Agents**
 
    - Liu 等（Tsinghua University 等），2023
    - https://arxiv.org/abs/2308.03688
@@ -60,11 +60,9 @@
 
 9. **Identifying the Risks of LM Agents with an LM-Emulated Sandbox (ToolEmu)**
 
-   - Ruan 等（UChicago, Stanford, CMU），2024（ICLR 2024）
+   - Ruan 等（University of Toronto、Vector Institute、Stanford 等），2024（ICLR 2024）
    - https://arxiv.org/abs/2309.15817
    - 用 LM 模拟工具执行环境，评估智能体安全风险；36 个高风险工具 + 144 个测试用例
-
-#### 多智能体系统
 
 10. **Agent-SafetyBench: Evaluating the Safety of LLM Agents**
 
@@ -136,14 +134,15 @@
 
 ### 行业报告
 
-20. **State of AI Intelligent Agents in Production**
+20. **State of Agent Engineering**
 
-    - LangChain, 2024
+    - LangChain, 2026（调研于 2025-11/12，1,340 名受访者）
+    - https://www.langchain.com/state-of-agent-engineering
     - 57% 的组织已在生产运行智能体系统；智能体工程的成熟度和挑战分析
 
-21. **Magic Quadrant for Generative AI Development Platforms**
+21. **Magic Quadrant for AI Application Development Platforms**
 
-    - Gartner, 2024
+    - Gartner, 2025（该领域首份 MQ）
     - 智能体框架和工具的市场定位和评估
 
 ### 工程实践博客

@@ -10,7 +10,7 @@ MiniHarness 从架构、工具调用、记忆、编排、安全、评估等方�
 
 ### 工作原理
 
-`examples/simple_agent.py` 实现了一个大约 200 行的完整 Agent，展示了 Harness 的核心循环：
+`examples/simple_agent.py` 实现了一个约 340 行的完整 Agent，展示了 Harness 的核心循环：
 
 ```mermaid
 flowchart TD
