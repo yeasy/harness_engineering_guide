@@ -150,9 +150,9 @@ flowchart TD
 #### OpenClaw
 
 - **通信**：WebSocket 长连接 + 心跳机制
-- **架构**：五平面设计（数据/控制/管理/隔离/监控）
+- **架构**：Gateway WebSocket 作为单一控制平面 + 节点传输
 - **工作流**：Lobster 确定性引擎
-- **记忆**：MEMORY.md + SOUL.md 双层
+- **记忆**：MEMORY.md + 每日记忆文件（SOUL.md 承担行为约束）
 
 优势：支持长期自主运行，适合持久化应用
 
@@ -176,9 +176,9 @@ MiniHarness项目的完整文件结构如下所示：
       - registry.py
     - **utils/** - 工具函数
       - config.py
-  - **tests/** - 测试套件
+  - **tests/unit/** - 测试套件
     - test_core.py
-    - test_registry.py
+    - test_tools.py
 
 #### 核心接口已定义
 
@@ -220,7 +220,7 @@ flowchart TD
 | 分层架构 | 三层 + 横切关注点，明确职责 | 接入层-编排层-智能体核心层 + 安全/可观测性/存储 |
 | 执行循环 | 智能体的核心是感知-推理-决策-执行的循环 | RuntimeEngine的步骤实现 |
 | 工具抽象 | 统一各种外部系统的接口 | ToolRegistry和Tool基类 |
-| 三层记忆 | 短期+长期+向量，支持学习 | MemoryManager的设计 |
+| 三层记忆 | 工作+短期+长期（向量检索作语义索引），支持学习 | MemoryManager的设计 |
 | 权限管理 | 梯度化信任，从Free到Approve-once | PermissionManager和AuditLog |
 | 可观测性 | 日志+追踪+指标 | Logger, Tracer, MetricsCollector |
 | 接口规范 | 清晰的消息格式和协议 | Message, ToolCallRequest/Response |
