@@ -37,9 +37,9 @@ graph TD
 
 **实现方法**：
 
-- 白名单（最安全）
-- 黑名单（最灵活）
-- 规则引擎（最平衡）
+- 白名单（最安全、最严格）
+- 黑名单（中等安全、较灵活）
+- 规则引擎（可控安全、最灵活）
 
 在实践中，Claude Code 通过 protected files 和 dangerous patterns 实现约束优先，OpenClaw 则通过 SOUL.md 约束文档来定义边界。
 
