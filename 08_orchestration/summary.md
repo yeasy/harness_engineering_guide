@@ -162,8 +162,8 @@
 
 4. **SubAgentFactory**：
 
-   - 动态创建子Agent
-   - 为每个子Agent创建隔离上下文
+   - 动态创建子智能体
+   - 为每个子智能体创建隔离上下文
    - 支持异步执行
 
 5. **OrchestrationEngine**：

@@ -20,7 +20,7 @@
 
 ### C
 
-**Capability** （能力/功能）：智能体能执行的原子操作或工具。MCP中用schema定义。
+**Capability** （能力/功能）：智能体对外暴露的高层能力或权限面，通常由一个或多个工具、技能或服务支撑。它描述“系统能做什么”，不等同于单个可执行调用。
 
 **Checkpoint** （检查点）：智能体推理过程的保存点，用于恢复和持久化。
 
@@ -46,7 +46,7 @@
 
 **Emergent Behavior** （涌现行为）：多智能体系统中出现的非预期、无法从单个Agent推断的系统级行为。
 
-**Execution Harness** （执行驾驭层）：本书的核心概念，指 LLM 之外的运行时支撑系统，包含工具定义、执行引擎、安全防护、评估系统等，本身不含 LLM。参见 Harness。
+**Execution Harness** （执行驾驭层）：Harness 的别名或强调执行面的说法，指 LLM 之外的运行时支撑系统，包含工具定义、运行时引擎、安全防护、评估系统等，本身不含 LLM。参见 Harness。
 
 ### F
 
@@ -96,7 +96,7 @@
 
 **Mock Testing** （模拟测试）：用模拟对象代替真实依赖的测试方式，快速但可能不够真实。
 
-**Multi-Agent System** （多Agent系统）：多个智能体协作完成任务的系统。
+**Multi-Agent System** （多智能体系统）：多个智能体协作完成任务的系统。
 
 ### N
 
@@ -142,7 +142,7 @@
 
 **Streaming** （流式处理）：将模型输出按 token 或事件逐步返回给客户端的方式，降低首字延迟并支持实时反馈。参见第 4.3 节。
 
-**Sub-Agent** （子Agent）：由父 Agent 创建的 Agent，权限边界通常由父 Agent 或宿主应用的策略控制。MCP 的 HTTP 授权规范提供 OAuth 2.1、scope、resource 绑定和 step-up auth 等机制，但不是通用的子 Agent 权限委托层。
+**Sub-Agent** （子智能体）：由父 Agent 创建的 Agent，权限边界通常由父 Agent 或宿主应用的策略控制。MCP 的 HTTP 授权规范提供 OAuth 2.1、scope、resource 绑定和 step-up auth 等机制，但不是通用的子智能体权限委托层。
 
 **SWE-Bench**：软件工程基准，包含2294个真实GitHub问题，用于评估代码修改能力。
 
@@ -152,7 +152,7 @@
 
 **Token Efficiency** （Token效率）：完成任务所消耗的Token数，越少越高效。
 
-**Tool** （工具）：Agent可调用的原子操作，包括API调用、文件操作、代码执行等。
+**Tool** （工具）：运行时可调度的可执行调用单元，包括API调用、文件操作、代码执行等。一个 Capability 可以由一个或多个 Tool 支撑。
 
 **Tool Calling** （工具调用）：LLM根据推理结果调用工具的过程。
 

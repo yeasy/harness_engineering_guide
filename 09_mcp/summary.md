@@ -10,7 +10,7 @@
 
 **MCP的核心定义**：
 
-- Client/Server模型：Agent (Client) 与工具服务器 (Server) 的双向通信
+- Host/Client/Server模型：Agent/LLM 运行在 Host 内；MCP Client 是 Host 管理的协议组件，并与单个 Server 建立隔离连接
 - JSON-RPC 2.0：所有消息基于标准JSON-RPC
 - 三种原语：Tools、Resources、Prompts
 
@@ -33,7 +33,7 @@
 
 - 极简主义：只有三个原语，覆盖99%的用例
 - Schema为中心：所有定义都是JSON Schema
-- 无强约束：传输、认证等由实现决定
+- 标准边界：stdio 与 Streamable HTTP 是规范化传输；HTTP 授权按 MCP 授权规范，stdio 凭据由宿主进程/环境提供
 - 流式能力：支持大型数据的分块传输
 
 #### 9.2 传输层：stdio 与 Streamable HTTP
@@ -57,7 +57,7 @@
 
 - stdio：使用进程池避免重复启动
 - HTTP：使用aiohttp的连接池和限制
-- OAuth认证：标准的3-legged OAuth流程
+- HTTP授权：按 MCP 授权规范使用 OAuth 2.1、受保护资源元数据、PKCE 等机制；stdio 传输从宿主环境获取凭据
 
 **关键代码**：
 
@@ -65,11 +65,13 @@
 # stdio客户端
 client = StdioMCPClient("/path/to/server")
 client.start()
+client.initialize()
 response = client.send_request("tools/list")
 
 # Streamable HTTP客户端
 client = StreamableHttpMCPClient("http://localhost:8000")
 await client.connect()
+await client.initialize()
 response = await client.send_request("tools/list")
 ```
 
@@ -322,7 +324,7 @@ async def load_permissions_from_sso(agent_id: str):
 await registry.add_server(MCPServerConfig(
     server_id="my_server",
     server_name="My Tool Server",
-    transport_type="http",
+    transport_type="streamable_http",
     endpoint="http://localhost:8000",
 ))
 ```

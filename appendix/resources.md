@@ -8,13 +8,13 @@
 
 **Claude API 官方文档**
 
-- https://docs.anthropic.com
+- https://platform.claude.com/docs/en/home
 - 包含最新的模型信息、API参考、最佳实践
 - 推荐度：必读，5星
 
 **Model Context Protocol (MCP)**
 
-- https://github.com/modelcontextprotocol/specification
+- https://modelcontextprotocol.io/specification/latest
 - MCP 规范、参考实现、工具开发指南（Anthropic 发起，Linux Foundation 托管）
 - 推荐度：必读，5星
 
@@ -28,13 +28,13 @@
 
 **LangChain 官方教程**
 
-- https://python.langchain.com
+- https://docs.langchain.com/oss/python/langchain/overview
 - 智能体、链式推理、工具集成等
 - 推荐度：深度使用，4星
 
 **LlamaIndex 文档**
 
-- https://docs.llamaindex.ai
+- https://developers.llamaindex.ai/python/framework/
 - RAG、数据连接、智能体集成
 - 推荐度：数据管理时必读，4星
 
@@ -131,13 +131,13 @@
 
 **Anthropic Official Documentation & Cookbook**
 
-- https://docs.anthropic.com 和 https://github.com/anthropics/anthropic-cookbook
+- https://platform.claude.com/docs/en/home 和 https://github.com/anthropics/claude-cookbooks
 - Anthropic 官方文档和实用示例集，持续更新
 - 推荐度：必读，5星
 
 **LangChain Official Documentation**
 
-- https://python.langchain.com
+- https://docs.langchain.com/oss/python/langchain/overview
 - LangChain 框架详细文档和教程
 - 推荐度：使用 LangChain 时必读，4星
 
@@ -157,7 +157,7 @@
 
 **LangChain Blog**
 
-- https://blog.langchain.dev
+- https://www.langchain.com/blog
 - 智能体工程案例和最佳实践
 - 推荐度：必读，更新频率：周
 
@@ -211,7 +211,7 @@
 
 **pytest**
 
-- https://pytest.org
+- https://docs.pytest.org/en/stable/
 - Python标准测试框架
 - 推荐度：必学，5星
 
@@ -276,10 +276,10 @@
 
 #### GitHub讨论
 
-**Anthropic Claude Issues**
+**Model Context Protocol Issues**
 
-- https://github.com/modelcontextprotocol/specification/issues
-- 官方问题追踪和讨论
+- https://github.com/modelcontextprotocol/modelcontextprotocol/issues
+- MCP 官方问题追踪和讨论
 - 推荐度：跟踪问题和建议，4星
 
 **LangChain Discussions**
@@ -481,7 +481,7 @@
 
 | 条目 | 发起方 | 状态 | as_of | 官方链接 / 影响章节 |
 |------|--------|------|-------|----------------------|
-| Anthropic Managed Agents | Anthropic | 公测 (beta header `managed-agents-2026-04-01`)，standard token + $0.08/session-hour | 2026-04-09 | docs.anthropic.com/en/api/managed-agents；影响 §10.5、§14.1 |
+| Anthropic Managed Agents | Anthropic | 公测 (beta header `managed-agents-2026-04-01`)，standard token + $0.08/session-hour | 2026-04-09 | https://platform.claude.com/docs/en/api/managed-agents；影响 §10.5、§14.1 |
 | Anthropic Cowork GA | Anthropic | GA | 2026-04-09 | anthropic.com/news；影响 §14.2 |
 | Anthropic Dreaming | Anthropic | Managed Agents 新增特性（离线记忆整合） | 2026-05-06 | anthropic.com/news；影响 §6.1 / §14.3 |
 | claude-agent-sdk 更名 | Anthropic | 由 `claude-code-sdk` 改名，面向 Harness/Agent 应用层 | 2026 | pypi.org/project/claude-agent-sdk；影响附录 C、§4.5 |

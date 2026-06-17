@@ -126,8 +126,28 @@ class BashTool(Tool):
 class FileReadTool(Tool):
     """文件读取工具"""
 
-    def __init__(self, base_path: Optional[str] = None, allow_unsafe_paths: bool = False):
+    SENSITIVE_FILENAMES = frozenset(
+        {
+            ".env",
+            ".netrc",
+            "credentials.json",
+            "service-account.json",
+            "id_rsa",
+            "id_dsa",
+            "id_ecdsa",
+            "id_ed25519",
+        }
+    )
+    SENSITIVE_SUFFIXES = (".key", ".pem", ".p12", ".pfx", ".kubeconfig")
+
+    def __init__(
+        self,
+        base_path: Optional[str] = None,
+        allow_unsafe_paths: bool = False,
+        allow_sensitive_paths: bool = False,
+    ):
         self.allow_unsafe_paths = allow_unsafe_paths
+        self.allow_sensitive_paths = allow_sensitive_paths
         self.path_validator = None if allow_unsafe_paths else PathValidator(base_path)
 
     async def call(self, params: Dict[str, Any]) -> ToolResult:
@@ -139,6 +159,8 @@ class FileReadTool(Tool):
         try:
             if self.path_validator is not None:
                 filepath = self.path_validator.validate(filepath)
+            if not self.allow_sensitive_paths:
+                self._check_sensitive_path(filepath)
 
             with open(filepath, "r") as f:
                 content = f.read(max_bytes)
@@ -161,8 +183,18 @@ class FileReadTool(Tool):
                 success=False,
                 content=str(e),
                 execution_time=time.time() - start,
-                error_type=type(e).__name__,
+                error_type="PermissionError" if isinstance(e, PermissionError) else type(e).__name__,
             )
+
+    def _check_sensitive_path(self, filepath: str) -> None:
+        parts = [part.lower() for part in os.path.normpath(filepath).split(os.sep) if part]
+        basename = parts[-1] if parts else ""
+
+        if basename.startswith(".") or basename in self.SENSITIVE_FILENAMES:
+            raise PermissionError(f"Sensitive file reads are blocked by default: {basename}")
+
+        if basename.startswith(".env.") or basename.endswith(self.SENSITIVE_SUFFIXES):
+            raise PermissionError(f"Sensitive file reads are blocked by default: {basename}")
 
     def name(self) -> str:
         return "file_read"

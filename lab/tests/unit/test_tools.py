@@ -186,6 +186,18 @@ class TestFileReadTool:
         assert result.success is False
         assert result.error_type == "ValueError"
 
+    @pytest.mark.asyncio
+    async def test_blocks_sensitive_files_by_default(self, tmp_dir):
+        filepath = os.path.join(tmp_dir, ".env")
+        with open(filepath, "w") as f:
+            f.write("LLM_API_KEY=fixture-secret")
+
+        tool = FileReadTool(base_path=tmp_dir)
+        result = await tool.call({"path": ".env"})
+        assert result.success is False
+        assert result.error_type == "PermissionError"
+        assert "Sensitive file reads" in result.content
+
 
 # ============ FileWriteTool Tests ============
 

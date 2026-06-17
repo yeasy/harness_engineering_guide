@@ -60,7 +60,7 @@ Level 5: 实现 - MiniHarness中的完整代码
 
 ## 关键概念预览
 
-- **Client/Server模型**：MCP Agent (Client) 与 MCP Server 的异步通信
+- **Host/Client/Server模型**：Agent/LLM 运行在 Host 内，MCP Client 是 Host 管理的协议组件，并与单个 MCP Server 建立隔离连接
 - **三种原语**：Tools（可调用的函数）、Resources（可访问的数据）、Prompts（提示词模板）
 - **双向通信**：Server可以向Client发起请求（如approval）
 - **流式传输**：支持大型数据的分块传输

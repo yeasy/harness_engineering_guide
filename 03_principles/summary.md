@@ -59,7 +59,7 @@ graph TD
 - 分布式追踪，显示完整的执行路径
 - 执行重放，验证系统一致性
 
-在实践中，Claude Code 基于 OpenTelemetry 实现分布式追踪，OpenClaw 则通过 Lobster 确定性日志实现执行重放。
+在实践中，Claude Code 通过 OpenTelemetry 配置导出 metrics 和日志事件，并提供默认关闭的 traces beta；OpenClaw 则通过 Lobster 确定性日志实现执行重放。
 
 #### 3. 渐进信任
 

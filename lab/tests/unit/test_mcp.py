@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from mini_harness.mcp.integration import (
+    BaseMCPClient,
     CachedToolSchema,
     MCPServerConfig,
     MCPToolAdapter,
@@ -177,8 +178,41 @@ class TestMCPServerConfig:
 
 class TestMockClients:
     @pytest.mark.asyncio
+    async def test_base_initialize_marks_client_initialized(self):
+        class PlainMCPClient(BaseMCPClient):
+            def __init__(self):
+                super().__init__()
+                self.methods = []
+
+            async def send_request(
+                self, method: str, params: dict = None, expect_response: bool = True
+            ) -> dict:
+                self.methods.append(method)
+                if method == "initialize":
+                    return {"result": {"protocolVersion": self.protocol_version}}
+                if method == "notifications/initialized":
+                    return {}
+                raise AssertionError(method)
+
+        client = PlainMCPClient()
+        await client.initialize()
+        assert client.initialized is True
+        assert client.methods == ["initialize", "notifications/initialized"]
+
+        await client.ensure_initialized()
+        assert client.methods == ["initialize", "notifications/initialized"]
+
+    @pytest.mark.asyncio
+    async def test_request_before_initialize_rejected(self):
+        client = MockStdioMCPClient("./server.py")
+        response = await client.send_request("tools/list")
+        assert "error" in response
+        assert "initialize" in response["error"]["message"]
+
+    @pytest.mark.asyncio
     async def test_stdio_client_list_tools(self):
         client = MockStdioMCPClient("./server.py")
+        await client.initialize()
         response = await client.send_request("tools/list")
         tools = response["result"]["tools"]
         assert len(tools) > 0
@@ -188,6 +222,7 @@ class TestMockClients:
     @pytest.mark.asyncio
     async def test_stdio_client_call_tool(self):
         client = MockStdioMCPClient("./server.py")
+        await client.initialize()
         response = await client.send_request("tools/call", {"name": "read_file"})
         content = response["result"]["content"]
         assert len(content) > 0
@@ -195,6 +230,7 @@ class TestMockClients:
     @pytest.mark.asyncio
     async def test_http_client_list_tools(self):
         client = MockHttpMCPClient("http://localhost:8001")
+        await client.initialize()
         response = await client.send_request("tools/list")
         tools = response["result"]["tools"]
         names = [t["name"] for t in tools]
@@ -203,6 +239,7 @@ class TestMockClients:
     @pytest.mark.asyncio
     async def test_http_client_call_tool(self):
         client = MockHttpMCPClient("http://localhost:8001")
+        await client.initialize()
         response = await client.send_request("tools/call", {"name": "web_search"})
         assert "result" in response
 
@@ -243,6 +280,7 @@ class TestMCPToolRegistry:
         tools = await registry.discover_tools(force=True)
         assert len(tools) > 0
         assert "read_file" in tools
+        assert registry.clients["fs"].initialized is True
 
     @pytest.mark.asyncio
     async def test_discover_multiple_servers(self, tmp_dir):
@@ -250,10 +288,19 @@ class TestMCPToolRegistry:
         registry = MCPToolRegistry(schema_cache=cache)
 
         await registry.add_server(MCPServerConfig("fs", "FS", "stdio", "./fs.py"))
-        await registry.add_server(MCPServerConfig("web", "Web", "http", "http://localhost"))
+        await registry.add_server(MCPServerConfig("web", "Web", "streamable_http", "http://localhost"))
 
         tools = await registry.discover_tools(force=True)
         assert "read_file" in tools
+        assert "web_search" in tools
+
+    @pytest.mark.asyncio
+    async def test_legacy_http_transport_alias(self, tmp_dir):
+        cache = ToolSchemaCache(cache_dir=tmp_dir)
+        registry = MCPToolRegistry(schema_cache=cache)
+
+        await registry.add_server(MCPServerConfig("web", "Web", "http", "http://localhost"))
+        tools = await registry.discover_tools(force=True)
         assert "web_search" in tools
 
     @pytest.mark.asyncio

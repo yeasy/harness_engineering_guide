@@ -20,7 +20,46 @@ logger = logging.getLogger(__name__)
 class BaseMCPClient:
     """MCP Client基类"""
 
-    pass  # 复用前面实现的StdioMCPClient或HttpMCPClient
+    protocol_version = "2025-11-25"
+
+    def __init__(self) -> None:
+        self.initialized = False
+
+    async def initialize(self) -> Dict[str, Any]:
+        """完成 MCP initialize -> notifications/initialized 握手。"""
+        if self.initialized:
+            return {"result": {"protocolVersion": self.protocol_version}}
+
+        response = await self.send_request(
+            "initialize",
+            {
+                "protocolVersion": self.protocol_version,
+                "capabilities": {},
+                "clientInfo": {"name": "MiniHarness", "version": "0.1.0"},
+            },
+        )
+        if "error" in response:
+            return response
+
+        await self.send_notification("notifications/initialized")
+        self.initialized = True
+        return response
+
+    async def ensure_initialized(self) -> None:
+        """确保普通 MCP 请求不会跑在生命周期握手之前。"""
+        if not self.initialized:
+            response = await self.initialize()
+            if "error" in response:
+                raise RuntimeError(response["error"].get("message", "MCP initialization failed"))
+
+    async def send_notification(self, method: str, params: Dict = None) -> Dict:
+        """发送 JSON-RPC notification，不期待响应体。"""
+        return await self.send_request(method, params or {}, expect_response=False)
+
+    async def send_request(
+        self, method: str, params: Dict = None, expect_response: bool = True
+    ) -> Dict:
+        raise NotImplementedError
 
 
 # ============================================================================
@@ -148,7 +187,7 @@ class MCPServerConfig:
 
     server_id: str
     server_name: str
-    transport_type: str  # "stdio" | "http"
+    transport_type: str  # "stdio" | "streamable_http"; "http" is a legacy alias
     endpoint: str
     enabled: bool = True
     priority: int = 0
@@ -189,6 +228,7 @@ class MCPToolRegistry:
 
                 try:
                     client = await self._get_client(server_id, config)
+                    await client.ensure_initialized()
                     response = await client.send_request("tools/list")
 
                     tools = [tool["name"] for tool in response.get("result", {}).get("tools", [])]
@@ -224,6 +264,7 @@ class MCPToolRegistry:
             try:
                 config = self.servers[server_id]
                 client = await self._get_client(server_id, config)
+                await client.ensure_initialized()
                 response = await client.send_request("tools/list")
 
                 for tool_dict in response.get("result", {}).get("tools", []):
@@ -257,6 +298,7 @@ class MCPToolRegistry:
         try:
             config = self.servers[server_id]
             client = await self._get_client(server_id, config)
+            await client.ensure_initialized()
 
             response = await client.send_request(
                 "tools/call",
@@ -289,7 +331,7 @@ class MCPToolRegistry:
             # 这里应该复用前面实现的StdioMCPClient
             # 为了简化，我们使用一个模拟实现
             client = MockStdioMCPClient(config.endpoint)
-        elif config.transport_type == "http":
+        elif config.transport_type in {"streamable_http", "http"}:
             client = MockHttpMCPClient(config.endpoint)
         else:
             raise ValueError(f"Unknown transport type: {config.transport_type}")
@@ -401,7 +443,7 @@ class MiniHarnessWithMCP:
             MCPServerConfig(
                 server_id="web",
                 server_name="Web Server",
-                transport_type="http",
+                transport_type="streamable_http",
                 endpoint="http://localhost:8001",
             )
         )
@@ -438,14 +480,35 @@ class MiniHarnessWithMCP:
 # ============================================================================
 
 
-class MockStdioMCPClient:
+class MockStdioMCPClient(BaseMCPClient):
     """模拟stdio MCP客户端"""
 
     def __init__(self, endpoint: str):
+        super().__init__()
         self.endpoint = endpoint
 
-    async def send_request(self, method: str, params: Dict = None) -> Dict:
+    async def send_request(
+        self, method: str, params: Dict = None, expect_response: bool = True
+    ) -> Dict:
         """模拟请求"""
+        if method == "initialize":
+            return {
+                "result": {
+                    "protocolVersion": self.protocol_version,
+                    "capabilities": {"tools": {}},
+                    "serverInfo": {"name": "mock-stdio", "version": "0.1.0"},
+                }
+            }
+        if method == "notifications/initialized":
+            self.initialized = True
+            return {} if not expect_response else {"result": {}}
+        if not self.initialized:
+            return {
+                "error": {
+                    "code": -32002,
+                    "message": "MCP initialize must complete before ordinary requests",
+                }
+            }
         if method == "tools/list":
             return {
                 "result": {
@@ -483,14 +546,35 @@ class MockStdioMCPClient:
         return {}
 
 
-class MockHttpMCPClient:
+class MockHttpMCPClient(BaseMCPClient):
     """模拟HTTP MCP客户端"""
 
     def __init__(self, endpoint: str):
+        super().__init__()
         self.endpoint = endpoint
 
-    async def send_request(self, method: str, params: Dict = None) -> Dict:
+    async def send_request(
+        self, method: str, params: Dict = None, expect_response: bool = True
+    ) -> Dict:
         """模拟请求"""
+        if method == "initialize":
+            return {
+                "result": {
+                    "protocolVersion": self.protocol_version,
+                    "capabilities": {"tools": {}},
+                    "serverInfo": {"name": "mock-http", "version": "0.1.0"},
+                }
+            }
+        if method == "notifications/initialized":
+            self.initialized = True
+            return {} if not expect_response else {"result": {}}
+        if not self.initialized:
+            return {
+                "error": {
+                    "code": -32002,
+                    "message": "MCP initialize must complete before ordinary requests",
+                }
+            }
         if method == "tools/list":
             return {
                 "result": {

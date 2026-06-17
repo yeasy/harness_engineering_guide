@@ -102,14 +102,15 @@ flowchart LR
 ```mermaid
 graph TD
     A["<b>运行时引擎(第4章)</b><br/>调用工具的生命周期管理"] -->|调用| B["<b>工具层(第5章)</b><br/>工具的抽象和执行<br/><br/>← 你在这里"]
-    B -->|结果| C["<b>记忆系统(第6章)</b><br/>工具结果的持久化"]
+    B -->|ToolResult| A
+    A -->|重要步骤记录| C["<b>记忆系统(第6章)</b><br/>经验与摘要的持久化"]
 
     style A fill:#e8f4f8,stroke:#4a90a4,stroke-width:2px,color:#000000
     style B fill:#fff4e8,stroke:#a49044,stroke-width:2px,color:#000000
     style C fill:#e8f4f8,stroke:#4a90a4,stroke-width:2px,color:#000000
 ```
 
-运行时引擎调用工具层执行具体操作，工具执行的结果保存到记忆系统。
+运行时引擎调用工具层执行具体操作，工具层返回标准化结果；是否写入记忆系统由运行时根据重要性、审计和隐私策略决定。
 
 ### 设计决策速查
 

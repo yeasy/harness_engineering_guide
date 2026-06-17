@@ -85,18 +85,19 @@
 12. **Claude API Documentation**
 
     - Anthropic, 2026
-    - https://docs.anthropic.com | [archive.org](https://web.archive.org/web/*/docs.anthropic.com)
+    - https://platform.claude.com/docs/en/home | [archive.org](https://web.archive.org/web/*/platform.claude.com/docs/en/home)
     - Claude模型的API使用、限制、最佳实践
 
 13. **Model Context Protocol (MCP) Specification**
 
     - Anthropic 发起，Linux Foundation 托管，2024-2026
-    - https://github.com/modelcontextprotocol/specification | [archive.org](https://web.archive.org/web/*/github.com/modelcontextprotocol/specification)
+    - https://modelcontextprotocol.io/specification/latest 和 https://github.com/modelcontextprotocol/modelcontextprotocol | [archive.org](https://web.archive.org/web/*/modelcontextprotocol.io/specification/latest)
     - 工具定义和交互的开放标准协议；最新版本以官方 specification/latest 页面为准
 
 14. **Claude Code Documentation**
 
     - Anthropic, 2026
+    - https://code.claude.com/docs/en/overview 和 https://code.claude.com/docs/en/permissions
     - Harness框架特定文档，含权限、路径校验、护栏细节
 
 #### 国际标准
@@ -104,12 +105,13 @@
 15. **NIST AI Agent Standards Initiative**
 
     - NIST CAISI(Center for AI Standards and Innovation)，2026
-    - https://www.nist.gov/caisi/ai-agent-standards-initiative | [archive.org](https://web.archive.org/web/*/nist.gov/caisi/ai-agent-standards-initiative)
+    - https://www.nist.gov/artificial-intelligence/ai-agent-standards-initiative | [archive.org](https://web.archive.org/web/*/nist.gov/artificial-intelligence/ai-agent-standards-initiative)
     - 美国国家标准与技术研究院发起的 AI 智能体标准化工作，涵盖互操作性和安全等方面
 
 16. **IEEE Standards for Autonomous Systems**
 
     - IEEE, 2024
+    - https://standards.ieee.org/initiatives/autonomous-intelligence-systems/standards/
     - 自主系统的行为、安全、可靠性标准
 
 #### 开源框架文档
@@ -117,7 +119,7 @@
 17. **LangChain Documentation**
 
     - LangChain, 2023-2026
-    - https://python.langchain.com
+    - https://docs.langchain.com/oss/python/langchain/overview
     - Agent、工具、链式推理、记忆管理等
 
 18. **LlamaIndex (formerly GPT Index)**
@@ -143,6 +145,7 @@
 21. **Magic Quadrant for AI Application Development Platforms**
 
     - Gartner, 2025（该领域首份 MQ）
+    - https://www.gartner.com/en/documents/7188230
     - 智能体框架和工具的市场定位和评估
 
 ### 工程实践博客

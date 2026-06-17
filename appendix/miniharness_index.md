@@ -158,7 +158,7 @@ graph TD
 
 **代码位置**：第2章完整实现
 
-#### 3. 执行引擎
+#### 3. 运行时引擎
 
 `mini_harness/runtime/engine.py`
 
@@ -235,7 +235,7 @@ graph TD
 **主要方法**：
 
 - 复杂工作流编排
-- 多Agent协调
+- 多智能体协调
 
 **代码位置**：第8章完整实现
 
@@ -366,7 +366,8 @@ cp .env.example .env
 
 # 支持的服务（任选其一）
 # OpenAI
-export LLM_API_KEY="<LLM_API_KEY>" LLM_BASE_URL="https://api.openai.com/v1" LLM_MODEL="gpt-5.4-mini"
+read -rsp "LLM_API_KEY: " LLM_API_KEY; echo; export LLM_API_KEY
+export LLM_BASE_URL="https://api.openai.com/v1" LLM_MODEL="gpt-5.4-mini"
 # DeepSeek
 export LLM_API_KEY="<LLM_API_KEY>" LLM_BASE_URL="https://api.deepseek.com" LLM_MODEL="deepseek-chat"
 # Ollama 本地模型(无需付费 API Key)
@@ -461,7 +462,7 @@ MiniHarness的整体架构由多个层级组成，以下是完整的系统架构
 graph TD
     A["<b>用户应用层</b>"] --> B["<b>MiniHarness 框架</b>"]
 
-    B --> C["<b>核心执行引擎</b><br/>RuntimeEngine<br/>- Agent循环管理<br/>- 工具调用编排<br/>- 提示词构建与优化"]
+    B --> C["<b>运行时引擎</b><br/>RuntimeEngine<br/>- 智能体循环管理<br/>- 工具调用编排<br/>- 提示词构建与优化"]
 
     C --> D["<b>模型</b><br/>Claude"]
     C --> E["<b>工具层</b><br/>Tools"]
@@ -472,7 +473,7 @@ graph TD
     G --> G1["<b>安全防护</b><br/>Safety<br/>权限/路径/护栏"]
     G --> G2["<b>可观测性</b><br/>Observability<br/>追踪/指标/日志"]
     G --> G3["<b>评估</b><br/>Tests<br/>单元/集成/端到端"]
-    G --> G4["<b>编排</b><br/>Orchestration<br/>工作流/多Agent"]
+    G --> G4["<b>编排</b><br/>Orchestration<br/>工作流/多智能体"]
 
     B --> H["<b>基础设施层</b><br/>文件系统、数据库、外部API、容器运行时"]
 

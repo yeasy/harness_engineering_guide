@@ -4,8 +4,8 @@ mini_harness/reliability/tracing.py - Distributed tracing system
 
 import contextvars
 import json
+import secrets
 import time
-import uuid
 from contextlib import contextmanager
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -25,7 +25,7 @@ def get_trace_id() -> str:
     """获取当前链路追踪ID"""
     trace_id = _trace_id_var.get()
     if not trace_id:
-        trace_id = str(uuid.uuid4())
+        trace_id = _new_trace_id()
         _trace_id_var.set(trace_id)
     return trace_id
 
@@ -35,8 +35,18 @@ def set_trace_id(trace_id: str) -> None:
     _trace_id_var.set(trace_id)
 
 
+def _new_trace_id() -> str:
+    """生成 OpenTelemetry/W3C TraceId 形态的 16 字节十六进制字符串。"""
+    return secrets.token_hex(16)
+
+
+def _new_span_id() -> str:
+    """生成 OpenTelemetry/W3C SpanId 形态的 8 字节十六进制字符串。"""
+    return secrets.token_hex(8)
+
+
 class Span:
-    """单个追踪跨度 (OpenTelemetry 兼容)"""
+    """单个追踪跨度，使用 OpenTelemetry/W3C 形态的 trace/span ID。"""
 
     def __init__(
         self,
@@ -51,7 +61,7 @@ class Span:
             trace_id: 所属的链路ID
             parent_id: 父 Span ID (用于形成树结构)
         """
-        self.span_id = str(uuid.uuid4())
+        self.span_id = _new_span_id()
         self.name = name
         self.trace_id = trace_id or get_trace_id()
         self.parent_span_id = parent_id

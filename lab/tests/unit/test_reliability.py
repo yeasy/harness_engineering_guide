@@ -7,9 +7,9 @@ Tests for mini_harness.reliability module:
 """
 
 import json
+import sys
 import time
 from io import StringIO
-import sys
 
 import pytest
 
@@ -126,8 +126,11 @@ class TestSpan:
         span = Span(name="test_operation")
         assert span.name == "test_operation"
         assert span.span_id is not None
-        assert len(span.span_id) > 0
+        assert len(span.span_id) == 16
+        int(span.span_id, 16)
         assert span.trace_id is not None
+        assert len(span.trace_id) == 32
+        int(span.trace_id, 16)
         assert span.parent_span_id is None
         assert span.error is None
 
