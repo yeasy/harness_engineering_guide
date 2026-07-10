@@ -101,7 +101,7 @@ class HarnessApplication:
     ) -> ApplicationToolResult:
         """Execute one local or MCP tool with recovery-safe ordering."""
         current_trace = trace_id or secrets.token_hex(16)
-        fingerprint = self._fingerprint(tool_name, arguments)
+        fingerprint = self._fingerprint(tool_name, arguments, user_id)
         self._emit(
             "tool.requested",
             current_trace,
@@ -109,38 +109,47 @@ class HarnessApplication:
             call_id=call_id,
         )
 
-        checkpoint = await self.checkpoint_store.get(session_id, call_id)
-        if checkpoint is not None:
-            if checkpoint.fingerprint != fingerprint:
-                raise CheckpointConflictError(
-                    f"Checkpoint {session_id}/{call_id} was reused with different input"
-                )
-            if checkpoint.status == "completed" and checkpoint.result is not None:
-                result = ApplicationToolResult.from_checkpoint(checkpoint.result)
-                self._emit(
-                    "tool.checkpoint_replay",
-                    current_trace,
-                    tool_name=tool_name,
-                    call_id=call_id,
-                )
-                return result
-            raise IncompleteCheckpointError(
-                f"Tool call {session_id}/{call_id} may already have executed; refusing replay"
-            )
-
         tool_call = ToolCall(tool_name=tool_name, args=dict(arguments), user_id=user_id)
+        replayed = False
 
         async def guarded_execution(approved_call: ToolCall) -> ApplicationToolResult:
+            nonlocal replayed
+            checkpoint = await self.checkpoint_store.get(session_id, call_id)
+            if checkpoint is not None:
+                if checkpoint.principal_id != user_id:
+                    raise CheckpointConflictError(
+                        f"Checkpoint {session_id}/{call_id} belongs to a different principal"
+                    )
+                if checkpoint.fingerprint != fingerprint:
+                    raise CheckpointConflictError(
+                        f"Checkpoint {session_id}/{call_id} was reused with different input"
+                    )
+                if checkpoint.status == "completed" and checkpoint.result is not None:
+                    replayed = True
+                    result = ApplicationToolResult.from_checkpoint(checkpoint.result)
+                    self._emit(
+                        "tool.checkpoint_replay",
+                        current_trace,
+                        tool_name=tool_name,
+                        call_id=call_id,
+                    )
+                    return result
+                raise IncompleteCheckpointError(
+                    f"Tool call {session_id}/{call_id} may already have executed; refusing replay"
+                )
+
             await self.checkpoint_store.begin(
                 session_id,
                 call_id,
                 tool_name,
+                user_id,
                 fingerprint,
             )
             result = await self._execute_with_retry(approved_call, current_trace, call_id)
             await self.checkpoint_store.complete(
                 session_id,
                 call_id,
+                user_id,
                 fingerprint,
                 asdict(result),
             )
@@ -160,14 +169,15 @@ class HarnessApplication:
             )
             raise
 
-        self._emit(
-            "tool.completed",
-            current_trace,
-            tool_name=tool_name,
-            call_id=call_id,
-            success=result.success,
-            source=result.source,
-        )
+        if not replayed:
+            self._emit(
+                "tool.completed",
+                current_trace,
+                tool_name=tool_name,
+                call_id=call_id,
+                success=result.success,
+                source=result.source,
+            )
         return result
 
     def list_tools(self) -> list[dict[str, Any]]:
@@ -245,9 +255,13 @@ class HarnessApplication:
             self.event_sink(event)
 
     @staticmethod
-    def _fingerprint(tool_name: str, arguments: dict[str, Any]) -> str:
+    def _fingerprint(tool_name: str, arguments: dict[str, Any], principal_id: str) -> str:
         encoded = json.dumps(
-            {"tool_name": tool_name, "arguments": arguments},
+            {
+                "principal_id": principal_id,
+                "tool_name": tool_name,
+                "arguments": arguments,
+            },
             sort_keys=True,
             separators=(",", ":"),
             default=str,

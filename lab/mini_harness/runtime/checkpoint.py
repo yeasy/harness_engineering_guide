@@ -26,6 +26,7 @@ class CheckpointRecord:
     session_id: str
     call_id: str
     tool_name: str
+    principal_id: str
     fingerprint: str
     status: str
     result: dict[str, Any] | None = None
@@ -42,6 +43,7 @@ class CheckpointStore(Protocol):
         session_id: str,
         call_id: str,
         tool_name: str,
+        principal_id: str,
         fingerprint: str,
     ) -> CheckpointRecord:
         """Record that an operation is about to execute."""
@@ -50,6 +52,7 @@ class CheckpointStore(Protocol):
         self,
         session_id: str,
         call_id: str,
+        principal_id: str,
         fingerprint: str,
         result: dict[str, Any],
     ) -> CheckpointRecord:
@@ -64,6 +67,13 @@ def _validate_fingerprint(record: CheckpointRecord, fingerprint: str) -> None:
     if record.fingerprint != fingerprint:
         raise CheckpointConflictError(
             f"Checkpoint {record.session_id}/{record.call_id} was reused with different input"
+        )
+
+
+def _validate_principal(record: CheckpointRecord, principal_id: str) -> None:
+    if record.principal_id != principal_id:
+        raise CheckpointConflictError(
+            f"Checkpoint {record.session_id}/{record.call_id} belongs to a different principal"
         )
 
 
@@ -83,18 +93,21 @@ class InMemoryCheckpointStore:
         session_id: str,
         call_id: str,
         tool_name: str,
+        principal_id: str,
         fingerprint: str,
     ) -> CheckpointRecord:
         async with self._lock:
             key = _record_key(session_id, call_id)
             existing = self._records.get(key)
             if existing is not None:
+                _validate_principal(existing, principal_id)
                 _validate_fingerprint(existing, fingerprint)
                 return existing
             record = CheckpointRecord(
                 session_id=session_id,
                 call_id=call_id,
                 tool_name=tool_name,
+                principal_id=principal_id,
                 fingerprint=fingerprint,
                 status="started",
             )
@@ -105,17 +118,20 @@ class InMemoryCheckpointStore:
         self,
         session_id: str,
         call_id: str,
+        principal_id: str,
         fingerprint: str,
         result: dict[str, Any],
     ) -> CheckpointRecord:
         async with self._lock:
             key = _record_key(session_id, call_id)
             existing = self._records[key]
+            _validate_principal(existing, principal_id)
             _validate_fingerprint(existing, fingerprint)
             record = CheckpointRecord(
                 session_id=existing.session_id,
                 call_id=existing.call_id,
                 tool_name=existing.tool_name,
+                principal_id=existing.principal_id,
                 fingerprint=existing.fingerprint,
                 status="completed",
                 result=result,
@@ -141,6 +157,7 @@ class JSONCheckpointStore:
         session_id: str,
         call_id: str,
         tool_name: str,
+        principal_id: str,
         fingerprint: str,
     ) -> CheckpointRecord:
         async with self._lock:
@@ -148,12 +165,14 @@ class JSONCheckpointStore:
             key = _record_key(session_id, call_id)
             existing = records.get(key)
             if existing is not None:
+                _validate_principal(existing, principal_id)
                 _validate_fingerprint(existing, fingerprint)
                 return existing
             record = CheckpointRecord(
                 session_id=session_id,
                 call_id=call_id,
                 tool_name=tool_name,
+                principal_id=principal_id,
                 fingerprint=fingerprint,
                 status="started",
             )
@@ -165,6 +184,7 @@ class JSONCheckpointStore:
         self,
         session_id: str,
         call_id: str,
+        principal_id: str,
         fingerprint: str,
         result: dict[str, Any],
     ) -> CheckpointRecord:
@@ -172,11 +192,13 @@ class JSONCheckpointStore:
             records = self._read_records()
             key = _record_key(session_id, call_id)
             existing = records[key]
+            _validate_principal(existing, principal_id)
             _validate_fingerprint(existing, fingerprint)
             record = CheckpointRecord(
                 session_id=existing.session_id,
                 call_id=existing.call_id,
                 tool_name=existing.tool_name,
+                principal_id=existing.principal_id,
                 fingerprint=existing.fingerprint,
                 status="completed",
                 result=result,
@@ -190,7 +212,7 @@ class JSONCheckpointStore:
             return {}
         with self.path.open("r", encoding="utf-8") as checkpoint_file:
             payload = json.load(checkpoint_file)
-        if payload.get("version") != 1 or not isinstance(payload.get("records"), dict):
+        if payload.get("version") != 2 or not isinstance(payload.get("records"), dict):
             raise ValueError(f"Unsupported checkpoint format in {self.path}")
         return {
             key: CheckpointRecord(**record)
@@ -208,7 +230,7 @@ class JSONCheckpointStore:
             with os.fdopen(descriptor, "w", encoding="utf-8") as checkpoint_file:
                 json.dump(
                     {
-                        "version": 1,
+                        "version": 2,
                         "records": {key: asdict(record) for key, record in records.items()},
                     },
                     checkpoint_file,

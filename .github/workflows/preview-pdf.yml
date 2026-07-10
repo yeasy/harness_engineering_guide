@@ -66,13 +66,14 @@ jobs:
           test -s dist/harness_engineering_guide.pdf
       - name: Write release notes
         run: |
-          cat > dist/release-notes.md <<EOF
-          Auto-updated preview PDF from `${GITHUB_SHA::7}`.
-
-          - Branch: `${GITHUB_REF_NAME}`
-          - Commit: https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}
-          - Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
-          EOF
+          printf 'Auto-updated preview PDF from `%s`.\n\n- Branch: `%s`\n- Commit: https://github.com/%s/commit/%s\n- Run: https://github.com/%s/actions/runs/%s\n' \
+            "${GITHUB_SHA::7}" \
+            "$GITHUB_REF_NAME" \
+            "$GITHUB_REPOSITORY" \
+            "$GITHUB_SHA" \
+            "$GITHUB_REPOSITORY" \
+            "$GITHUB_RUN_ID" \
+            > dist/release-notes.md
       - name: Create preview release when absent
         run: |
           if ! gh release view preview-pdf >/dev/null 2>&1; then

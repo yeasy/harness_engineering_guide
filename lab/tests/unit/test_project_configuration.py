@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import os
 import re
+import subprocess
 import tomllib
 from pathlib import Path
+
+import yaml
 
 
 ROOT = Path(__file__).parents[3]
@@ -61,3 +65,31 @@ def test_artifact_toolchain_versions_and_download_digest_are_pinned():
     assert "eeb96ff27b76f7e2eab7a7c61d4c7d3793e6e632e4322f1d13c7d248d702c4fa" in workflows
     assert "@mermaid-js/mermaid-cli@11.16.0" in workflows
     assert "version: 3.10" in workflows
+
+
+def test_preview_release_notes_script_preserves_markdown_values_in_real_bash(tmp_path):
+    with (WORKFLOWS / "preview-pdf.yml").open(encoding="utf-8") as workflow_file:
+        workflow = yaml.safe_load(workflow_file)
+    steps = workflow["jobs"]["update-preview-pdf"]["steps"]
+    script = next(step["run"] for step in steps if step.get("name") == "Write release notes")
+
+    (tmp_path / "dist").mkdir()
+    environment = {
+        **os.environ,
+        "GITHUB_SHA": "abcdef1234567890",
+        "GITHUB_REF_NAME": "main",
+        "GITHUB_REPOSITORY": "owner/repository",
+        "GITHUB_RUN_ID": "12345",
+    }
+    subprocess.run(
+        ["bash", "--noprofile", "--norc", "-e", "-o", "pipefail", "-c", script],
+        cwd=tmp_path,
+        env=environment,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    notes = (tmp_path / "dist" / "release-notes.md").read_text(encoding="utf-8")
+    assert "Auto-updated preview PDF from `abcdef1`." in notes
+    assert "- Branch: `main`" in notes

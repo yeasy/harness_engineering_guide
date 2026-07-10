@@ -9,7 +9,11 @@ import pytest
 from mini_harness.application import HarnessApplication
 from mini_harness.core.tool import Tool, ToolResult
 from mini_harness.reliability.resilience import RetryConfig
-from mini_harness.runtime.checkpoint import JSONCheckpointStore
+from mini_harness.runtime.checkpoint import (
+    CheckpointConflictError,
+    InMemoryCheckpointStore,
+    JSONCheckpointStore,
+)
 from mini_harness.security.permissions import PermissionDecisionEngine, PermissionLevel
 from mini_harness.security.secure_executor import SecureToolExecutor
 from mini_harness.tools.registry import ToolRegistry
@@ -60,6 +64,25 @@ class FakeMCPRegistry:
     async def call_tool(self, tool_name, arguments, agent_id=None):
         self.calls += 1
         return True, f"remote:{arguments['value']}", ""
+
+
+class GuardedCheckpointStore:
+    """Expose a shared store while proving denied calls cannot inspect it."""
+
+    def __init__(self):
+        self.delegate = InMemoryCheckpointStore()
+        self.allow_reads = True
+
+    async def get(self, *args, **kwargs):
+        if not self.allow_reads:
+            raise AssertionError("denied calls must not read checkpoints")
+        return await self.delegate.get(*args, **kwargs)
+
+    async def begin(self, *args, **kwargs):
+        return await self.delegate.begin(*args, **kwargs)
+
+    async def complete(self, *args, **kwargs):
+        return await self.delegate.complete(*args, **kwargs)
 
 
 def secure_executor(tool_name: str, level: PermissionLevel) -> SecureToolExecutor:
@@ -182,6 +205,63 @@ async def test_checkpoint_recovery_reuses_result_without_duplicate_side_effect(t
     assert replayed == initial
     assert tool.side_effects == 1
     assert resumed.event_trace[-1].event_type == "tool.checkpoint_replay"
+
+
+@pytest.mark.asyncio
+async def test_checkpoint_replay_rejects_a_different_principal():
+    tool = CountingTool()
+    checkpoint_store = InMemoryCheckpointStore()
+    first = local_application(tool, checkpoint_store=checkpoint_store)
+    await first.execute_tool(
+        "count",
+        {"value": "principal-bound"},
+        user_id="alice",
+        session_id="shared-session",
+        call_id="shared-call",
+    )
+
+    second = local_application(tool, checkpoint_store=checkpoint_store)
+    with pytest.raises(CheckpointConflictError, match="different principal"):
+        await second.execute_tool(
+            "count",
+            {"value": "principal-bound"},
+            user_id="mallory",
+            session_id="shared-session",
+            call_id="shared-call",
+        )
+
+    assert tool.side_effects == 1
+
+
+@pytest.mark.asyncio
+async def test_denied_replay_cannot_read_a_previously_allowed_checkpoint():
+    tool = CountingTool()
+    checkpoint_store = GuardedCheckpointStore()
+    allowed = local_application(tool, checkpoint_store=checkpoint_store)
+    await allowed.execute_tool(
+        "count",
+        {"value": "policy-bound"},
+        user_id="alice",
+        session_id="policy-session",
+        call_id="policy-call",
+    )
+
+    checkpoint_store.allow_reads = False
+    denied = local_application(
+        tool,
+        level=PermissionLevel.DENY,
+        checkpoint_store=checkpoint_store,
+    )
+    with pytest.raises(PermissionError, match="denied by policy"):
+        await denied.execute_tool(
+            "count",
+            {"value": "policy-bound"},
+            user_id="alice",
+            session_id="policy-session",
+            call_id="policy-call",
+        )
+
+    assert tool.side_effects == 1
 
 
 @pytest.mark.asyncio

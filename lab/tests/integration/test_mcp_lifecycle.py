@@ -270,7 +270,7 @@ async def test_cancelled_real_request_stays_cancelled_and_connection_closes():
 
 
 @pytest.mark.asyncio
-async def test_cancelled_close_does_not_cancel_owner_cleanup():
+async def test_concurrent_stdio_close_and_cancelled_first_waiter_share_cleanup():
     transport = TrackingTransport(
         StdioTransport(
             command=sys.executable,
@@ -283,6 +283,8 @@ async def test_cancelled_close_does_not_cancel_owner_cleanup():
 
     close_task = asyncio.create_task(client.close())
     await asyncio.wait_for(transport.exiting.wait(), timeout=1)
+    joining_close = asyncio.create_task(client.close())
+    await asyncio.sleep(0)
     close_task.cancel()
     with pytest.raises(asyncio.CancelledError):
         await close_task
@@ -290,7 +292,34 @@ async def test_cancelled_close_does_not_cancel_owner_cleanup():
     assert transport.exited.is_set() is False
 
     transport.release_exit.set()
-    await asyncio.create_task(client.close())
+    await joining_close
+    assert transport.exited.is_set()
+
+
+@pytest.mark.asyncio
+async def test_concurrent_http_close_and_cancelled_first_waiter_share_cleanup(
+    loopback_mcp_server,
+):
+    endpoint, token = loopback_mcp_server
+    transport = TrackingTransport(
+        StreamableHTTPTransport(endpoint, auth=BearerTokenAuth(token)),
+        pause_before_exit=True,
+    )
+    client = MCPClient(transport, timeout_seconds=1)
+    await asyncio.create_task(client.initialize())
+
+    close_task = asyncio.create_task(client.close())
+    await asyncio.wait_for(transport.exiting.wait(), timeout=1)
+    joining_close = asyncio.create_task(client.close())
+    await asyncio.sleep(0)
+    close_task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await close_task
+    assert close_task.cancelled() is True
+    assert transport.exited.is_set() is False
+
+    transport.release_exit.set()
+    await joining_close
     assert transport.exited.is_set()
 
 

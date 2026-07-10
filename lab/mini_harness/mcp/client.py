@@ -124,6 +124,7 @@ class MCPClient:
         self._session: ClientSession | None = None
         self._lifecycle_lock = asyncio.Lock()
         self._owner: _ConnectionOwner | None = None
+        self._close_task: asyncio.Task[None] | None = None
 
     async def initialize(self) -> InitializationMetadata:
         """Connect and retain the negotiated version and capabilities."""
@@ -217,18 +218,16 @@ class MCPClient:
             owner_task = owner.task if owner is not None else None
             if owner is not None:
                 owner.close_event.set()
-            cancel_owner = (
-                owner is not None
-                and owner_task is not None
-                and not owner_task.done()
-                and not was_initialized
-            )
+            close_task = self._close_task
+            if close_task is None and owner is not None and owner_task is not None:
+                close_task = asyncio.create_task(
+                    self._finish_close(owner, cancel_owner=not was_initialized),
+                    name="mini-harness-mcp-close",
+                )
+                self._close_task = close_task
 
-        if owner is not None and owner_task is not None:
-            if cancel_owner:
-                await self._cancel_and_wait_for_owner(owner)
-            else:
-                await self._wait_for_owner(owner_task)
+        if close_task is not None:
+            await asyncio.shield(close_task)
 
     async def __aenter__(self) -> "MCPClient":
         await self.initialize()
@@ -366,6 +365,16 @@ class MCPClient:
                 self._session = None
                 self.initialized = False
                 self.metadata = None
+
+    async def _finish_close(self, owner: _ConnectionOwner, *, cancel_owner: bool) -> None:
+        """Complete one shared teardown that every close caller joins."""
+        owner_task = owner.task
+        if owner_task is None:
+            return
+        if cancel_owner and not owner_task.done():
+            await self._cancel_and_wait_for_owner(owner)
+        else:
+            await self._wait_for_owner(owner_task)
 
     def _complete_owner_ready(
         self,
