@@ -24,7 +24,7 @@
 
 **Checkpoint** （检查点）：智能体推理过程的保存点，用于恢复和持久化。
 
-**Circuit Breaker** （熔断器）：借鉴电路保护的容错模式——当连续失败次数达到阈值时自动切断调用，避免雪崩。MiniHarness 的 `ModelSelectionEngine` 中有实现。
+**Circuit Breaker** （熔断器，又译断路器）：借鉴电路保护的容错模式——当连续失败次数达到阈值时自动切断调用，避免雪崩。MiniHarness 的 `ModelSelectionEngine` 中有实现。
 
 **Claude Code**：Anthropic 官方提供的智能体编码工具(Agentic Coding Tool)，内置权限管理、路径校验、危险命令检测。
 
