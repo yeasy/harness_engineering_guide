@@ -16,8 +16,9 @@ MiniHarness 从架构、工具调用、记忆、编排、安全、评估等方�
 flowchart TD
     A["用户输入"] --> B["LLM 推理(流式响应)"]
     B -->|"返回文本"| C["输出给用户"]
-    B -->|"返回 tool_call"| D["工具执行<br/>file_read"]
-    D -->|"工具结果反馈"| B
+    B -->|"返回 tool_call"| D["HarnessApplication<br/>权限 / 重试 / 检查点"]
+    D --> E["工具执行<br/>本地或 MCP"]
+    E -->|"工具结果反馈"| B
 
     style A fill:#e8f5e9,stroke:#388e3c
     style B fill:#e3f2fd,stroke:#1565c0
@@ -31,6 +32,8 @@ flowchart TD
 |-------------|-----------------|---------|
 | `LLMClient` | `models/provider.py` → `OpenAIProvider` | 第7章 |
 | `ToolRegistry` + `FileReadTool` | `tools/registry.py` + `tools/builtin.py` | 第5章 |
+| `HarnessApplication` | `application.py` | 第4、9、11、12章的集成边界 |
+| 工具调用检查点 | `runtime/checkpoint.py` | 第11章 |
 | `SimpleAgent.run()` 循环 | `runtime/engine.py` → `RuntimeEngine` | 第4章 |
 | 流式事件输出 | `runtime/events.py` | 第4章 |
 
@@ -50,6 +53,7 @@ graph TD
     B --> B3["<b>mini_harness/</b><br/>主包"]
 
     B3 --> B3a["__init__.py"]
+    B3 --> B3b["application.py"]
 
     B3 --> C1["<b>core/</b><br/>核心模块第2章"]
     C1 --> C1a["__init__.py"]
@@ -63,6 +67,7 @@ graph TD
     C2 --> C2b["engine.py"]
     C2 --> C2c["models.py"]
     C2 --> C2d["events.py"]
+    C2 --> C2e["checkpoint.py"]
 
     B3 --> C3["<b>tools/</b><br/>工具层第5章"]
     C3 --> C3a["__init__.py"]
@@ -87,7 +92,10 @@ graph TD
 
     B3 --> C7["<b>mcp/</b><br/>MCP集成第9章"]
     C7 --> C7a["__init__.py"]
-    C7 --> C7b["integration.py"]
+    C7 --> C7b["client.py"]
+    C7 --> C7c["transports.py"]
+    C7 --> C7d["auth.py"]
+    C7 --> C7e["integration.py"]
 
     B3 --> C8["<b>reliability/</b><br/>可观测性和可靠性第11章"]
     C8 --> C8a["__init__.py"]
@@ -123,6 +131,9 @@ graph TD
     E2 --> E2h["test_security.py"]
     E --> E3["integration/"]
     E3 --> E3a["test_runtime.py"]
+    E3 --> E3b["test_application.py"]
+    E3 --> E3c["test_mcp_lifecycle.py"]
+    E3 --> E3d["test_simple_agent.py"]
 
     style A fill:#e3f2fd
     style B3 fill:#fff3e0
@@ -131,6 +142,18 @@ graph TD
 ```
 
 ### 核心模块代码索引
+
+#### 0. 应用组合入口
+
+`mini_harness/application.py`
+
+**关键类**：`HarnessApplication`
+
+**主要方法**：
+
+- `prepare_context()`：组装记忆上下文，事件只记录长度而不记录正文
+- `execute_tool()`：让本地与 MCP 工具共用权限、护栏、重试、事件和检查点
+- `list_tools()`：向模型适配层提供本地工具 Schema
 
 #### 1. 消息和事件
 
@@ -160,7 +183,7 @@ graph TD
 
 #### 3. 运行时引擎
 
-`mini_harness/runtime/engine.py`
+`mini_harness/runtime/engine.py`、`mini_harness/runtime/checkpoint.py`
 
 **关键类**：`RuntimeEngine`
 
@@ -169,6 +192,7 @@ graph TD
 - `run()`: 主智能体循环，生成运行时事件流
 - `_infer()`: 模拟模型推理
 - `_execute_tool()`: 执行工具调用并转换为 `ToolResultBlock`
+- `JSONCheckpointStore`: 原子写入工具调用状态和可重放结果
 
 **代码位置**：第4章详细代码实现
 
@@ -241,14 +265,15 @@ graph TD
 
 #### 9. MCP集成
 
-`mini_harness/mcp/integration.py`
+`mini_harness/mcp/client.py`、`mini_harness/mcp/transports.py`、`mini_harness/mcp/auth.py`、`mini_harness/mcp/integration.py`
 
-**关键类**：`MiniHarnessWithMCP`
+**关键类**：`MCPClient`、`MCPToolRegistry`、`MCPToolAdapter`、`MiniHarnessWithMCP`
 
 **主要方法**：
 
-- MCP协议支持
-- 工具交换
+- 官方 SDK 的 stdio 与 Streamable HTTP 生命周期
+- Bearer Token、自定义请求头、超时取消和显式关闭
+- 工具发现、Schema 缓存与 LLM 格式适配
 
 **代码位置**：第9章详细代码
 
@@ -293,7 +318,7 @@ graph TD
 
 - `decide()`: 做出权限决策(ASK/AUTO/DENY)
 - `record_approval()`: 记录用户批准
-- `evaluate()`: 评估权限等级
+- `get_audit_logs()`: 读取权限决策审计记录
 
 **代码位置**：第12.2节详细代码
 

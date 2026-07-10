@@ -59,7 +59,7 @@ class ConsolidationEngine:
 
     async def gather_phase(self, messages: List[str], orient_result: Dict) -> Dict[str, List[str]]:
         """阶段 2：收集信息"""
-        gathered = {
+        gathered: Dict[str, List[str]] = {
             "user_preferences": [],
             "project_updates": [],
             "learned_lessons": [],

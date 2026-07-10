@@ -3,6 +3,7 @@ mini_harness/reliability/resilience.py - Retry and fault tolerance mechanisms
 """
 
 import asyncio
+import inspect
 import random
 import time
 from functools import wraps
@@ -123,7 +124,7 @@ class RetryDecorator:
         Returns:
             装饰后的函数
         """
-        if asyncio.iscoroutinefunction(func):
+        if inspect.iscoroutinefunction(func):
             return self._wrap_async(func)  # type: ignore
         else:
             return self._wrap_sync(func)  # type: ignore

@@ -5,7 +5,8 @@ Extracts ```mermaid blocks in SUMMARY.md order and renders them with mermaid-cli
 pointing puppeteer at a system Chrome (CHROME_BIN env or auto-detected). Chunked +
 retried because a single large mmdc pass can crash headless Chrome. Diagrams that
 still fail are simply left out — build_mobile_book.py shows their source as fallback.
-Writes d-1.svg .. d-N.svg into --svg-out. Exits 0 even if some/all fail (non-fatal).
+Writes d-1.svg .. d-N.svg into --svg-out. Use --strict for publication builds
+that must fail when any source diagram cannot be rendered.
 """
 import os, re, sys, glob, time, shutil, subprocess, argparse
 
@@ -13,6 +14,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--book-dir", default=".")
 ap.add_argument("--svg-out", required=True)
 ap.add_argument("--chunk", type=int, default=25)
+ap.add_argument("--strict", action="store_true")
 a = ap.parse_args()
 BOOK, SVG = os.path.abspath(a.book_dir), os.path.abspath(a.svg_out)
 shutil.rmtree(SVG, ignore_errors=True); os.makedirs(SVG)
@@ -39,6 +41,9 @@ if N == 0:
 chrome = os.environ.get("CHROME_BIN") or next(
     (shutil.which(n) for n in ["google-chrome-stable","google-chrome","chromium-browser","chromium","chrome"] if shutil.which(n)), None)
 if not chrome:
+    if a.strict:
+        print("STRICT FAILURE: Chrome is required to render Mermaid diagrams")
+        sys.exit(1)
     print("WARNING: no Chrome found -> all diagrams will fall back to source"); sys.exit(0)
 print(f"using Chrome: {chrome}")
 pptr = os.path.join(SVG, "_pptr.json")
@@ -69,8 +74,13 @@ for att in range(4):
     miss = [i for i in range(N) if not os.path.isfile(os.path.join(SVG, f"d-{i+1}.svg"))]
     if not miss: break
     print(f"  retry {att+1}: {len(miss)} missing", flush=True)
-    for b in range(0, len(miss), 8): render(miss[b:b+8])
+    batch_size = max(1, 8 // (2 ** att))
+    for b in range(0, len(miss), batch_size): render(miss[b:b+batch_size])
 
 for f in glob.glob(os.path.join(SVG, "*.json")) + glob.glob(os.path.join(SVG, "_chunk.md")):
     os.remove(f)
-print(f"RENDERED {done()}/{N} diagrams")
+rendered = done()
+print(f"RENDERED {rendered}/{N} diagrams")
+if a.strict and rendered != N:
+    print(f"STRICT FAILURE: {N - rendered} Mermaid diagram(s) did not render")
+    sys.exit(1)

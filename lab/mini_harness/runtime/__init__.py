@@ -2,5 +2,6 @@
 
 from .engine import RuntimeEngine
 from .models import RuntimeMessage
+from .checkpoint import JSONCheckpointStore
 
-__all__ = ["RuntimeEngine", "RuntimeMessage"]
+__all__ = ["JSONCheckpointStore", "RuntimeEngine", "RuntimeMessage"]

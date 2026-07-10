@@ -128,7 +128,7 @@ class TaskManager:
     def __init__(self):
         self.tasks: Dict[str, TaskDefinition] = {}
         self.executions: Dict[str, TaskExecution] = {}
-        self.notification_queue: deque = deque()
+        self.notification_queue: deque[TaskNotification] = deque()
 
     def register_task(self, task_def: TaskDefinition) -> None:
         """注册Task"""
@@ -182,6 +182,8 @@ class TaskManager:
 
         # 检查是否还有重试机会
         task = self.get_task(task_id)
+        if task is None:
+            raise KeyError(f"Task {task_id} not found")
         if exec_record.retry_count < task.max_retries:
             exec_record.state = TaskState.FAILED
             exec_record.retry_count += 1

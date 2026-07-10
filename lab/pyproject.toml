@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=65.0", "wheel"]
+requires = ["setuptools==83.0.0", "wheel==0.47.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,29 +8,32 @@ version = "0.1.0"
 description = "A minimal but complete Harness system for AI Agents"
 readme = "README.md"
 requires-python = ">=3.11"
-license = {text = "CC-BY-NC-SA-4.0"}
+license = "CC-BY-NC-SA-4.0"
 authors = [
     {name = "yeasy", email = "yangbaohua@gmail.com"}
 ]
 
 dependencies = [
-    "pydantic>=2.0",
-    "httpx>=0.24.0",
-    "python-dotenv>=1.0",
-    "anthropic>=0.7.0",
-    "openai>=1.0",
-    "pyyaml>=6.0",
+    "pydantic==2.13.4",
+    "httpx==0.28.1",
+    "python-dotenv==1.2.2",
+    "anthropic==0.116.0",
+    "openai==2.45.0",
+    "pyyaml==6.0.3",
+    "mcp==1.28.1",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.0",
-    "pytest-asyncio>=0.21.0",
-    "black>=23.0",
-    "pylint>=2.17.0",
-    "mypy>=1.0",
-    "isort>=5.12.0",
-    "pytest-cov>=4.0",
+    "pytest==9.1.1",
+    "pytest-asyncio==1.4.0",
+    "black==26.5.1",
+    "pylint==4.0.6",
+    "mypy==2.2.0",
+    "isort==8.0.1",
+    "pytest-cov==7.1.0",
+    "build==1.5.1",
+    "types-PyYAML==6.0.12.20260518",
 ]
 
 [project.urls]
@@ -54,6 +57,10 @@ python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
+
+[tool.pylint.main]
+fail-under = 9.0
+py-version = "3.11"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -1,160 +1,99 @@
-# mcp_integration.py
-"""MCP integration for MiniHarness: tool schema caching, registry, and LLM adapter."""
+"""MCP tool schema cache, registry, and LLM-facing adapter."""
+
+from __future__ import annotations
 
 import asyncio
 import hashlib
 import json
 import logging
 import os
-from dataclasses import asdict, dataclass
+from collections.abc import Callable, Mapping, Sequence
+from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
+
+from mini_harness.mcp.auth import BearerTokenAuth
+from mini_harness.mcp.client import MCPClient, MCPClientProtocol
+from mini_harness.mcp.transports import MCPTransport, StdioTransport, StreamableHTTPTransport
 
 logger = logging.getLogger(__name__)
-
-# ============================================================================
-# 1. MCP Client基础类（复用第9.2节）
-# ============================================================================
-
-
-class BaseMCPClient:
-    """MCP Client基类"""
-
-    protocol_version = "2025-11-25"
-
-    def __init__(self) -> None:
-        self.initialized = False
-
-    async def initialize(self) -> Dict[str, Any]:
-        """完成 MCP initialize -> notifications/initialized 握手。"""
-        if self.initialized:
-            return {"result": {"protocolVersion": self.protocol_version}}
-
-        response = await self.send_request(
-            "initialize",
-            {
-                "protocolVersion": self.protocol_version,
-                "capabilities": {},
-                "clientInfo": {"name": "MiniHarness", "version": "0.1.0"},
-            },
-        )
-        if "error" in response:
-            return response
-
-        await self.send_notification("notifications/initialized")
-        self.initialized = True
-        return response
-
-    async def ensure_initialized(self) -> None:
-        """确保普通 MCP 请求不会跑在生命周期握手之前。"""
-        if not self.initialized:
-            response = await self.initialize()
-            if "error" in response:
-                raise RuntimeError(response["error"].get("message", "MCP initialization failed"))
-
-    async def send_notification(self, method: str, params: Dict = None) -> Dict:
-        """发送 JSON-RPC notification，不期待响应体。"""
-        return await self.send_request(method, params or {}, expect_response=False)
-
-    async def send_request(
-        self, method: str, params: Dict = None, expect_response: bool = True
-    ) -> Dict:
-        raise NotImplementedError
-
-
-# ============================================================================
-# 2. 工具Schema缓存
-# ============================================================================
 
 
 @dataclass
 class CachedToolSchema:
-    """缓存的工具Schema"""
+    """Cached representation of one remote MCP tool schema."""
 
     server_id: str
     tool_name: str
     description: str
-    input_schema: Dict[str, Any]
+    input_schema: dict[str, Any]
     cached_at: datetime
     schema_hash: str
 
     @classmethod
-    def from_mcp_tool(cls, server_id: str, tool_dict: Dict) -> "CachedToolSchema":
-        """从MCP工具定义创建缓存对象"""
-        schema_hash = hashlib.md5(
-            json.dumps(tool_dict.get("inputSchema", {}), sort_keys=True).encode()
+    def from_mcp_tool(cls, server_id: str, tool_dict: Mapping[str, Any]) -> "CachedToolSchema":
+        input_schema = dict(tool_dict.get("inputSchema", {}))
+        schema_hash = hashlib.sha256(
+            json.dumps(input_schema, sort_keys=True, separators=(",", ":")).encode("utf-8")
         ).hexdigest()
-
         return cls(
             server_id=server_id,
-            tool_name=tool_dict["name"],
-            description=tool_dict.get("description", ""),
-            input_schema=tool_dict.get("inputSchema", {}),
+            tool_name=str(tool_dict["name"]),
+            description=str(tool_dict.get("description", "")),
+            input_schema=input_schema,
             cached_at=datetime.now(timezone.utc),
             schema_hash=schema_hash,
         )
 
 
 class ToolSchemaCache:
-    """工具Schema缓存"""
+    """Memory-and-disk cache for remote tool schemas."""
 
     def __init__(self, cache_dir: str = "./mcp_cache", ttl_seconds: int = 3600):
         self.cache_dir = cache_dir
         self.ttl_seconds = ttl_seconds
-        self.memory_cache: Dict[str, CachedToolSchema] = {}
+        self.memory_cache: dict[str, CachedToolSchema] = {}
         os.makedirs(cache_dir, exist_ok=True)
 
-    async def get(self, server_id: str, tool_name: str) -> Optional[CachedToolSchema]:
-        """获取缓存的Schema"""
+    async def get(self, server_id: str, tool_name: str) -> CachedToolSchema | None:
         cache_key = f"{server_id}#{tool_name}"
-
-        # 尝试内存缓存
-        if cache_key in self.memory_cache:
-            cached = self.memory_cache[cache_key]
+        cached = self.memory_cache.get(cache_key)
+        if cached is not None:
             if self._is_fresh(cached):
                 return cached
             self.memory_cache.pop(cache_key, None)
 
-        # 尝试磁盘缓存
         disk_path = self._get_disk_path(server_id, tool_name)
-        if os.path.exists(disk_path):
-            try:
-                with open(disk_path, "r") as f:
-                    data = json.load(f)
-                    cached = CachedToolSchema(
-                        **{**data, "cached_at": datetime.fromisoformat(data["cached_at"])}
-                    )
-                    if not self._is_fresh(cached):
-                        return None
-                    # 晋升到内存缓存
-                    self.memory_cache[cache_key] = cached
-                    return cached
-            except (IOError, OSError, ValueError, KeyError, json.JSONDecodeError) as e:
-                logger.warning("Failed to load cached schema from %s: %s", disk_path, e)
-
-        return None
+        if not os.path.exists(disk_path):
+            return None
+        try:
+            with open(disk_path, "r", encoding="utf-8") as cache_file:
+                data = json.load(cache_file)
+            disk_cached = CachedToolSchema(
+                **{**data, "cached_at": datetime.fromisoformat(data["cached_at"])}
+            )
+            if not self._is_fresh(disk_cached):
+                return None
+            self.memory_cache[cache_key] = disk_cached
+            return disk_cached
+        except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError) as error:
+            logger.warning("Failed to load cached schema from %s: %s", disk_path, error)
+            return None
 
     async def put(self, schema: CachedToolSchema) -> None:
-        """缓存Schema"""
         cache_key = f"{schema.server_id}#{schema.tool_name}"
-
-        # 内存缓存
         self.memory_cache[cache_key] = schema
-
-        # 磁盘缓存
         disk_path = self._get_disk_path(schema.server_id, schema.tool_name)
         try:
             os.makedirs(os.path.dirname(disk_path), exist_ok=True)
-
-            with open(disk_path, "w") as f:
+            with open(disk_path, "w", encoding="utf-8") as cache_file:
                 data = asdict(schema)
                 data["cached_at"] = schema.cached_at.isoformat()
-                json.dump(data, f, indent=2)
-        except (IOError, OSError) as e:
-            print(f"[ToolSchemaCache] Warning: Failed to write schema to disk: {e}")
+                json.dump(data, cache_file, indent=2)
+        except OSError as error:
+            logger.warning("Failed to write cached schema to %s: %s", disk_path, error)
 
     def _get_disk_path(self, server_id: str, tool_name: str) -> str:
-        """生成磁盘缓存路径"""
         filename = f"{server_id}_{tool_name.replace('/', '_')}.json"
         return os.path.join(self.cache_dir, filename)
 
@@ -163,12 +102,10 @@ class ToolSchemaCache:
         if cached_at.tzinfo is None:
             cached_at = cached_at.replace(tzinfo=timezone.utc)
             schema.cached_at = cached_at
-
         return datetime.now(timezone.utc) - cached_at < timedelta(seconds=self.ttl_seconds)
 
-    def get_stats(self) -> Dict[str, Any]:
-        """获取缓存统计"""
-        disk_items = len([f for f in os.listdir(self.cache_dir) if f.endswith(".json")])
+    def get_stats(self) -> dict[str, Any]:
+        disk_items = len([name for name in os.listdir(self.cache_dir) if name.endswith(".json")])
         return {
             "memory_items": len(self.memory_cache),
             "disk_items": disk_items,
@@ -176,237 +113,192 @@ class ToolSchemaCache:
         }
 
 
-# ============================================================================
-# 3. MCP工具注册表
-# ============================================================================
-
-
 @dataclass
 class MCPServerConfig:
-    """MCP Server配置"""
+    """Connection and lifecycle configuration for one MCP server."""
 
     server_id: str
     server_name: str
-    transport_type: str  # "stdio" | "streamable_http"; "http" is a legacy alias
+    transport_type: str
     endpoint: str
     enabled: bool = True
     priority: int = 0
-    timeout_seconds: int = 30
+    timeout_seconds: float = 30
+    args: tuple[str, ...] = ()
+    env: Mapping[str, str] | None = None
+    cwd: str | None = None
+    headers: Mapping[str, str] = field(default_factory=dict)
+    auth: BearerTokenAuth | None = None
+    verify_ssl: bool = True
+
+
+ClientFactory = Callable[[MCPServerConfig], MCPClientProtocol]
+
+
+def create_mcp_client(config: MCPServerConfig) -> MCPClient:
+    """Build a production client using only official SDK transport adapters."""
+    transport: MCPTransport
+    if config.transport_type == "stdio":
+        transport = StdioTransport(
+            command=config.endpoint,
+            args=config.args,
+            env=config.env,
+            cwd=config.cwd,
+        )
+    elif config.transport_type in {"streamable_http", "http"}:
+        transport = StreamableHTTPTransport(
+            url=config.endpoint,
+            auth=config.auth,
+            headers=config.headers,
+            verify_ssl=config.verify_ssl,
+        )
+    else:
+        raise ValueError(f"Unknown MCP transport type: {config.transport_type}")
+    return MCPClient(transport, timeout_seconds=config.timeout_seconds)
 
 
 class MCPToolRegistry:
-    """MCP工具注册表"""
+    """Discover and invoke tools from configured MCP servers."""
 
-    def __init__(self, schema_cache: Optional[ToolSchemaCache] = None):
-        self.servers: Dict[str, MCPServerConfig] = {}
+    def __init__(
+        self,
+        schema_cache: ToolSchemaCache | None = None,
+        client_factory: ClientFactory | None = None,
+    ):
+        self.servers: dict[str, MCPServerConfig] = {}
         self.schema_cache = schema_cache or ToolSchemaCache()
-        self.clients: Dict[str, BaseMCPClient] = {}
-        self.tool_to_servers: Dict[str, List[str]] = {}  # tool_name -> [server_ids]
+        self.client_factory = client_factory or create_mcp_client
+        self.clients: dict[str, MCPClientProtocol] = {}
+        self.tool_to_servers: dict[str, list[str]] = {}
         self.lock = asyncio.Lock()
-        self.last_discovery_time = 0
-        self.discovery_interval = 300  # 5分钟重新发现一次
+        self.last_discovery_time = 0.0
+        self.discovery_interval = 300
 
     async def add_server(self, config: MCPServerConfig) -> None:
-        """添加MCP Server"""
         async with self.lock:
             self.servers[config.server_id] = config
-            print(f"[MCPRegistry] Added server: {config.server_name}")
 
-    async def discover_tools(self, force: bool = False) -> Dict[str, List[str]]:
-        """发现所有可用的工具（支持缓存）"""
+    async def discover_tools(self, force: bool = False) -> dict[str, list[str]]:
         async with self.lock:
-            # 检查是否需要重新发现
             now = datetime.now().timestamp()
             if not force and (now - self.last_discovery_time) < self.discovery_interval:
                 return self.tool_to_servers
 
-            tools_by_server = {}
-
-            for server_id, config in self.servers.items():
+            discovered: dict[str, list[str]] = {}
+            for server_id, config in sorted(
+                self.servers.items(), key=lambda item: item[1].priority, reverse=True
+            ):
                 if not config.enabled:
                     continue
-
                 try:
                     client = await self._get_client(server_id, config)
                     await client.ensure_initialized()
-                    response = await client.send_request("tools/list")
+                    tools = await client.list_tools()
+                    for tool in tools:
+                        discovered.setdefault(str(tool["name"]), []).append(server_id)
+                except Exception as error:
+                    logger.warning("MCP discovery failed for %s: %s", server_id, error)
 
-                    tools = [tool["name"] for tool in response.get("result", {}).get("tools", [])]
-
-                    tools_by_server[server_id] = tools
-
-                    # 更新映射
-                    for tool_name in tools:
-                        if tool_name not in self.tool_to_servers:
-                            self.tool_to_servers[tool_name] = []
-                        if server_id not in self.tool_to_servers[tool_name]:
-                            self.tool_to_servers[tool_name].append(server_id)
-
-                except Exception as e:
-                    print(f"[MCPRegistry] Error discovering tools from {server_id}: {e}")
-                    tools_by_server[server_id] = []
-
+            self.tool_to_servers = discovered
             self.last_discovery_time = now
             return self.tool_to_servers
 
-    async def get_tool_schema(self, tool_name: str) -> Optional[CachedToolSchema]:
-        """获取工具Schema"""
-        # 查找提供此工具的Server
-        server_ids = self.tool_to_servers.get(tool_name, [])
-
-        for server_id in server_ids:
-            # 尝试从缓存获取
+    async def get_tool_schema(self, tool_name: str) -> CachedToolSchema | None:
+        for server_id in self.tool_to_servers.get(tool_name, []):
             cached = await self.schema_cache.get(server_id, tool_name)
-            if cached:
+            if cached is not None:
                 return cached
-
-            # 从Server获取
             try:
                 config = self.servers[server_id]
                 client = await self._get_client(server_id, config)
                 await client.ensure_initialized()
-                response = await client.send_request("tools/list")
-
-                for tool_dict in response.get("result", {}).get("tools", []):
-                    if tool_dict["name"] == tool_name:
-                        schema = CachedToolSchema.from_mcp_tool(server_id, tool_dict)
+                for tool in await client.list_tools():
+                    if tool["name"] == tool_name:
+                        schema = CachedToolSchema.from_mcp_tool(server_id, tool)
                         await self.schema_cache.put(schema)
                         return schema
-
-            except Exception as e:
-                print(f"[MCPRegistry] Error getting schema from {server_id}: {e}")
-                continue
-
+            except Exception as error:
+                logger.warning("MCP schema lookup failed for %s: %s", server_id, error)
         return None
 
     async def call_tool(
         self,
         tool_name: str,
-        arguments: Dict[str, Any],
-        agent_id: Optional[str] = None,
-    ) -> Tuple[bool, Any, str]:
-        """调用工具"""
-        # 查找提供此工具的Server
+        arguments: dict[str, Any],
+        agent_id: str | None = None,
+    ) -> tuple[bool, Any, str]:
+        del agent_id
         server_ids = self.tool_to_servers.get(tool_name, [])
-
         if not server_ids:
             return False, None, f"Tool {tool_name} not found"
 
-        # 尝试第一个Server
         server_id = server_ids[0]
-
         try:
             config = self.servers[server_id]
             client = await self._get_client(server_id, config)
             await client.ensure_initialized()
-
-            response = await client.send_request(
-                "tools/call",
-                {
-                    "name": tool_name,
-                    "arguments": arguments,
-                },
+            result = await client.call_tool(
+                tool_name,
+                arguments,
+                timeout_seconds=config.timeout_seconds,
             )
-
-            if "error" in response:
-                return False, None, response["error"]["message"]
-
-            result = response.get("result", {})
-            content = result.get("content", [])
-            if content:
-                text = content[0].get("text", "")
-                return True, text, ""
-
             return True, result, ""
+        except Exception as error:
+            return False, None, str(error)
 
-        except Exception as e:
-            return False, None, str(e)
+    async def close(self) -> None:
+        """Close every client owned by the registry."""
+        clients = tuple(self.clients.values())
+        self.clients.clear()
+        if clients:
+            await asyncio.gather(*(client.close() for client in clients))
 
-    async def _get_client(self, server_id: str, config: MCPServerConfig) -> BaseMCPClient:
-        """获取或创建客户端"""
-        if server_id in self.clients:
-            return self.clients[server_id]
-
-        if config.transport_type == "stdio":
-            # 这里应该复用前面实现的StdioMCPClient
-            # 为了简化，我们使用一个模拟实现
-            client = MockStdioMCPClient(config.endpoint)
-        elif config.transport_type in {"streamable_http", "http"}:
-            client = MockHttpMCPClient(config.endpoint)
-        else:
-            raise ValueError(f"Unknown transport type: {config.transport_type}")
-
-        self.clients[server_id] = client
-        return client
-
-
-# ============================================================================
-# 4. MCP工具适配器（为LLM准备工具定义）
-# ============================================================================
+    async def _get_client(
+        self,
+        server_id: str,
+        config: MCPServerConfig,
+    ) -> MCPClientProtocol:
+        if server_id not in self.clients:
+            self.clients[server_id] = self.client_factory(config)
+        return self.clients[server_id]
 
 
 class MCPToolAdapter:
-    """将MCP工具适配为LLM可用的格式"""
+    """Translate discovered MCP tools into LLM-facing definitions."""
 
     def __init__(self, registry: MCPToolRegistry):
         self.registry = registry
 
-    async def get_available_tools(self) -> List[Dict[str, Any]]:
-        """获取可用工具的列表（LLM格式）"""
+    async def get_available_tools(self) -> list[dict[str, Any]]:
         await self.registry.discover_tools()
-
-        tools = []
-        seen = set()
-
-        for tool_name in self.registry.tool_to_servers.keys():
-            if tool_name in seen:
-                continue
-            seen.add(tool_name)
-
+        tools: list[dict[str, Any]] = []
+        for tool_name in self.registry.tool_to_servers:
             schema = await self.registry.get_tool_schema(tool_name)
-            if schema:
+            if schema is not None:
                 tools.append(self._schema_to_llm_format(schema))
-
         return tools
 
     async def call_tool_from_llm(
         self,
         tool_name: str,
-        tool_input: str,
-        agent_id: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        """从LLM调用工具（处理输入解析）"""
+        tool_input: str | dict[str, Any],
+        agent_id: str | None = None,
+    ) -> dict[str, Any]:
         try:
-            # 解析工具输入（通常是JSON字符串）
-            if isinstance(tool_input, str):
-                arguments = json.loads(tool_input)
-            else:
-                arguments = tool_input
+            arguments = json.loads(tool_input) if isinstance(tool_input, str) else tool_input
+            success, result, error = await self.registry.call_tool(
+                tool_name,
+                arguments,
+                agent_id,
+            )
+            return {"success": success, "result": result, "error": error}
+        except json.JSONDecodeError as error:
+            return {"success": False, "result": None, "error": f"Invalid JSON input: {error}"}
+        except Exception as error:
+            return {"success": False, "result": None, "error": str(error)}
 
-            # 调用工具
-            success, result, error = await self.registry.call_tool(tool_name, arguments, agent_id)
-
-            return {
-                "success": success,
-                "result": result,
-                "error": error,
-            }
-
-        except json.JSONDecodeError as e:
-            return {
-                "success": False,
-                "result": None,
-                "error": f"Invalid JSON input: {e}",
-            }
-        except Exception as e:
-            return {
-                "success": False,
-                "result": None,
-                "error": str(e),
-            }
-
-    def _schema_to_llm_format(self, schema: CachedToolSchema) -> Dict[str, Any]:
-        """将Schema转换为LLM格式（如Claude的工具格式）"""
+    @staticmethod
+    def _schema_to_llm_format(schema: CachedToolSchema) -> dict[str, Any]:
         return {
             "name": schema.tool_name,
             "description": schema.description,
@@ -414,218 +306,42 @@ class MCPToolAdapter:
         }
 
 
-# ============================================================================
-# 5. MiniHarness集成
-# ============================================================================
-
-
 class MiniHarnessWithMCP:
-    """集成了MCP的MiniHarness"""
+    """Small composition wrapper for an explicitly configured MCP registry."""
 
-    def __init__(self):
-        self.schema_cache = ToolSchemaCache()
-        self.registry = MCPToolRegistry(self.schema_cache)
+    def __init__(
+        self,
+        server_configs: Sequence[MCPServerConfig] = (),
+        schema_cache: ToolSchemaCache | None = None,
+        client_factory: ClientFactory | None = None,
+    ):
+        self.server_configs = tuple(server_configs)
+        self.schema_cache = schema_cache or ToolSchemaCache()
+        self.registry = MCPToolRegistry(self.schema_cache, client_factory=client_factory)
         self.adapter = MCPToolAdapter(self.registry)
 
     async def initialize(self) -> None:
-        """初始化MCP集成"""
-        # 示例：添加几个MCP Server
-        await self.registry.add_server(
-            MCPServerConfig(
-                server_id="filesystem",
-                server_name="File System Server",
-                transport_type="stdio",
-                endpoint="./mcp_filesystem_server.py",
-            )
-        )
+        for config in self.server_configs:
+            await self.registry.add_server(config)
+        await self.registry.discover_tools(force=True)
 
-        await self.registry.add_server(
-            MCPServerConfig(
-                server_id="web",
-                server_name="Web Server",
-                transport_type="streamable_http",
-                endpoint="http://localhost:8001",
-            )
-        )
+    async def close(self) -> None:
+        await self.registry.close()
 
-        # 发现工具
-        print("[MiniHarness] Discovering tools...")
-        tools_by_server = await self.registry.discover_tools()
-        print(f"[MiniHarness] Found {sum(len(tools) for tools in tools_by_server.values())} tools")
-
-    async def get_tools_for_agent(self) -> List[Dict[str, Any]]:
-        """获取Agent可用的工具"""
+    async def get_tools_for_agent(self) -> list[dict[str, Any]]:
         return await self.adapter.get_available_tools()
 
     async def process_tool_call(
         self,
         tool_name: str,
-        tool_input: str,
-        agent_id: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        """处理Agent的工具调用"""
+        tool_input: str | dict[str, Any],
+        agent_id: str | None = None,
+    ) -> dict[str, Any]:
         return await self.adapter.call_tool_from_llm(tool_name, tool_input, agent_id)
 
-    def get_stats(self) -> Dict[str, Any]:
-        """获取集成统计信息"""
+    def get_stats(self) -> dict[str, Any]:
         return {
-            "servers_enabled": sum(1 for s in self.registry.servers.values() if s.enabled),
+            "servers_enabled": sum(1 for server in self.registry.servers.values() if server.enabled),
             "tools_discovered": len(self.registry.tool_to_servers),
             "schema_cache": self.schema_cache.get_stats(),
         }
-
-
-# ============================================================================
-# 6. 模拟客户端（实际应使用真实的StdioMCPClient或HttpMCPClient）
-# ============================================================================
-
-
-class MockStdioMCPClient(BaseMCPClient):
-    """模拟stdio MCP客户端"""
-
-    def __init__(self, endpoint: str):
-        super().__init__()
-        self.endpoint = endpoint
-
-    async def send_request(
-        self, method: str, params: Dict = None, expect_response: bool = True
-    ) -> Dict:
-        """模拟请求"""
-        if method == "initialize":
-            return {
-                "result": {
-                    "protocolVersion": self.protocol_version,
-                    "capabilities": {"tools": {}},
-                    "serverInfo": {"name": "mock-stdio", "version": "0.1.0"},
-                }
-            }
-        if method == "notifications/initialized":
-            self.initialized = True
-            return {} if not expect_response else {"result": {}}
-        if not self.initialized:
-            return {
-                "error": {
-                    "code": -32002,
-                    "message": "MCP initialize must complete before ordinary requests",
-                }
-            }
-        if method == "tools/list":
-            return {
-                "result": {
-                    "tools": [
-                        {
-                            "name": "read_file",
-                            "description": "Read file contents",
-                            "inputSchema": {
-                                "type": "object",
-                                "properties": {"path": {"type": "string"}},
-                                "required": ["path"],
-                            },
-                        },
-                        {
-                            "name": "write_file",
-                            "description": "Write contents to file",
-                            "inputSchema": {
-                                "type": "object",
-                                "properties": {
-                                    "path": {"type": "string"},
-                                    "content": {"type": "string"},
-                                },
-                                "required": ["path", "content"],
-                            },
-                        },
-                    ]
-                }
-            }
-        elif method == "tools/call":
-            return {
-                "result": {
-                    "content": [{"type": "text", "text": f"Mock result for {params['name']}"}]
-                }
-            }
-        return {}
-
-
-class MockHttpMCPClient(BaseMCPClient):
-    """模拟HTTP MCP客户端"""
-
-    def __init__(self, endpoint: str):
-        super().__init__()
-        self.endpoint = endpoint
-
-    async def send_request(
-        self, method: str, params: Dict = None, expect_response: bool = True
-    ) -> Dict:
-        """模拟请求"""
-        if method == "initialize":
-            return {
-                "result": {
-                    "protocolVersion": self.protocol_version,
-                    "capabilities": {"tools": {}},
-                    "serverInfo": {"name": "mock-http", "version": "0.1.0"},
-                }
-            }
-        if method == "notifications/initialized":
-            self.initialized = True
-            return {} if not expect_response else {"result": {}}
-        if not self.initialized:
-            return {
-                "error": {
-                    "code": -32002,
-                    "message": "MCP initialize must complete before ordinary requests",
-                }
-            }
-        if method == "tools/list":
-            return {
-                "result": {
-                    "tools": [
-                        {
-                            "name": "web_search",
-                            "description": "Search the web",
-                            "inputSchema": {
-                                "type": "object",
-                                "properties": {"query": {"type": "string"}},
-                                "required": ["query"],
-                            },
-                        }
-                    ]
-                }
-            }
-        elif method == "tools/call":
-            return {"result": {"content": [{"type": "text", "text": f"Web search results"}]}}
-        return {}
-
-
-# ============================================================================
-# 7. 使用示例
-# ============================================================================
-
-
-async def main():
-    """演示MCP集成"""
-
-    # 创建MiniHarness实例
-    harness = MiniHarnessWithMCP()
-
-    # 初始化
-    await harness.initialize()
-
-    # 获取可用工具
-    tools = await harness.get_tools_for_agent()
-    print(f"\n[Tools] Available {len(tools)} tools:")
-    for tool in tools:
-        print(f"  - {tool['name']}: {tool['description']}")
-
-    # 调用工具
-    print("\n[Calling] read_file tool...")
-    result = await harness.process_tool_call("read_file", json.dumps({"path": "/tmp/test.txt"}))
-    print(f"Result: {result}")
-
-    # 显示统计
-    print("\n[Stats]")
-    stats = harness.get_stats()
-    print(json.dumps(stats, indent=2))
-
-
-if __name__ == "__main__":
-    asyncio.run(main())

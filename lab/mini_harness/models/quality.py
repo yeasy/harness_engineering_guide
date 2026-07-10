@@ -60,7 +60,7 @@ class QualityGate:
         schema = self.registry.get_tool_schema(tool_call.name)
         if schema:
             try:
-                schema(**tool_call.input)
+                schema(**(tool_call.input or {}))
             except ValidationError as e:
                 for error in e.errors():
                     field = ".".join(str(x) for x in error["loc"])

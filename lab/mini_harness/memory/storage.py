@@ -19,7 +19,7 @@ class MemoryEntry:
         memory_id: str,
         content: str,
         memory_type: str = "episodic",
-        tags: List[str] = None,
+        tags: Optional[List[str]] = None,
         confidence: float = 1.0,
         expiry: Optional[datetime] = None,
     ):

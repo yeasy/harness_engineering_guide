@@ -9,16 +9,23 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from mini_harness.mcp.integration import (
-    BaseMCPClient,
     CachedToolSchema,
     MCPServerConfig,
     MCPToolAdapter,
-    MCPToolRegistry,
+    MCPToolRegistry as ProductionMCPToolRegistry,
     MiniHarnessWithMCP,
-    MockHttpMCPClient,
-    MockStdioMCPClient,
     ToolSchemaCache,
 )
+from mini_harness.mcp.client import MCPClient, MCPNotInitializedError
+from tests.fakes.mcp_clients import FakeMCPClient, FakeMCPClientFactory
+
+
+def MCPToolRegistry(schema_cache=None):
+    """Build a registry with deterministic test-only clients."""
+    return ProductionMCPToolRegistry(
+        schema_cache=schema_cache,
+        client_factory=FakeMCPClientFactory(),
+    )
 
 # ============ CachedToolSchema Tests ============
 
@@ -173,75 +180,22 @@ class TestMCPServerConfig:
         assert config.timeout_seconds == 30
 
 
-# ============ MockClient Tests ============
+# ============ Client boundary tests ============
 
 
-class TestMockClients:
+class TestClientBoundary:
     @pytest.mark.asyncio
-    async def test_base_initialize_marks_client_initialized(self):
-        class PlainMCPClient(BaseMCPClient):
-            def __init__(self):
-                super().__init__()
-                self.methods = []
-
-            async def send_request(
-                self, method: str, params: dict = None, expect_response: bool = True
-            ) -> dict:
-                self.methods.append(method)
-                if method == "initialize":
-                    return {"result": {"protocolVersion": self.protocol_version}}
-                if method == "notifications/initialized":
-                    return {}
-                raise AssertionError(method)
-
-        client = PlainMCPClient()
-        await client.initialize()
-        assert client.initialized is True
-        assert client.methods == ["initialize", "notifications/initialized"]
-
-        await client.ensure_initialized()
-        assert client.methods == ["initialize", "notifications/initialized"]
+    async def test_fake_enforces_initialize_before_use(self):
+        client = FakeMCPClient([], {})
+        with pytest.raises(MCPNotInitializedError):
+            await client.list_tools()
 
     @pytest.mark.asyncio
-    async def test_request_before_initialize_rejected(self):
-        client = MockStdioMCPClient("./server.py")
-        response = await client.send_request("tools/list")
-        assert "error" in response
-        assert "initialize" in response["error"]["message"]
-
-    @pytest.mark.asyncio
-    async def test_stdio_client_list_tools(self):
-        client = MockStdioMCPClient("./server.py")
-        await client.initialize()
-        response = await client.send_request("tools/list")
-        tools = response["result"]["tools"]
-        assert len(tools) > 0
-        names = [t["name"] for t in tools]
-        assert "read_file" in names
-
-    @pytest.mark.asyncio
-    async def test_stdio_client_call_tool(self):
-        client = MockStdioMCPClient("./server.py")
-        await client.initialize()
-        response = await client.send_request("tools/call", {"name": "read_file"})
-        content = response["result"]["content"]
-        assert len(content) > 0
-
-    @pytest.mark.asyncio
-    async def test_http_client_list_tools(self):
-        client = MockHttpMCPClient("http://localhost:8001")
-        await client.initialize()
-        response = await client.send_request("tools/list")
-        tools = response["result"]["tools"]
-        names = [t["name"] for t in tools]
-        assert "web_search" in names
-
-    @pytest.mark.asyncio
-    async def test_http_client_call_tool(self):
-        client = MockHttpMCPClient("http://localhost:8001")
-        await client.initialize()
-        response = await client.send_request("tools/call", {"name": "web_search"})
-        assert "result" in response
+    async def test_default_registry_builds_official_sdk_client(self, tmp_dir):
+        registry = ProductionMCPToolRegistry(schema_cache=ToolSchemaCache(cache_dir=tmp_dir))
+        config = MCPServerConfig("fs", "FS", "stdio", "python", args=("server.py",))
+        client = await registry._get_client("fs", config)
+        assert isinstance(client, MCPClient)
 
 
 # ============ MCPToolRegistry Tests ============
@@ -397,29 +351,41 @@ class TestMCPToolAdapter:
 
 
 class TestMiniHarnessWithMCP:
+    @staticmethod
+    def _build_harness(tmp_dir):
+        configs = (
+            MCPServerConfig("fs", "FS", "stdio", "python"),
+            MCPServerConfig("web", "Web", "streamable_http", "http://localhost/mcp"),
+        )
+        return MiniHarnessWithMCP(
+            server_configs=configs,
+            schema_cache=ToolSchemaCache(cache_dir=tmp_dir),
+            client_factory=FakeMCPClientFactory(),
+        )
+
     @pytest.mark.asyncio
-    async def test_initialize(self):
-        harness = MiniHarnessWithMCP()
+    async def test_initialize(self, tmp_dir):
+        harness = self._build_harness(tmp_dir)
         await harness.initialize()
         assert len(harness.registry.servers) == 2
 
     @pytest.mark.asyncio
-    async def test_get_tools_for_agent(self):
-        harness = MiniHarnessWithMCP()
+    async def test_get_tools_for_agent(self, tmp_dir):
+        harness = self._build_harness(tmp_dir)
         await harness.initialize()
         tools = await harness.get_tools_for_agent()
         assert len(tools) > 0
 
     @pytest.mark.asyncio
-    async def test_process_tool_call(self):
-        harness = MiniHarnessWithMCP()
+    async def test_process_tool_call(self, tmp_dir):
+        harness = self._build_harness(tmp_dir)
         await harness.initialize()
         result = await harness.process_tool_call("read_file", json.dumps({"path": "/tmp/test.txt"}))
         assert result["success"] is True
 
     @pytest.mark.asyncio
-    async def test_get_stats(self):
-        harness = MiniHarnessWithMCP()
+    async def test_get_stats(self, tmp_dir):
+        harness = self._build_harness(tmp_dir)
         await harness.initialize()
         stats = harness.get_stats()
         assert stats["servers_enabled"] == 2

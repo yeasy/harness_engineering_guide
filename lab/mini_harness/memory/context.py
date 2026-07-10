@@ -24,7 +24,7 @@ class ContextAssembler:
     def __init__(self, memory_store: MemoryStore, token_budget: int = 50000):
         self.memory_store = memory_store
         self.token_budget = token_budget
-        self.cache = {}  # 简单的内存缓存
+        self.cache: dict[str, str] = {}  # 简单的内存缓存
 
     async def analyze_query(self, user_message: str) -> MemoryRequirement:
         """分析查询，确定需要的记忆类型"""

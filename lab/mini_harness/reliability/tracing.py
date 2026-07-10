@@ -13,10 +13,10 @@ from typing import Any, Dict, List, Optional
 from mini_harness.reliability.redaction import sanitize_observability_value
 
 # 上下文变量，用于在异步调用中追踪 trace_id 和当前 span
-_trace_id_var: contextvars.ContextVar[str] = contextvars.ContextVar(
+_trace_id_var: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar(
     "trace_id", default=None
 )
-_current_span_var: contextvars.ContextVar["Span"] = contextvars.ContextVar(
+_current_span_var: contextvars.ContextVar[Optional["Span"]] = contextvars.ContextVar(
     "current_span", default=None
 )
 

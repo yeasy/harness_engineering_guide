@@ -7,6 +7,7 @@ Tests for mini_harness.reliability module:
 """
 
 import json
+import inspect
 import sys
 import time
 from io import StringIO
@@ -196,6 +197,21 @@ class TestSpan:
 
 
 class TestRetryDecorator:
+    def test_async_detection_avoids_deprecated_asyncio_helper(self, monkeypatch):
+        def deprecated_probe(_function):
+            raise AssertionError("deprecated asyncio probe used")
+
+        monkeypatch.setattr(
+            "mini_harness.reliability.resilience.asyncio.iscoroutinefunction",
+            deprecated_probe,
+        )
+
+        async def async_operation():
+            return "ok"
+
+        wrapped = RetryDecorator(max_attempts=1)(async_operation)
+        assert inspect.iscoroutinefunction(wrapped)
+
     def test_successful_call_first_try(self):
         call_count = 0
 

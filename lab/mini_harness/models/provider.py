@@ -110,7 +110,7 @@ class CircuitBreaker:
         self.failure_threshold = failure_threshold
         self.reset_timeout = reset_timeout
         self.state = "closed"
-        self.last_failure_time = None
+        self.last_failure_time: Optional[float] = None
         self.success_threshold_half_open = success_threshold_half_open
         self.success_count_half_open = 0
 
@@ -139,7 +139,10 @@ class CircuitBreaker:
         if self.state == "closed":
             return True
         if self.state == "open":
-            if time.time() - self.last_failure_time > self.reset_timeout:
+            if (
+                self.last_failure_time is not None
+                and time.time() - self.last_failure_time > self.reset_timeout
+            ):
                 self.state = "half-open"
                 self.success_count_half_open = 0
                 return True
@@ -276,7 +279,7 @@ class OpenAIProvider(BaseProvider):
     def __init__(self, config: ModelConfig):
         super().__init__(config)
         openai = _get_openai()
-        kwargs = {"api_key": config.api_key}
+        kwargs: Dict[str, Any] = {"api_key": config.api_key}
         if config.base_url:
             kwargs["base_url"] = config.base_url
         if config.timeout:
@@ -423,10 +426,14 @@ def create_provider(config: ModelConfig) -> BaseProvider:
 class ModelSelectionEngine:
     """模型选择引擎，支持故障转移"""
 
-    def __init__(self, primary: ModelConfig, fallback_chain: List[ModelConfig] = None):
+    def __init__(
+        self,
+        primary: ModelConfig,
+        fallback_chain: Optional[List[ModelConfig]] = None,
+    ):
         self.primary = primary
         self.fallback_chain = fallback_chain or []
-        self.breakers = {}
+        self.breakers: Dict[str, CircuitBreaker] = {}
         self._init_breakers()
 
     def _init_breakers(self) -> None:

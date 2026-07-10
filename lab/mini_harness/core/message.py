@@ -74,11 +74,13 @@ class ToolCallMessage(Message):
 
     @property
     def tool_name(self) -> str:
-        return self.metadata.get("tool_name")
+        value = self.metadata.get("tool_name")
+        return str(value) if value is not None else ""
 
     @property
     def tool_params(self) -> Dict[str, Any]:
-        return self.metadata.get("tool_params", {})
+        value = self.metadata.get("tool_params", {})
+        return value if isinstance(value, dict) else {}
 
 
 @dataclass
@@ -87,7 +89,7 @@ class ToolResultMessage(Message):
 
     @property
     def status(self) -> str:
-        return self.metadata.get("status", "unknown")
+        return str(self.metadata.get("status", "unknown"))
 
     @property
     def is_success(self) -> bool:

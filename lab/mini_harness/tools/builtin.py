@@ -7,11 +7,14 @@ import shlex
 import subprocess
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from mini_harness.core.tool import Tool, ToolResult
 from mini_harness.security.guardrails import DangerousCommandDetector
 from mini_harness.security.path_validator import PathValidator
+
+if TYPE_CHECKING:
+    from mini_harness.tools.registry import ToolRegistry
 
 # ============ Built-in Tools ============
 
@@ -304,7 +307,7 @@ class ExecutionPipeline:
 
     def __init__(self, tool_registry: "ToolRegistry"):
         self.tool_registry = tool_registry
-        self.execution_history = []
+        self.execution_history: list[ToolResultBlock] = []
 
     async def execute(self, tool_name: str, input_params: Dict[str, Any]) -> ToolResultBlock:
         """执行工具的完整流水线"""

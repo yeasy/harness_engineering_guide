@@ -34,10 +34,14 @@ import asyncio
 import json
 import os
 import sys
+import uuid
 
 # 确保 mini_harness 可被导入
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from mini_harness.application import HarnessApplication
+from mini_harness.security.permissions import PermissionDecisionEngine, PermissionLevel
+from mini_harness.security.secure_executor import SecureToolExecutor
 from mini_harness.tools.builtin import FileReadTool
 from mini_harness.tools.registry import ToolRegistry
 from mini_harness.utils.config import get_config
@@ -187,16 +191,16 @@ class SimpleAgent:
       用户输入 → LLM 推理 → 工具调用？ → 执行工具 → 反馈结果 → 继续推理…
     """
 
-    def __init__(self, llm: LLMClient, tool_registry: ToolRegistry):
+    def __init__(self, llm: LLMClient, application: HarnessApplication):
         self.llm = llm
-        self.tool_registry = tool_registry
+        self.application = application
         self.messages = []
         self.max_turns = MAX_TURNS
 
     def _get_tools_schema(self) -> list:
         """获取 OpenAI function calling 格式的工具列表"""
         tools = []
-        for schema in self.tool_registry.list_tools():
+        for schema in self.application.list_tools():
             tools.append(
                 {
                     "type": "function",
@@ -213,9 +217,11 @@ class SimpleAgent:
         """运行 Agent 循环"""
 
         # 初始化消息列表
+        prepared_input = await self.application.prepare_context(user_input)
+        session_id = f"cli-{uuid.uuid4().hex}"
         self.messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": user_input},
+            {"role": "user", "content": prepared_input},
         ]
 
         tools_schema = self._get_tools_schema()
@@ -263,15 +269,20 @@ class SimpleAgent:
 
                 print(f"   → {tool_name}({json.dumps(arguments, ensure_ascii=False)[:80]})")
 
-                # 执行工具
-                tool = self.tool_registry.get(tool_name)
-                if tool:
-                    result = await tool.call(arguments)
-                    tool_output = result.content
+                # 所有工具统一经过 application 的权限、重试和 checkpoint 管线。
+                try:
+                    result = await self.application.execute_tool(
+                        tool_name,
+                        arguments,
+                        user_id="cli-user",
+                        session_id=session_id,
+                        call_id=tc["id"],
+                    )
+                    tool_output = str(result.content)
                     if not result.success:
                         tool_output = f"[ERROR] {result.content}"
-                else:
-                    tool_output = f"[ERROR] 工具 '{tool_name}' 不存在"
+                except (LookupError, PermissionError, RuntimeError) as error:
+                    tool_output = f"[ERROR] {error}"
 
                 # 截断过长的输出
                 if len(tool_output) > 8000:
@@ -324,12 +335,18 @@ async def main():
     # 初始化工具注册表
     registry = ToolRegistry()
     registry.register(FileReadTool())
+    permissions = PermissionDecisionEngine()
+    permissions.register_policy("file_read", PermissionLevel.OVERRIDE)
+    application = HarnessApplication(
+        tool_registry=registry,
+        secure_executor=SecureToolExecutor(permissions),
+    )
 
     # 初始化 LLM 客户端
     llm = LLMClient(api_key=LLM_API_KEY, base_url=LLM_BASE_URL, model=LLM_MODEL)
 
     # 创建并运行 Agent
-    agent = SimpleAgent(llm=llm, tool_registry=registry)
+    agent = SimpleAgent(llm=llm, application=application)
     final_response = await agent.run(user_input)
 
     print(f"\n{'='*60}")

@@ -2,7 +2,7 @@
 
 import json
 from dataclasses import dataclass
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 
 @dataclass
@@ -16,7 +16,7 @@ class ToolUseBlock:
     type: str = "tool_use"
     id: str = ""
     name: str = ""
-    input: Optional[dict] = None
+    input: Optional[dict[str, Any]] = None
 
 
 @dataclass
@@ -45,16 +45,19 @@ class ParsedMessage:
 class ResponseParser:
     @staticmethod
     def _count_usage_tokens(usage: dict) -> int:
-        return (
-            usage.get("input_tokens", 0)
-            + usage.get("cache_creation_input_tokens", 0)
-            + usage.get("cache_read_input_tokens", 0)
-            + usage.get("output_tokens", 0)
+        return sum(
+            int(usage.get(field, 0) or 0)
+            for field in (
+                "input_tokens",
+                "cache_creation_input_tokens",
+                "cache_read_input_tokens",
+                "output_tokens",
+            )
         )
 
     @staticmethod
     def parse_response(raw_response: dict) -> ParsedMessage:
-        content_blocks = []
+        content_blocks: List[ContentBlock] = []
         for block in raw_response.get("content", []):
             block_type = block.get("type")
             if block_type == "text":
@@ -64,7 +67,7 @@ class ResponseParser:
                 if isinstance(input_data, str):
                     try:
                         input_data = json.loads(input_data)
-                    except Exception:
+                    except json.JSONDecodeError:
                         input_data = {}
                 content_blocks.append(
                     ToolUseBlock(
