@@ -57,6 +57,19 @@ def test_all_workflow_actions_are_immutable_and_failures_are_not_suppressed():
         assert "timeout-minutes:" in workflow
 
 
+def test_checkout_never_persists_repository_credentials():
+    for path in sorted(WORKFLOWS.glob("*.yml")) + sorted(WORKFLOWS.glob("*.yaml")):
+        workflow = path.read_text(encoding="utf-8")
+        lines = workflow.splitlines()
+        for index, line in enumerate(lines):
+            if "uses: actions/checkout@" not in line:
+                continue
+            checkout_step = "\n".join(lines[index : index + 12])
+            assert re.search(r"persist-credentials:\s*false", checkout_step), (
+                f"{path.name}:{index + 1} persists checkout credentials"
+            )
+
+
 def test_artifact_toolchain_versions_and_download_digest_are_pinned():
     workflows = "\n".join(
         path.read_text(encoding="utf-8") for path in sorted(WORKFLOWS.glob("*.*ml"))
@@ -65,6 +78,28 @@ def test_artifact_toolchain_versions_and_download_digest_are_pinned():
     assert "eeb96ff27b76f7e2eab7a7c61d4c7d3793e6e632e4322f1d13c7d248d702c4fa" in workflows
     assert "@mermaid-js/mermaid-cli@11.16.0" in workflows
     assert "version: 3.10" in workflows
+
+
+def test_release_artifacts_are_smoke_checked_and_hashed_before_handoff():
+    workflow = (WORKFLOWS / "auto-release.yml").read_text(encoding="utf-8")
+
+    assert 'safe_tag_name="${safe_tag_name:-latest}"' in workflow
+    assert "tools/verify_artifacts.py" in workflow
+    assert "SHA256SUMS" in workflow
+    assert "sha256sum" in workflow
+    assert not re.search(r"sha256sum[\s\S]{0,240}mermaid/\*\.svg\s*>\s*SHA256SUMS", workflow)
+    assert re.search(r"files:\s*\|[^\n]*(?:\n.*){0,6}SHA256SUMS", workflow)
+    assert re.search(r"path:\s*\|[^\n]*(?:\n.*){0,8}SHA256SUMS", workflow)
+
+
+def test_mcp_documentation_authorizes_before_reading_a_checkpoint():
+    chapter = (ROOT / "09_mcp" / "9.5_miniharness_mcp.md").read_text(encoding="utf-8")
+
+    assert (
+        "1. 执行权限和护栏判断；\n"
+        "2. 原子认领相同 `session_id + call_id` 的检查点；"
+    ) in chapter
+    assert "成功返回后保存可重放结果" in chapter
 
 
 def test_preview_release_notes_script_preserves_markdown_values_in_real_bash(tmp_path):

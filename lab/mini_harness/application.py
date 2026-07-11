@@ -12,7 +12,6 @@ from typing import Any, cast
 
 from mini_harness.reliability.resilience import RetryConfig
 from mini_harness.runtime.checkpoint import (
-    CheckpointConflictError,
     CheckpointStore,
     InMemoryCheckpointStore,
     IncompleteCheckpointError,
@@ -114,16 +113,15 @@ class HarnessApplication:
 
         async def guarded_execution(approved_call: ToolCall) -> ApplicationToolResult:
             nonlocal replayed
-            checkpoint = await self.checkpoint_store.get(session_id, call_id)
-            if checkpoint is not None:
-                if checkpoint.principal_id != user_id:
-                    raise CheckpointConflictError(
-                        f"Checkpoint {session_id}/{call_id} belongs to a different principal"
-                    )
-                if checkpoint.fingerprint != fingerprint:
-                    raise CheckpointConflictError(
-                        f"Checkpoint {session_id}/{call_id} was reused with different input"
-                    )
+            claim = await self.checkpoint_store.claim(
+                session_id,
+                call_id,
+                tool_name,
+                user_id,
+                fingerprint,
+            )
+            checkpoint = claim.record
+            if not claim.owned:
                 if checkpoint.status == "completed" and checkpoint.result is not None:
                     replayed = True
                     result = ApplicationToolResult.from_checkpoint(checkpoint.result)
@@ -135,22 +133,19 @@ class HarnessApplication:
                     )
                     return result
                 raise IncompleteCheckpointError(
-                    f"Tool call {session_id}/{call_id} may already have executed; refusing replay"
+                    f"Tool call {session_id}/{call_id} is in progress or may already have "
+                    "executed; refusing replay"
                 )
 
-            await self.checkpoint_store.begin(
-                session_id,
-                call_id,
-                tool_name,
-                user_id,
-                fingerprint,
-            )
+            if claim.lease_id is None:
+                raise RuntimeError("owned checkpoint claim did not include a lease")
             result = await self._execute_with_retry(approved_call, current_trace, call_id)
             await self.checkpoint_store.complete(
                 session_id,
                 call_id,
                 user_id,
                 fingerprint,
+                claim.lease_id,
                 asdict(result),
             )
             return result

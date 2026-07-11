@@ -24,6 +24,8 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.14"
@@ -36,7 +38,7 @@ jobs:
       - name: Install CJK fonts
         run: |
           sudo apt-get update
-          sudo apt-get install -y fonts-noto-cjk fonts-noto-cjk-extra
+          sudo apt-get install -y fonts-noto-cjk fonts-noto-cjk-extra poppler-utils
       - name: Install verified mdpress 0.7.13
         env:
           MDPRESS_VERSION: "0.7.13"
@@ -63,7 +65,10 @@ jobs:
         run: |
           mkdir -p dist
           mdpress build --format pdf --output dist/harness_engineering_guide.pdf
-          test -s dist/harness_engineering_guide.pdf
+          title=$(python -c "import json; print(json.load(open('book.json', encoding='utf-8'))['title'])")
+          python tools/verify_artifacts.py \
+            --pdf dist/harness_engineering_guide.pdf \
+            --expected-title "$title"
       - name: Write release notes
         run: |
           printf 'Auto-updated preview PDF from `%s`.\n\n- Branch: `%s`\n- Commit: https://github.com/%s/commit/%s\n- Run: https://github.com/%s/actions/runs/%s\n' \

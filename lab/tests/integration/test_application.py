@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
 import pytest
@@ -11,6 +12,7 @@ from mini_harness.core.tool import Tool, ToolResult
 from mini_harness.reliability.resilience import RetryConfig
 from mini_harness.runtime.checkpoint import (
     CheckpointConflictError,
+    IncompleteCheckpointError,
     InMemoryCheckpointStore,
     JSONCheckpointStore,
 )
@@ -77,6 +79,41 @@ class GuardedCheckpointStore:
         if not self.allow_reads:
             raise AssertionError("denied calls must not read checkpoints")
         return await self.delegate.get(*args, **kwargs)
+
+    async def claim(self, *args, **kwargs):
+        if not self.allow_reads:
+            raise AssertionError("denied calls must not claim checkpoints")
+        return await self.delegate.claim(*args, **kwargs)
+
+    async def begin(self, *args, **kwargs):
+        return await self.delegate.begin(*args, **kwargs)
+
+    async def complete(self, *args, **kwargs):
+        return await self.delegate.complete(*args, **kwargs)
+
+
+class RacingCheckpointStore:
+    """Force two callers to reach the storage boundary before either can claim."""
+
+    def __init__(self):
+        self.delegate = InMemoryCheckpointStore()
+        self.arrivals = 0
+        self.release = asyncio.Event()
+
+    async def _rendezvous(self):
+        self.arrivals += 1
+        if self.arrivals == 2:
+            self.release.set()
+        await self.release.wait()
+
+    async def get(self, *args, **kwargs):
+        record = await self.delegate.get(*args, **kwargs)
+        await self._rendezvous()
+        return record
+
+    async def claim(self, *args, **kwargs):
+        await self._rendezvous()
+        return await self.delegate.claim(*args, **kwargs)
 
     async def begin(self, *args, **kwargs):
         return await self.delegate.begin(*args, **kwargs)
@@ -262,6 +299,62 @@ async def test_denied_replay_cannot_read_a_previously_allowed_checkpoint():
         )
 
     assert tool.side_effects == 1
+
+
+@pytest.mark.asyncio
+async def test_concurrent_same_call_claims_one_owner_and_never_duplicates_side_effects():
+    tool = CountingTool()
+    app = local_application(tool, checkpoint_store=RacingCheckpointStore())
+
+    async def invoke():
+        return await app.execute_tool(
+            "count",
+            {"value": "single-owner"},
+            user_id="alice",
+            session_id="racing-session",
+            call_id="racing-call",
+        )
+
+    first, second = await asyncio.gather(invoke(), invoke())
+
+    assert first == second
+    assert tool.side_effects == 1
+
+
+@pytest.mark.asyncio
+async def test_failed_owner_leaves_started_checkpoint_and_refuses_ambiguous_replay():
+    tool = CountingTool(failures_before_success=10)
+    store = InMemoryCheckpointStore()
+    app = local_application(
+        tool,
+        checkpoint_store=store,
+        retry_config=RetryConfig(
+            max_attempts=1,
+            initial_delay=0,
+            max_delay=0,
+            jitter=False,
+            retryable_exceptions={ConnectionError},
+        ),
+    )
+
+    with pytest.raises(ConnectionError, match="temporary transport failure"):
+        await app.execute_tool(
+            "count",
+            {"value": "ambiguous"},
+            user_id="alice",
+            session_id="failed-session",
+            call_id="failed-call",
+        )
+
+    with pytest.raises(IncompleteCheckpointError, match="may already have executed"):
+        await app.execute_tool(
+            "count",
+            {"value": "ambiguous"},
+            user_id="alice",
+            session_id="failed-session",
+            call_id="failed-call",
+        )
+    assert tool.attempts == 1
 
 
 @pytest.mark.asyncio
