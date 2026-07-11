@@ -97,8 +97,6 @@ jobs:
           PUPPETEER_SKIP_DOWNLOAD: "true"
         run: npm install --global @mermaid-js/mermaid-cli@11.16.0
       - name: Build publication artifacts
-        env:
-          CHROME_BIN: ${{ steps.setupchrome.outputs.chrome-path }}
         run: |
           mkdir -p dist/mermaid
           mdpress build --format pdf --output dist/harness_engineering_guide.pdf

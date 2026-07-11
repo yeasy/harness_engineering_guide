@@ -80,8 +80,6 @@ jobs:
           echo "TAG_NAME=${tag_name}" >> "$GITHUB_OUTPUT"
           echo "SAFE_TAG_NAME=${safe_tag_name}" >> "$GITHUB_OUTPUT"
       - name: Build PDF, HTML, and Mermaid artifacts
-        env:
-          CHROME_BIN: ${{ steps.setupchrome.outputs.chrome-path }}
         run: |
           mkdir -p dist/mermaid
           tag="${{ steps.tag.outputs.SAFE_TAG_NAME }}"
