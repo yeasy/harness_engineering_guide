@@ -74,8 +74,8 @@ def test_artifact_toolchain_versions_and_download_digest_are_pinned():
     workflows = "\n".join(
         path.read_text(encoding="utf-8") for path in sorted(WORKFLOWS.glob("*.*ml"))
     )
-    assert 'MDPRESS_VERSION: "0.7.13"' in workflows
-    assert "eeb96ff27b76f7e2eab7a7c61d4c7d3793e6e632e4322f1d13c7d248d702c4fa" in workflows
+    assert 'MDPRESS_VERSION: "0.7.14"' in workflows
+    assert "6819dbc9bb606053afd9d65afb4fc4e58fb066ef6918d8a8e2497af6b528e0cb" in workflows
     assert "@mermaid-js/mermaid-cli@11.16.0" in workflows
     assert "version: 3.10" in workflows
 
