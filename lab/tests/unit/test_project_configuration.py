@@ -74,8 +74,14 @@ def test_artifact_toolchain_versions_and_download_digest_are_pinned():
     workflows = "\n".join(
         path.read_text(encoding="utf-8") for path in sorted(WORKFLOWS.glob("*.*ml"))
     )
-    assert 'MDPRESS_VERSION: "0.7.14"' in workflows
-    assert "6819dbc9bb606053afd9d65afb4fc4e58fb066ef6918d8a8e2497af6b528e0cb" in workflows
+    # mdPress deliberately tracks the latest release rather than a pinned version,
+    # so assert the integrity mechanism instead of a version literal: the archive is
+    # verified against that release's own checksums.txt and a missing entry aborts
+    # the step rather than letting an unverified binary through.
+    assert "releases/latest" in workflows
+    assert "checksums.txt" in workflows
+    assert 'test -n "$expected"' in workflows
+    assert "sha256sum -c -" in workflows
     assert "@mermaid-js/mermaid-cli@11.16.0" in workflows
     assert "version: 3.10" in workflows
 
