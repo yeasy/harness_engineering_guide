@@ -481,7 +481,7 @@
 
 | 条目 | 发起方 | 状态 | as_of | 官方链接 / 影响章节 |
 |------|--------|------|-------|----------------------|
-| Anthropic Managed Agents | Anthropic | 公测 (beta header `managed-agents-2026-04-01`)，standard token + $0.08/session-hour | 2026-04-09 | https://platform.claude.com/docs/en/api/agent-sdk/managed-agents；影响 §10.5、§14.1 |
+| Anthropic Managed Agents | Anthropic | 公测 (beta header `managed-agents-2026-04-01`)，standard token + $0.08/session-hour | 2026-04-09 | https://platform.claude.com/docs/en/managed-agents/overview；影响 §10.5、§14.1 |
 | Anthropic Cowork GA | Anthropic | GA | 2026-04-09 | anthropic.com/news；影响 §14.2 |
 | Anthropic Dreaming | Anthropic | Managed Agents 新增特性（离线记忆整合） | 2026-05-06 | anthropic.com/news；影响 §6.1 / §14.3 |
 | claude-agent-sdk 更名 | Anthropic | 由 `claude-code-sdk` 改名，面向 Harness/Agent 应用层 | 2026 | pypi.org/project/claude-agent-sdk；影响附录 C、§4.5 |
