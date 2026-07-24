@@ -105,6 +105,10 @@ jobs:
         run: npm install --global @mermaid-js/mermaid-cli@11.16.0
       - name: Build publication artifacts
         run: |
+          # mdPress PDF generation drives headless Chrome, which intermittently dies with
+          # "websocket url timeout reached" + dbus errors. Retry the build, not the whole job.
+          mdpress() { local a; for a in 1 2 3; do command mdpress "$@" && return 0;
+            echo "::warning::mdpress attempt $a failed; retrying in 10s"; sleep 10; done; return 1; }
           mkdir -p dist/mermaid
           mdpress build --format pdf --output dist/harness_engineering_guide.pdf
           python tools/render_mermaid.py --book-dir . --svg-out dist/mermaid --strict

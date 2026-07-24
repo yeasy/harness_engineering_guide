@@ -88,6 +88,10 @@ jobs:
           echo "SAFE_TAG_NAME=${safe_tag_name}" >> "$GITHUB_OUTPUT"
       - name: Build PDF, HTML, and Mermaid artifacts
         run: |
+          # mdPress PDF generation drives headless Chrome, which intermittently dies with
+          # "websocket url timeout reached" + dbus errors. Retry the build, not the whole job.
+          mdpress() { local a; for a in 1 2 3; do command mdpress "$@" && return 0;
+            echo "::warning::mdpress attempt $a failed; retrying in 10s"; sleep 10; done; return 1; }
           mkdir -p dist/mermaid
           tag="${{ steps.tag.outputs.SAFE_TAG_NAME }}"
           mdpress build --format pdf --output "dist/harness_engineering_guide-${tag}.pdf"

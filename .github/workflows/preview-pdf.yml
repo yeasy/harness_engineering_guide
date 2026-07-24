@@ -70,6 +70,10 @@ jobs:
           python -m build
       - name: Build latest preview PDF
         run: |
+          # mdPress PDF generation drives headless Chrome, which intermittently dies with
+          # "websocket url timeout reached" + dbus errors. Retry the build, not the whole job.
+          mdpress() { local a; for a in 1 2 3; do command mdpress "$@" && return 0;
+            echo "::warning::mdpress attempt $a failed; retrying in 10s"; sleep 10; done; return 1; }
           mkdir -p dist
           mdpress build --format pdf --output dist/harness_engineering_guide.pdf
           title=$(python -c "import json; print(json.load(open('book.json', encoding='utf-8'))['title'])")
