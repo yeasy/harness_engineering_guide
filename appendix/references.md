@@ -38,7 +38,7 @@
 
 6. **Agentic Harness Engineering: Observability-Driven Automatic Evolution of Coding-Agent Harnesses**
 
-   - Lin, Liu 等（复旦大学 NLP 组等），2026-04
+   - Lin, Liu 等（复旦大学、北京大学等），2026-04
    - https://arxiv.org/abs/2604.25850
    - 固定底座模型，依据可观测性信号自动迭代工具/中间件/长期记忆；10 轮进化使 Terminal-Bench 2 的 Pass@1 从 69.7% 升至 77.0%，反超人工设计的 Codex-CLI harness（71.9%），收益主要来自工具、中间件与长期记忆而非系统提示词
 
