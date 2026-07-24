@@ -35,7 +35,7 @@ jobs:
       - name: Install pinned MiniHarness dependencies
         run: python -m pip install -e "./lab[dev]"
       - name: Validate book content
-        run: python check_project_rules.py
+        run: python check_project_rules.py && python check_emphasis.py
       - name: Run real MCP E2E lifecycle
         working-directory: lab
         run: python -m pytest tests/integration/test_mcp_lifecycle.py -q
