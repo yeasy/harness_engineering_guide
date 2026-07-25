@@ -68,6 +68,7 @@ jobs:
       - name: Validate release inputs
         run: |
           python check_project_rules.py
+          python -m unittest discover -s tests -p 'test_*.py' -v
           cd lab
           python -m pytest tests/integration/test_mcp_lifecycle.py -q
           python -m pytest tests -q --cov=mini_harness --cov-report=term-missing --cov-fail-under=80
