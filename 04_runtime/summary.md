@@ -137,7 +137,7 @@ Token预算的详细分配方案如下所示：
 #### 管理策略
 
 1. **前向估计**：发送请求前预估Token数，避免超限
-2. **自动压缩**：80% 触发压缩、70% 触发记忆整合都是本书 MiniHarness 的示例默认值；真实产品并不按固定百分比触发——截至 2026-07-24，OpenClaw [官方参考](https://docs.openclaw.ai/reference/session-management-compaction)给出的条件是“模型窗口减去内置预留余量”，Claude Code 则按绝对 Token 边界（[官方文档](https://code.claude.com/docs/en/model-config#sonnet-5-context-window)记录 Sonnet 5 在 1M 窗口下默认约 967K tokens，可用 `CLAUDE_CODE_AUTO_COMPACT_WINDOW` 调整）
+2. **自动压缩**：80% 触发压缩、70% 触发记忆整合都是本书 MiniHarness 的示例默认值；真实产品并不按固定百分比触发——OpenClaw [官方参考](https://docs.openclaw.ai/reference/session-management-compaction)给出的条件是“模型窗口减去内置预留余量”，Claude Code 则按绝对 Token 边界（[官方文档](https://code.claude.com/docs/en/model-config#sonnet-5-context-window)记录 Sonnet 5 在 1M 窗口下默认约 967K tokens，可用 `CLAUDE_CODE_AUTO_COMPACT_WINDOW` 调整）
 3. **历史片段化**：保留最重要的消息，丢弃中间的
 4. **动态边界**：系统提示词与动态上下文的分离缓存(Claude Code)
 
