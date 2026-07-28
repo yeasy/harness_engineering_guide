@@ -30,11 +30,11 @@ jobs:
           cache-dependency-path: lab/pyproject.toml
       - name: Install Chrome
         id: setupchrome
-        uses: browser-actions/setup-chrome@2e1d749697dd1612b833dba4a722266286fbefcd # v2
+        uses: browser-actions/setup-chrome@2e1d749697dd1612b833dba4a722266286fbefcd # v2.1.2
         with:
           chrome-version: stable
       - name: Install Pandoc
-        uses: pandoc/actions/setup@86321b6dd4675f5014c611e05088e10d4939e09e # v1
+        uses: pandoc/actions/setup@86321b6dd4675f5014c611e05088e10d4939e09e # v1.1.1
         with:
           version: 3.10
       - name: Install CJK fonts
@@ -118,7 +118,7 @@ jobs:
             --expected-title "$title"
       - name: Create GitHub release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@7c4723f7a335432393329f8f1c564994ce50185d # v3
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
           generate_release_notes: true
           files: |
@@ -126,7 +126,7 @@ jobs:
             dist/harness_engineering_guide-${{ steps.tag.outputs.SAFE_TAG_NAME }}.html
             dist/SHA256SUMS
       - name: Upload verified artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: harness-engineering-guide-${{ steps.tag.outputs.SAFE_TAG_NAME }}
           path: |
