@@ -2,7 +2,7 @@
 
 Model Context Protocol(MCP)是Anthropic在2024年11月推出的标准化工具调用协议，现已被OpenAI和Google采纳，成为行业标准。MCP将智能体与外部服务的集成从点对点的定制开发转变为标准化的协议，大幅降低了工具接入的复杂度。
 
-> 💡 **协议版本说明**：本章的协议示例基于 MCP **2025-11-25** 修订版编写。官方在 **2026-07-28** 发布了新修订版：`initialize`/`notifications/initialized` 握手与协议级会话被移除，协议版本和客户端能力改为随每个请求在 `_meta` 中传递，并新增 `server/discover`；Roots、Sampling、Logging 进入至少 12 个月的弃用期（仍然可用，但新实现不建议采用）。阅读本章的握手与传输示例时请留意这一版本边界，迁移时以[官方变更日志](https://modelcontextprotocol.io/specification/2026-07-28/changelog)为准。
+> 💡 **协议版本说明**：MCP 当前修订版是 **2026-07-28**，它把协议改成了无状态——`initialize` / `notifications/initialized` 握手与协议级会话被移除，协议版本和客户端能力改为随每个请求在 `_meta` 中传递，新增 Server 必须实现的 `server/discover`，服务端也不再主动向客户端发起请求（改用 MRTR）。**[9.1 协议设计](9.1_protocol_design.md) 按当前修订版讲解协商与发现，并给出与旧版互通的探测顺序**；9.2–9.4 的完整实现示例仍按 **2025-11-25** 修订版编写并已就地标注——现网大量服务端仍讲这一版，这些代码照样能跑，读时请留意各节开头的版本边界说明。另注意 Roots、Sampling、Logging 属于**弃用**（至少 12 个月过渡期，仍然可用），不是移除。
 
 ## 为什么MCP很重要
 
@@ -29,7 +29,7 @@ MCP通过统一的协议规范解决了这些问题。现在，一个MCP Server�
 ## 核心问题
 
 1. **MCP协议的设计哲学是什么？** 为什么选择Client/Server模型和三种原语？
-2. **如何在生产环境中可靠地传输MCP消息？** stdio 与 Streamable HTTP 如何取舍，旧 HTTP+SSE 如何作为兼容路径处理？
+2. **如何在生产环境中可靠地传输MCP消息？** stdio 与 Streamable HTTP 如何取舍，面对仍停留在握手模型的旧 Server（以及已弃用的 HTTP+SSE 传输）如何做版本探测与降级？
 3. **如何开发一个MCP Server？** 什么是必要的，什么是可选的？
 4. **Harness如何高效地集成大量MCP Server？** 动态发现、缓存、权限管理如何设计？
 5. **企业级部署需要哪些考量？** 审计、SSO、网关等。
@@ -64,9 +64,10 @@ Level 5: 实现 - MiniHarness中的完整代码
 
 - **Host/Client/Server模型**：Agent/LLM 运行在 Host 内，MCP Client 是 Host 管理的协议组件，并与单个 MCP Server 建立隔离连接
 - **三种原语**：Tools（可调用的函数）、Resources（可访问的数据）、Prompts（提示词模板）
-- **双向通信**：Server可以向Client发起请求（如approval）
+- **无状态请求**（2026-07-28 起）：没有握手，协议版本与客户端能力随每个请求在 `params._meta` 中传递；Server 不得从同一连接上的历史请求推断状态
+- **输入请求（MRTR）**：2026-07-28 起 Server 不再发起 JSON-RPC 请求，而是返回 `resultType: "input_required"` 与 `inputRequests`，由 Client 收集输入后带 `inputResponses` 重试原请求；面对 2025-11-25 及更早的 Server，仍需保留 Server 主动发起 sampling/elicitation 请求的兼容路径
 - **流式传输**：支持大型数据的分块传输
-- **Schema缓存**：减少重复的Schema定义和Token消耗
+- **Schema缓存**：减少重复的Schema定义和Token消耗；`tools/list` 等列表结果用 `ttlMs`、`cacheScope` 给出新鲜度提示
 - **权限网关**：在Agent和Server间的访问控制和审计
 
 ## 章节关键术语
@@ -79,8 +80,12 @@ Level 5: 实现 - MiniHarness中的完整代码
 | Resources | 可访问的数据或内容资源 |
 | Prompts | 预定义的提示词模板 |
 | Schema | 工具/资源/提示词的JSON Schema定义 |
-| Sampling | Server向Client发起的请求（如LLM采样） |
-| Roots | 资源的根目录或基础路径 |
+| Sampling | 由Server请求Client代为进行LLM采样；**已弃用**（至少 12 个月内仍可用，新实现建议直接调用模型提供方API） |
+| Roots | 资源的根目录或基础路径；**已弃用**（至少 12 个月内仍可用，新实现建议改为通过工具参数或资源URI传入目录与文件） |
+| `_meta` | 请求参数中的元数据字段，承载协议版本、客户端能力等每请求信息 |
+| `server/discover` | Server必须实现的发现方法，一次返回支持版本、能力与缓存提示，Client可按需调用 |
+| `resultType` | 每个结果必须携带的类型标记，取值为 `complete` 或 `input_required` |
+| MRTR | Server以 `input_required` 结果索取输入、Client补齐后重试原请求的机制 |
 
 ## 与其他章节的关联
 

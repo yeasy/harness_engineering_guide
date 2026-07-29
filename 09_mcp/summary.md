@@ -13,6 +13,8 @@
 - Host/Client/Server模型：Agent/LLM 运行在 Host 内；MCP Client 是 Host 管理的协议组件，并与单个 Server 建立隔离连接
 - JSON-RPC 2.0：所有消息基于标准JSON-RPC
 - 三种原语：Tools、Resources、Prompts
+- 无状态：协议没有 `initialize` 握手，每个请求在 `params._meta` 中自带 `io.modelcontextprotocol/protocolVersion` 与 `io.modelcontextprotocol/clientCapabilities`；Server 不得从同一连接上的历史请求推断状态，跨请求的状态必须是客户端每次显式传入的标识符
+- 一次性发现：`server/discover` 用一次调用返回 `supportedVersions`、`capabilities`、`ttlMs`、`cacheScope` 以及可选的 `instructions`，Server 必须实现，客户端可选调用
 
 **为什么MCP成为行业标准**：
 
@@ -42,7 +44,7 @@
 
 | 特性 | stdio | Streamable HTTP |
 |------|-------|-----------------|
-| 架构 | 本地进程 | 双向HTTP流 |
+| 架构 | 本地进程 | 单端点 POST，响应可为 JSON 或按请求范围的 SSE |
 | 延迟 | <1ms | <100ms |
 | 部署 | 本地 | 网络 |
 | 扩展性 | 单C单S | 单S多C |
@@ -57,6 +59,9 @@
 
 - stdio：使用进程池避免重复启动
 - HTTP：使用aiohttp的连接池和限制
+- 请求头：每个 POST 必须带 `MCP-Protocol-Version`（须与 `_meta` 中的版本一致，否则返回 `-32020` 并 HTTP 400）与 `Mcp-Method`；`tools/call`、`resources/read`、`prompts/get` 还必须带 `Mcp-Name`；`Accept` 必须同时列出 `application/json` 与 `text/event-stream`
+- 无会话、无续传：协议层不再有 GET 常驻流、`Mcp-Session-Id` 及其 DELETE 终止，也不再支持 `Last-Event-ID` 续传；关闭 SSE 响应流即表示取消
+- 长期通知：客户端 POST `subscriptions/listen` 换取一条长期 SSE 流，只承载订阅的通知类型，其通知的 `_meta` 带 `io.modelcontextprotocol/subscriptionId`；进度、消息（message）等请求范围内的通知不走这条流
 - HTTP授权：按 MCP 授权规范使用 OAuth 2.1、受保护资源元数据、PKCE 等机制；stdio 传输从宿主环境获取凭据
 
 **关键代码**：
@@ -112,6 +117,10 @@ class MCPServerBase:
 - 所有错误都应该返回JSON-RPC 2.0错误格式
 - 提供有意义的错误消息
 - 记录Server端的错误日志
+- 请求缺少必填的 `_meta` 字段：返回 `-32602`（Streamable HTTP 下同时返回 HTTP 400）
+- 需要客户端未声明的能力：返回 `MissingRequiredClientCapabilityError`（`-32021`，HTTP 400），并在 `data.requiredCapabilities` 中列出所需能力
+- 未知方法：返回 `-32601`（HTTP 404）；不支持的协议版本：返回 `UnsupportedProtocolVersionError`（`-32022`，HTTP 400），并列出 Server 支持的版本
+- 资源不存在：返回 `-32602`；客户端仍应接受旧 Server 返回的 `-32002`
 
 #### 9.4 Harness中的MCP集成模式
 
@@ -274,14 +283,14 @@ L5: 应用 (MiniHarness / Agent)
 
 #### Q1: Schema缓存多久失效？
 
-**答**：建议设置为3600秒（1小时），可以根据工具变更频率调整。如果工具频繁更新，可以缩短到600秒，如果很少更新可以延长到86400秒（1天）。
+**答**：MCP 2026-07-28 修订版要求 Server 在 `tools/list` 等结果中返回 `ttlMs` 与 `cacheScope`，客户端应优先采用这两个值；`cacheScope` 为 `"private"` 的结果不能跨用户共享。面对 2025-11-25 及更早的 Server（不返回这两个字段）时，建议设置为3600秒（1小时），可以根据工具变更频率调整。如果工具频繁更新，可以缩短到600秒，如果很少更新可以延长到86400秒（1天）。
 
 #### Q2: 如何处理MCP Server的认证？
 
 **答**：
 
 1. **API Key**：在HTTP头中传递 `Authorization: Bearer <key>`
-2. **OAuth**：HTTP Server 应按 MCP 授权规范暴露 Protected Resource Metadata；客户端从 `WWW-Authenticate` challenge 发现授权服务器，并在 token 请求中带 `resource`
+2. **OAuth**：HTTP Server 应按 MCP 授权规范暴露 Protected Resource Metadata；客户端从 `WWW-Authenticate` challenge 发现授权服务器，并在 token 请求中带 `resource`；OAuth 2.0 动态客户端注册（DCR）已标记废弃，新实现优先使用 Client ID Metadata Documents
 3. **mTLS**：在HTTP Client中配置证书
 4. **Custom**：Server可以定义任何认证方式
 
@@ -309,12 +318,52 @@ async def load_permissions_from_sso(agent_id: str):
 
 **答**：
 
-1. 缓存Schema的哈希值，检测变更
-2. 版本变更时重新发现工具
-3. 支持多版本Server并行运行
-4. 提供Schema迁移工具
+1. 客户端先按当前版本发请求；HTTP 传输下若收到 400，检查响应体：能识别的现代 JSON-RPC 错误说明 Server 是新版（据此纠正后重试），响应体为空或无法识别则回退到 `initialize` 握手
+2. stdio 传输下用 `server/discover` 探测：能正常返回说明 Server 支持新版，否则回退到握手
+3. 兼容旧 Server：结果缺 `resultType` 时按 `"complete"` 处理，资源不存在的 `-32002` 仍需接受
+4. 只支持新版的 Server 收到旧流量时：对端点上的 GET/DELETE 返回 `405 Method Not Allowed`，忽略 `Mcp-Session-Id` 与 `Last-Event-ID`
+5. Roots、Sampling、Logging 以及 HTTP+SSE 传输已标记废弃，但至少 12 个月内仍然可用，迁移期内两条路径都要能跑通
+6. 缓存Schema的哈希值检测变更，版本变更时重新发现工具，并支持多版本Server并行运行
 
 ### 关键代码片段速查
+
+#### 构造带元数据的请求
+
+示例如下：
+
+```python
+META = {
+    "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+    "io.modelcontextprotocol/clientCapabilities": {},
+    "io.modelcontextprotocol/clientInfo": {"name": "mini-harness", "version": "1.0"},
+}
+
+request = {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "tools/call",
+    "params": {"name": "my_tool", "arguments": {"param": "value"}, "_meta": META},
+}
+```
+
+#### 处理input_required（MRTR）
+
+代码如下：
+
+```python
+result = await send(request)
+if result.get("resultType") == "input_required":
+    params = dict(request["params"])
+    params["inputResponses"] = {
+        key: await resolve(req)
+        for key, req in result.get("inputRequests", {}).items()
+    }
+    if "requestState" in result:
+        # requestState 对客户端不透明，原样回传，不解析也不修改
+        params["requestState"] = result["requestState"]
+    # 重试必须使用不同的 JSON-RPC id
+    result = await send({**request, "id": 2, "params": params})
+```
 
 #### 添加MCP Server
 
@@ -383,7 +432,8 @@ print(f"Cache hit rate: {stats['schema_cache']}")
 
 - 理解MCP为什么成为行业标准
 - 掌握三种原语的设计和使用
-- 学会选择合适的传输方式
+- 理解无状态协议模型：每个请求在 `_meta` 中自带协议版本与客户端能力、`server/discover` 一次性获取 Server 信息、MRTR（Server 返回 `input_required` 结果，客户端补齐输入后以新的请求 id 重试）承载需要客户端输入的场景
+- 学会选择合适的传输方式，并能与仍在使用 `initialize` 握手模型的旧 Server 互通
 - 实现完整的MCP Server
 - 在Harness中集成多个Server
 - Schema缓存可以显著提升性能
