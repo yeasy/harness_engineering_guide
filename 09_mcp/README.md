@@ -2,6 +2,8 @@
 
 Model Context Protocol(MCP)是Anthropic在2024年11月推出的标准化工具调用协议，现已被OpenAI和Google采纳，成为行业标准。MCP将智能体与外部服务的集成从点对点的定制开发转变为标准化的协议，大幅降低了工具接入的复杂度。
 
+> 💡 **协议版本说明**：本章的协议示例基于 MCP **2025-11-25** 修订版编写。官方在 **2026-07-28** 发布了新修订版：`initialize`/`notifications/initialized` 握手与协议级会话被移除，协议版本和客户端能力改为随每个请求在 `_meta` 中传递，并新增 `server/discover`；Roots、Sampling、Logging 进入至少 12 个月的弃用期（仍然可用，但新实现不建议采用）。阅读本章的握手与传输示例时请留意这一版本边界，迁移时以[官方变更日志](https://modelcontextprotocol.io/specification/2026-07-28/changelog)为准。
+
 ## 为什么MCP很重要
 
 在MCP出现前，每个智能体框架都需要自己定义工具调用的接口。这导致：
