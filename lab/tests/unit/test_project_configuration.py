@@ -28,7 +28,7 @@ def test_runtime_and_dev_dependencies_are_exactly_pinned():
     assert all("==" in requirement for requirement in build_requirements)
     assert all("==" in requirement for requirement in runtime)
     assert all("==" in requirement for requirement in development)
-    assert "mcp==1.28.1" in runtime
+    assert "mcp==2.0.0" in runtime
     assert "build==1.5.1" in development
     assert "types-PyYAML==6.0.12.20260518" in development
 

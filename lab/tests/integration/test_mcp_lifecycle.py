@@ -164,9 +164,12 @@ async def test_streamable_http_rejects_missing_auth(loopback_mcp_server):
     endpoint, _ = loopback_mcp_server
     client = MCPClient(StreamableHTTPTransport(endpoint), timeout_seconds=1)
 
-    with pytest.raises(MCPConnectionError, match="401"):
+    # mcp 2.0 不再把 HTTP 状态码写进异常消息（1.x 会带 "401"），
+    # 所以这里断言的是意图本身：未携带凭据就无法完成初始化。
+    with pytest.raises(MCPConnectionError):
         await client.initialize()
     await client.close()
+    assert client.closed is True
 
 
 @pytest.mark.asyncio
@@ -359,9 +362,9 @@ async def test_concurrent_initialize_is_single_flight(monkeypatch):
             initialize_started.set()
             await release_initialize.wait()
             return SimpleNamespace(
-                protocolVersion="test",
+                protocol_version="test",
                 capabilities=FakeCapabilities(),
-                serverInfo=SimpleNamespace(name="single-flight", version="1"),
+                server_info=SimpleNamespace(name="single-flight", version="1"),
             )
 
     monkeypatch.setattr(client_module, "ClientSession", BlockingClientSession)
@@ -432,9 +435,9 @@ async def test_cancel_race_cleans_connection_when_no_initializer_observed_result
             assert initialize_task is not None
             asyncio.get_running_loop().call_soon(initialize_task.cancel)
             return SimpleNamespace(
-                protocolVersion="test",
+                protocol_version="test",
                 capabilities=FakeCapabilities(),
-                serverInfo=SimpleNamespace(name="cancel-race", version="1"),
+                server_info=SimpleNamespace(name="cancel-race", version="1"),
             )
 
     monkeypatch.setattr(client_module, "ClientSession", RaceClientSession)

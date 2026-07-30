@@ -198,13 +198,13 @@ class MCPClient:
             f"tools/call:{name}",
             deadline,
         )
-        if result.isError:
+        if result.is_error:
             raise MCPToolError(self._content_text(result.content) or f"Tool '{name}' failed")
         text = self._content_text(result.content)
         if text is not None:
             return text
-        if result.structuredContent is not None:
-            return result.structuredContent
+        if result.structured_content is not None:
+            return result.structured_content
         return [block.model_dump(by_alias=True, exclude_none=True) for block in result.content]
 
     async def close(self) -> None:
@@ -324,13 +324,13 @@ class MCPClient:
             ) from error
 
         metadata = InitializationMetadata(
-            protocol_version=str(result.protocolVersion),
+            protocol_version=str(result.protocol_version),
             capabilities=result.capabilities.model_dump(
                 by_alias=True,
                 exclude_none=True,
             ),
-            server_name=result.serverInfo.name,
-            server_version=result.serverInfo.version,
+            server_name=result.server_info.name,
+            server_version=result.server_info.version,
         )
         return session, metadata
 

@@ -20,7 +20,7 @@ dependencies = [
     "anthropic==0.116.0",
     "openai==2.45.0",
     "pyyaml==6.0.3",
-    "mcp==1.28.1",
+    "mcp==2.0.0",
 ]
 
 [project.optional-dependencies]
