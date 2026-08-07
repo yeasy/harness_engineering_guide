@@ -81,3 +81,6 @@ pytest-cache-files-*
 lab/find_english_commas.py
 lab/verify_markdown_links.py
 lab/LINK_VERIFICATION_RESULTS.txt
+
+# tools/eval_report.py 的默认示例输出
+eval_report.png
