@@ -163,7 +163,7 @@
 
 **Towards AI on Medium**
 
-- https://medium.com/towards-ai
+- https://pub.towardsai.net
 - 社区智能体工程文章和讨论
 - 推荐度：参考，更新频率：日
 

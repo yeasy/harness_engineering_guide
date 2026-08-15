@@ -10,7 +10,7 @@ MiniHarness 从架构、工具调用、记忆、编排、安全、评估等方�
 
 ### 工作原理
 
-`examples/simple_agent.py` 实现了一个约 340 行的完整 Agent，展示了 Harness 的核心循环：
+`examples/simple_agent.py` 实现了一个约 360 行的完整 Agent，展示了 Harness 的核心循环：
 
 ```mermaid
 flowchart TD
@@ -129,11 +129,18 @@ graph TD
     E2 --> E2f["test_mcp.py"]
     E2 --> E2g["test_reliability.py"]
     E2 --> E2h["test_security.py"]
+    E2 --> E2i["test_checkpoint_store.py"]
+    E2 --> E2j["test_project_configuration.py"]
+    E2 --> E2k["test_render_mermaid.py"]
+    E2 --> E2l["test_verify_artifacts.py"]
     E --> E3["integration/"]
     E3 --> E3a["test_runtime.py"]
     E3 --> E3b["test_application.py"]
     E3 --> E3c["test_mcp_lifecycle.py"]
     E3 --> E3d["test_simple_agent.py"]
+    E --> E4["fakes/<br/>测试替身"]
+    E4 --> E4a["mcp_server.py"]
+    E4 --> E4b["mcp_clients.py"]
 
     style A fill:#e3f2fd
     style B3 fill:#fff3e0
@@ -331,13 +338,13 @@ graph TD
 **主要方法**：
 
 - `validate()`: 5层路径校验
-  - `_check_length()`: 第1层 - 长度检查
+  - 第1层 - 长度检查（内联在 `validate()` 中，超过 4096 字符即拒绝）
   - `_decode_all_encodings()`: 第2层 - URL解码
   - `_normalize_unicode()`: 第3层 - Unicode规范化
-  - `_normalize_platform()`: 第4层 - 平台规范化
+  - `_normalize_path()`: 第4层 - 路径规范化（`posixpath.normpath`，移除 `..` 与冗余分隔符）
   - `_resolve_and_check_boundaries()`: 第5层 - realpath + 边界检查
 
-**代码位置**：第12.4节完整实现
+**代码位置**：第 12.4 节给出完整的教学实现（其中长度检查与平台规范化各自拆成了独立方法 `_check_length()`、`_normalize_platform()`），第 12.5 节的精简版与本仓库代码一致
 
 #### 14. 护栏框架
 
