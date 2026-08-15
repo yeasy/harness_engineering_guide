@@ -22,7 +22,7 @@ Harness 一词意为“驾驭”，原指骑手用以驾驭烈马的缰绳和鞍
 
 参考系统变化较快，本书正文只保留稳定架构特征；具体产品与特性名可见 [附录 C：推荐资源](appendix/resources.md)。
 
-**[OpenAI Codex](https://github.com/openai/codex)** 代表 **性能型智能体** 的 Harness 范式。它以 Rust 为核心实现语言，通过系统级编程实现了高性能、内存安全的 Harness 架构。其特色包括：基于 Starlark 的执行策略引擎(execpolicy)、平台原生沙箱（Linux 上优先用 `PATH` 上找到的第一个 Bubblewrap，找不到时回退到自带的 Landlock + seccomp 沙箱助手，macOS 使用 Seatbelt/sandbox-exec，Windows 原生支持 `elevated` / `unelevated` sandbox；WSL2 继承 Linux sandbox）、skills/core-skills 技能模块体系、OpenTelemetry 原生可观测性（otel 模块），以及内置 MCP 服务端支持等。
+**[OpenAI Codex](https://github.com/openai/codex)** 代表 **性能型智能体** 的 Harness 范式。它以 Rust 为核心实现语言，通过系统级编程实现了高性能、内存安全的 Harness 架构。其特色包括：基于 Starlark 的执行策略引擎(execpolicy)、平台原生沙箱（Linux 上优先用 `PATH` 上找到的第一个 Bubblewrap，找不到时回退到 Codex 自带的 `codex-resources/bwrap`；Bubblewrap 生效期间再叠加 `PR_SET_NO_NEW_PRIVS` 与 seccomp 网络过滤，Landlock 则退为需显式打开 `features.use_legacy_landlock` 的遗留路径。macOS 使用 Seatbelt/sandbox-exec，Windows 原生支持 `elevated` / `unelevated` sandbox；WSL2 走与 Linux 相同的 Bubblewrap 路径）、skills/core-skills 技能模块体系、OpenTelemetry 原生可观测性（otel 模块），以及内置 MCP 服务端支持等。
 
 **[Claude Code](https://github.com/anthropics/claude-code)** 代表 **任务型智能体** 的 Harness 范式。它围绕终端交互场景构建工程系统，核心特色包括：可直接读写代码库、运行命令、接入 MCP，提供 default、acceptEdits、plan、auto、dontAsk、bypassPermissions 等权限模式，并通过 skills、hooks、subagents、memory/compact 等公开机制扩展工作流。
 
@@ -38,7 +38,7 @@ Harness 一词意为“驾驭”，原指骑手用以驾驭烈马的缰绳和鞍
 | 工具生态 | skills + core-skills 模块 + MCP | 内置工具 + MCP + skills 扩展 | ClawHub skills/plugins 注册中心 |
 | 记忆模型 | state 模块会话管理 | 公开记忆/compact/hooks 机制 | `MEMORY.md` + 每日记忆文件 |
 | 安全模型 | execpolicy 策略引擎(allow/prompt/forbidden) | 分模式权限控制 + 规则配置 | 工具 allow/deny + exec 审批策略 |
-| 沙箱实现 | 平台原生沙箱(Bubblewrap/seccomp/Landlock) | 权限模式 + 可选 dev container/VM 隔离 | main 默认主机执行，non-main 可启用 Docker/SSH/OpenShell 沙箱 |
+| 沙箱实现 | 平台原生沙箱(Bubblewrap + seccomp，自带 bwrap 兜底) | 权限模式 + 可选 dev container/VM 隔离 | main 默认主机执行，non-main 可启用 Docker/SSH/OpenShell 沙箱 |
 | 多智能体 | 分层 Agent 消息协议 | Coordinator 模式 + 子智能体 | Lobster 工作流引擎 |
 | 可观测性 | OpenTelemetry 原生集成 | 内置结构化日志 | 每日记忆日志 |
 
