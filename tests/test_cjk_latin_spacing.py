@@ -45,7 +45,7 @@ MASKS = (
     re.compile(r"\$[^$\n]*\$"),
     re.compile(r"!?\]\([^)\s]*(?:\s+\"[^\"]*\")?\)"),
     re.compile(r"<[^<>\s][^<>]*>"),
-    re.compile(r"(?<![\w/])(?:https?|ftp)://\S+"),
+    re.compile("(?<![\\w/])(?:https?|ftp)://[^\\s\ue000-\uf8ff]+"),
 )
 
 ADJACENT = re.compile(f"[{CJK}][{LATIN}]|[{LATIN}][{CJK}]")
@@ -127,6 +127,8 @@ class CjkLatinSpacingTests(unittest.TestCase):
             "见 `mini_harness/核心.py` 说明。",
             "参考 [第 4 章的运行时](04_runtime/README.md)。",
             "地址是 https://example.com/中文path 这一条。",
+            # a bare URL must not swallow the placeholder of a masked neighbour
+            "见 [文档](a.md) https://example.com/x 结束。",
             '<img src="a.png" alt="第4章示意图"> 的属性不算正文。',
         ):
             self.assertEqual([], list(violations(sample + "\n")), sample)
