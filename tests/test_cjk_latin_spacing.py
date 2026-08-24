@@ -32,6 +32,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SKIP_DIRS = {".git", "_book", "node_modules", ".obsidian", "output", ".agent", "_site"}
 
+PUA_FIRST = 0xE000          # placeholders live in the Private Use Area
 CJK = r"一-鿿㐀-䶿"
 LATIN = r"A-Za-z0-9"
 FENCE = re.compile(r"^\s*(?:```|~~~)")
@@ -45,7 +46,7 @@ MASKS = (
     re.compile(r"\$[^$\n]*\$"),
     re.compile(r"!?\]\([^)\s]*(?:\s+\"[^\"]*\")?\)"),
     re.compile(r"<[^<>\s][^<>]*>"),
-    re.compile("(?<![\\w/])(?:https?|ftp)://[^\\s\ue000-\uf8ff]+"),
+    re.compile("(?<![\\w/])(?:https?|ftp)://[^\\s\\ue000-\\uf8ff]+"),
 )
 
 ADJACENT = re.compile(f"[{CJK}][{LATIN}]|[{LATIN}][{CJK}]")
@@ -56,7 +57,7 @@ def mask(line: str) -> str:
 
     def repl(_match: re.Match[str]) -> str:
         counter[0] += 1
-        return chr(0xE000 + counter[0] - 1)
+        return chr(PUA_FIRST + counter[0] - 1)
 
     for pattern in MASKS:
         line = pattern.sub(repl, line)
