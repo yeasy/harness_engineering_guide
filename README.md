@@ -38,7 +38,7 @@ Harness 一词意为“驾驭”，原指骑手用以驾驭烈马的缰绳和鞍
 | 工具生态 | skills + core-skills 模块 + MCP | 内置工具 + MCP + skills 扩展 | ClawHub skills/plugins 注册中心 |
 | 记忆模型 | state 模块会话管理 | 公开记忆/compact/hooks 机制 | `MEMORY.md` + 每日记忆文件 |
 | 安全模型 | execpolicy 策略引擎(allow/prompt/forbidden) | 分模式权限控制 + 规则配置 | 工具 allow/deny + exec 审批策略 |
-| 沙箱实现 | 平台原生沙箱(Bubblewrap + seccomp，自带 bwrap 兜底) | 权限模式 + 可选 dev container/VM 隔离 | main 默认主机执行，non-main 可启用 Docker/SSH/OpenShell 沙箱 |
+| 沙箱实现 | 平台原生沙箱（Bubblewrap + seccomp，自带 bwrap 兜底）| 权限模式 + 可选 dev container/VM 隔离 | main 默认主机执行，non-main 可启用 Docker/SSH/OpenShell 沙箱 |
 | 多智能体 | 分层 Agent 消息协议 | Coordinator 模式 + 子智能体 | Lobster 工作流引擎 |
 | 可观测性 | OpenTelemetry 原生集成 | 内置结构化日志 | 每日记忆日志 |
 
