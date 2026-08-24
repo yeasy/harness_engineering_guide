@@ -1,22 +1,22 @@
 # 第八章：任务编排与工作流引擎
 
-AI Agent的核心竞争力不仅在于单个决策能力，更在于协调多个任务有序执行的能力。一个复杂的业务问题往往需要分解为多个相互依赖的子任务，这些任务需要按照特定的顺序执行，并在出现错误时能够自动恢复或人工干预。
+AI Agent 的核心竞争力不仅在于单个决策能力，更在于协调多个任务有序执行的能力。一个复杂的业务问题往往需要分解为多个相互依赖的子任务，这些任务需要按照特定的顺序执行，并在出现错误时能够自动恢复或人工干预。
 
-本章深入探讨任务编排(Task Orchestration)与工作流引擎(Workflow Engine)的设计与实现。我们将从单Agent内的任务分解开始，逐步过渡到有限状态机的工作流定义，再到多智能体的协调模式，最后讨论智能体之间的通信机制。
+本章深入探讨任务编排(Task Orchestration)与工作流引擎(Workflow Engine)的设计与实现。我们将从单 Agent 内的任务分解开始，逐步过渡到有限状态机的工作流定义，再到多智能体的协调模式，最后讨论智能体之间的通信机制。
 
 ## 核心问题
 
-1. **单Agent如何处理多个不可原子的任务？** Claude Code提供的7种Task类型（local_bash、local_agent、remote_agent等）为分解任务提供了基础。
-2. **如何定义复杂的工作流逻辑？** Claude Code的Coordinator模式采用Research→Synthesis→Implementation→Verification的四阶段方式；OpenClaw的Lobster引擎使用YAML工作流定义，支持条件分支、循环和错误处理；LangChain Deep Agents 则用 Interpreter Skills 将确定性流程封装为可导入的代码模块（详见 8.2.7）。
-3. **多智能体如何高效协作？** Claude Code提供了Task协调机制，OpenClaw支持多层级Agent组织。
+1. **单 Agent 如何处理多个不可原子的任务？** Claude Code 提供的 7 种 Task 类型（local_bash、local_agent、remote_agent 等）为分解任务提供了基础。
+2. **如何定义复杂的工作流逻辑？** Claude Code 的 Coordinator 模式采用 Research→Synthesis→Implementation→Verification 的四阶段方式；OpenClaw 的 Lobster 引擎使用 YAML 工作流定义，支持条件分支、循环和错误处理；LangChain Deep Agents 则用 Interpreter Skills 将确定性流程封装为可导入的代码模块（详见 8.2.7）。
+3. **多智能体如何高效协作？** Claude Code 提供了 Task 协调机制，OpenClaw 支持多层级 Agent 组织。
 4. **智能体间如何可靠通信？** 我们需要设计消息传递协议和共享状态管理机制。
 
 ## 本章地位
 
 本章承前启后：
 
-- **前承**：第7章介绍了模型集成与输出治理；
-- **后启**：第9章将讨论MCP生态如何为任务提供工具支持，第10章讨论系统级编排的性能优化。
+- **前承**：第 7 章介绍了模型集成与输出治理；
+- **后启**：第 9 章将讨论 MCP 生态如何为任务提供工具支持，第 10 章讨论系统级编排的性能优化。
 
 ## 关键概念预览
 
@@ -33,12 +33,12 @@ AI Agent的核心竞争力不仅在于单个决策能力，更在于协调多个
 2. 8.2 掌握状态机和工作流定义方法
 3. 8.3 了解多智能体协调的不同架构
 4. 8.4 设计合理的通信协议
-5. 8.5 在MiniHarness中实现完整的编排引擎
+5. 8.5 在 MiniHarness 中实现完整的编排引擎
 
 ## 本章结构
 
 - 8.1：复杂任务分解与依赖建模
 - 8.2：状态机与工作流引擎
-- 8.3：Harness中的多智能体编排实现
+- 8.3：Harness 中的多智能体编排实现
 - 8.4：智能体间通信
-- 8.5：实战：为MiniHarness添加编排引擎
+- 8.5：实战：为 MiniHarness 添加编排引擎

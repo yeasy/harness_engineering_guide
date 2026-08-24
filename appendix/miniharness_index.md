@@ -30,16 +30,16 @@ flowchart TD
 
 | 示例中的代码 | MiniHarness 模块 | 书中章节 |
 |-------------|-----------------|---------|
-| `LLMClient` | `models/provider.py` → `OpenAIProvider` | 第7章 |
-| `ToolRegistry` + `FileReadTool` | `tools/registry.py` + `tools/builtin.py` | 第5章 |
-| `HarnessApplication` | `application.py` | 第4、9、11、12章的集成边界 |
-| 工具调用检查点 | `runtime/checkpoint.py` | 第11章 |
-| `SimpleAgent.run()` 循环 | `runtime/engine.py` → `RuntimeEngine` | 第4章 |
-| 流式事件输出 | `runtime/events.py` | 第4章 |
+| `LLMClient` | `models/provider.py` → `OpenAIProvider` | 第 7 章 |
+| `ToolRegistry` + `FileReadTool` | `tools/registry.py` + `tools/builtin.py` | 第 5 章 |
+| `HarnessApplication` | `application.py` | 第 4、9、11、12 章的集成边界 |
+| 工具调用检查点 | `runtime/checkpoint.py` | 第 11 章 |
+| `SimpleAgent.run()` 循环 | `runtime/engine.py` → `RuntimeEngine` | 第 4 章 |
+| 流式事件输出 | `runtime/events.py` | 第 4 章 |
 
 ### 目录结构
 
-MiniHarness项目的完整目录结构：
+MiniHarness 项目的完整目录结构：
 
 ```mermaid
 graph TD
@@ -173,9 +173,9 @@ graph TD
 - 消息格式定义
 - 事件类型枚举
 
-**代码位置**：第2章详细代码实现
+**代码位置**：第 2 章详细代码实现
 
-#### 2. Tool基类和智能体定义
+#### 2. Tool 基类和智能体定义
 
 `mini_harness/core/tool.py`、`mini_harness/core/agent.py`
 
@@ -184,9 +184,9 @@ graph TD
 **主要方法**：
 
 - 工具定义接口
-- Agent状态管理
+- Agent 状态管理
 
-**代码位置**：第2章完整实现
+**代码位置**：第 2 章完整实现
 
 #### 3. 运行时引擎
 
@@ -201,7 +201,7 @@ graph TD
 - `_execute_tool()`: 执行工具调用并转换为 `ToolResultBlock`
 - `JSONCheckpointStore`: 原子写入工具调用状态和可重放结果
 
-**代码位置**：第4章详细代码实现
+**代码位置**：第 4 章详细代码实现
 
 #### 4. 工具注册表
 
@@ -215,7 +215,7 @@ graph TD
 - `get()`: 获取工具
 - `list_tools()`: 列出所有工具
 
-**代码位置**：第5章完整实现
+**代码位置**：第 5 章完整实现
 
 #### 5. 内置工具
 
@@ -227,7 +227,7 @@ graph TD
 
 - 标准工具的完整实现
 
-**代码位置**：第5章详细代码
+**代码位置**：第 5 章详细代码
 
 #### 6. 记忆存储
 
@@ -241,7 +241,7 @@ graph TD
 - 上下文管理
 - 记忆整合
 
-**代码位置**：第6章完整实现
+**代码位置**：第 6 章完整实现
 
 #### 7. 模型提供者
 
@@ -255,7 +255,7 @@ graph TD
 - 输出解析逻辑
 - 质量评估
 
-**代码位置**：第7章详细代码实现
+**代码位置**：第 7 章详细代码实现
 
 #### 8. 编排引擎
 
@@ -268,9 +268,9 @@ graph TD
 - 复杂工作流编排
 - 多智能体协调
 
-**代码位置**：第8章完整实现
+**代码位置**：第 8 章完整实现
 
-#### 9. MCP集成
+#### 9. MCP 集成
 
 `mini_harness/mcp/client.py`、`mini_harness/mcp/transports.py`、`mini_harness/mcp/auth.py`、`mini_harness/mcp/integration.py`
 
@@ -282,7 +282,7 @@ graph TD
 - Bearer Token、自定义请求头、超时取消和显式关闭
 - 工具发现、Schema 缓存与 LLM 格式适配
 
-**代码位置**：第9章详细代码
+**代码位置**：第 9 章详细代码
 
 #### 10. 生产化加固
 
@@ -295,7 +295,7 @@ graph TD
 - 配置管理
 - 生产参数调优
 
-**代码位置**：第10章完整实现
+**代码位置**：第 10 章完整实现
 
 #### 11. 可观测性和可靠性
 
@@ -310,7 +310,7 @@ graph TD
 - 日志记录
 - 可靠性保障
 
-**代码位置**：第11章详细代码实现
+**代码位置**：第 11 章详细代码实现
 
 #### 12. 权限系统
 
@@ -327,7 +327,7 @@ graph TD
 - `record_approval()`: 记录用户批准
 - `get_audit_logs()`: 读取权限决策审计记录
 
-**代码位置**：第12.2节详细代码
+**代码位置**：第 12.2 节详细代码
 
 #### 13. 路径校验
 
@@ -337,12 +337,12 @@ graph TD
 
 **主要方法**：
 
-- `validate()`: 5层路径校验
-  - 第1层 - 长度检查（内联在 `validate()` 中，超过 4096 字符即拒绝）
-  - `_decode_all_encodings()`: 第2层 - URL解码
-  - `_normalize_unicode()`: 第3层 - Unicode规范化
-  - `_normalize_path()`: 第4层 - 路径规范化（`posixpath.normpath`，移除 `..` 与冗余分隔符）
-  - `_resolve_and_check_boundaries()`: 第5层 - realpath + 边界检查
+- `validate()`: 5 层路径校验
+  - 第 1 层 - 长度检查（内联在 `validate()` 中，超过 4096 字符即拒绝）
+  - `_decode_all_encodings()`: 第 2 层 - URL 解码
+  - `_normalize_unicode()`: 第 3 层 - Unicode 规范化
+  - `_normalize_path()`: 第 4 层 - 路径规范化（`posixpath.normpath`，移除 `..` 与冗余分隔符）
+  - `_resolve_and_check_boundaries()`: 第 5 层 - realpath + 边界检查
 
 **代码位置**：第 12.4 节给出完整的教学实现（其中长度检查与平台规范化各自拆成了独立方法 `_check_length()`、`_normalize_platform()`），第 12.5 节的精简版与本仓库代码一致
 
@@ -359,7 +359,7 @@ graph TD
 - `detect()`: 检测危险命令
 - `get_reason()`: 返回危险命令命中的原因
 
-**代码位置**：第12.3节完整实现
+**代码位置**：第 12.3 节完整实现
 
 #### 15. 评估系统
 
@@ -374,7 +374,7 @@ graph TD
 - 安全测试
 - 端到端和性能测试属于扩展目标，当前仓库未提供独立测试层
 
-**代码位置**：第13章完整实现
+**代码位置**：第 13 章完整实现
 
 ### 快速开始
 
@@ -488,7 +488,7 @@ except Exception:
 
 ### 架构总览图
 
-MiniHarness的整体架构由多个层级组成，以下是完整的系统架构关系：
+MiniHarness 的整体架构由多个层级组成，以下是完整的系统架构关系：
 
 ```mermaid
 graph TD
@@ -521,8 +521,8 @@ graph TD
 | 文件 | 对应章节 | 关键概念 |
 |-----|---------|--------|
 | core/message.py | 2 | 消息类型定义 |
-| core/tool.py | 2 | Tool基类定义 |
-| core/agent.py | 2 | Agent定义 |
+| core/tool.py | 2 | Tool 基类定义 |
+| core/agent.py | 2 | Agent 定义 |
 | core/event.py | 2 | 事件系统 |
 | runtime/engine.py | 4 | 执行流程和循环 |
 | runtime/models.py | 4 | 模型管理 |
@@ -536,7 +536,7 @@ graph TD
 | models/parser.py | 7 | 输出解析 |
 | models/quality.py | 7 | 质量评估 |
 | orchestration/engine.py | 8 | 编排引擎 |
-| mcp/integration.py | 9 | MCP集成 |
+| mcp/integration.py | 9 | MCP 集成 |
 | utils/config.py | 10 | 生产化加固 |
 | reliability/tracing.py | 11 | 链路追踪 |
 | reliability/monitoring.py | 11 | 指标收集 |
@@ -638,4 +638,4 @@ class MyLLMProvider(BaseProvider):
 
 **获取最新版本**：参见本书各章节的 MiniHarness 实战部分
 
-**问题反馈**：欢迎在GitHub Issues中反馈bug和建议
+**问题反馈**：欢迎在 GitHub Issues 中反馈 bug 和建议

@@ -4,11 +4,11 @@
 
 ### A
 
-**Agent** （智能体）：能够感知环境、自主决策和执行行动的自治系统。本书特指基于LLM的工具调用Agent。
+**Agent** （智能体）：能够感知环境、自主决策和执行行动的自治系统。本书特指基于 LLM 的工具调用 Agent。
 
 **AgentBench**：Tsinghua University 等机构开发的多领域 Agent 基准测试，覆盖 8 个领域。
 
-**Always-On Assistant** （持久化助手）：长期在线的Agent，能跨会话维持状态和目标。OpenClaw的Heartbeat模式是其实现。
+**Always-On Assistant** （持久化助手）：长期在线的 Agent，能跨会话维持状态和目标。OpenClaw 的 Heartbeat 模式是其实现。
 
 **Auto Mode Classifier**：Claude Code Auto Mode 使用的权限分类器，用于在无提示运行时评估工具调用风险，并阻止不可逆、破坏性或超出环境边界的操作。
 
@@ -44,7 +44,7 @@
 
 **E2E Testing** （端到端测试）：测试完整工作流，从用户输入到最终输出。
 
-**Emergent Behavior** （涌现行为）：多智能体系统中出现的非预期、无法从单个Agent推断的系统级行为。
+**Emergent Behavior** （涌现行为）：多智能体系统中出现的非预期、无法从单个 Agent 推断的系统级行为。
 
 **Execution Harness** （执行驾驭层）：Harness 的别名或强调执行面的说法，指 LLM 之外的运行时支撑系统，包含工具定义、运行时引擎、安全防护、评估系统等，本身不含 LLM。参见 Harness。
 
@@ -64,7 +64,7 @@
 
 **Harness** （驾驭）：本书的核心概念。Harness 一词意为“驾驭”，原指骑手用以驾驭烈马的缰绳和鞍具系统。在本书中，指包裹在大模型外围、将其推理能力转化为可靠可控生产级系统的完整工程基础设施。
 
-**Heartbeat** （心跳）：OpenClaw的自驱模式，定期检查待办事项并执行。
+**Heartbeat** （心跳）：OpenClaw 的自驱模式，定期检查待办事项并执行。
 
 ### I
 
@@ -86,7 +86,7 @@
 
 **Langfuse**：开源可观测性工具，用于监控智能体执行和收集指标。
 
-**LLM** （大语言模型）：基础模型，如Claude、GPT、Llama。
+**LLM** （大语言模型）：基础模型，如 Claude、GPT、Llama。
 
 **Long-term Memory** （长期记忆）：跨会话的持久化记忆，与短期上下文对比。
 
@@ -100,7 +100,7 @@
 
 ### N
 
-**NIST**：美国国家标准技术研究院，2026年发起AI Agent标准化倡议。
+**NIST**：美国国家标准技术研究院，2026 年发起 AI Agent 标准化倡议。
 
 **Null Hypothesis** （零假设）：统计测试中的默认假设，用于验证改进是否显著。
 
@@ -114,11 +114,11 @@
 
 **Pareto Frontier** （帕累托前沿）：多目标优化中，无法同时改进所有目标的最优解集合。
 
-**Path Validation** （路径校验）：防止路径穿越攻击的5层防护机制（长度、解码、Unicode、平台、realpath）。
+**Path Validation** （路径校验）：防止路径穿越攻击的 5 层防护机制（长度、解码、Unicode、平台、realpath）。
 
 **PermissionMode**：Claude Code 的权限管理模式，主要包括 default（按需询问）、acceptEdits（自动接受编辑）、plan（只读计划）、auto、dontAsk 和 bypassPermissions（跳过权限检查，仅限隔离环境）等。
 
-**Prompt Injection** （提示注入）：通过恶意输入改变LLM的行为，使其执行非预期操作。
+**Prompt Injection** （提示注入）：通过恶意输入改变 LLM 的行为，使其执行非预期操作。
 
 ### Q
 
@@ -134,27 +134,27 @@
 
 ### S
 
-**Sandbox** （沙箱）：隔离执行环境，限制工具调用的破坏范围。分为进程级、容器级、VM级。
+**Sandbox** （沙箱）：隔离执行环境，限制工具调用的破坏范围。分为进程级、容器级、VM 级。
 
-**Schema Validation** （Schema校验）：验证工具参数是否符合定义的Schema。
+**Schema Validation** （Schema 校验）：验证工具参数是否符合定义的 Schema。
 
-**SOUL.md**：OpenClaw中的智能体行为约束文档，定义智能体的工作原则和限制。
+**SOUL.md**：OpenClaw 中的智能体行为约束文档，定义智能体的工作原则和限制。
 
 **Streaming** （流式处理）：将模型输出按 token 或事件逐步返回给客户端的方式，降低首字延迟并支持实时反馈。参见第 4.3 节。
 
 **Sub-Agent** （子智能体）：由父 Agent 创建的 Agent，权限边界通常由父 Agent 或宿主应用的策略控制。MCP 的 HTTP 授权规范提供 OAuth 2.1、scope、resource 绑定和 step-up auth 等机制，但不是通用的子智能体权限委托层。
 
-**SWE-Bench**：软件工程基准，包含2294个真实GitHub问题，用于评估代码修改能力。
+**SWE-Bench**：软件工程基准，包含 2294 个真实 GitHub 问题，用于评估代码修改能力。
 
 ### T
 
 **Token Budget** （Token 预算）：为单次任务或单轮对话设定的 token 消耗上限，用于控制成本和防止上下文溢出。参见第 4.6 节。
 
-**Token Efficiency** （Token效率）：完成任务所消耗的Token数，越少越高效。
+**Token Efficiency** （Token 效率）：完成任务所消耗的 Token 数，越少越高效。
 
-**Tool** （工具）：运行时可调度的可执行调用单元，包括API调用、文件操作、代码执行等。一个 Capability 可以由一个或多个 Tool 支撑。
+**Tool** （工具）：运行时可调度的可执行调用单元，包括 API 调用、文件操作、代码执行等。一个 Capability 可以由一个或多个 Tool 支撑。
 
-**Tool Calling** （工具调用）：LLM根据推理结果调用工具的过程。
+**Tool Calling** （工具调用）：LLM 根据推理结果调用工具的过程。
 
 **Trajectory** （轨迹）：智能体执行过程中的工具调用序列。
 
@@ -162,9 +162,9 @@
 
 ### U
 
-**Unicode Normalization** （Unicode规范化）：统一Unicode字符的多种表示形式，防止基于Unicode的路径穿越。
+**Unicode Normalization** （Unicode 规范化）：统一 Unicode 字符的多种表示形式，防止基于 Unicode 的路径穿越。
 
-**URL Encoding** （URL编码）：将特殊字符编码为%xx形式，可能被利用进行路径穿越。
+**URL Encoding** （URL 编码）：将特殊字符编码为%xx 形式，可能被利用进行路径穿越。
 
 ### V
 
@@ -186,7 +186,7 @@
 
 ### Z
 
-**Zero-Knowledge Proof** （零知识证明）：证明某个陈述真实，而无需披露具体信息。在Agent安全中用于验证工具输出。
+**Zero-Knowledge Proof** （零知识证明）：证明某个陈述真实，而无需披露具体信息。在 Agent 安全中用于验证工具输出。
 
 ---
 

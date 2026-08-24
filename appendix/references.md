@@ -22,7 +22,7 @@
 
    - Jimenez 等（Princeton & UChicago），2023（ICLR 2024）
    - https://arxiv.org/abs/2310.06770 | [archive.org](https://web.archive.org/web/*/arxiv.org/abs/2310.06770)
-   - 2294个真实GitHub问题，评估代码理解和修改能力
+   - 2294 个真实 GitHub 问题，评估代码理解和修改能力
 
 4. **AgentBench: Evaluating LLMs as Agents**
 
@@ -54,7 +54,7 @@
 
    - Google, 2022
    - https://arxiv.org/abs/2201.11903
-   - 基础论文，展示逐步推理如何改善LLM能力
+   - 基础论文，展示逐步推理如何改善 LLM 能力
 
 9. **ReAct: Synergizing Reasoning and Acting in Language Models**
 
@@ -88,17 +88,17 @@
 
     - Anthropic, 2022
     - https://arxiv.org/abs/2209.11895
-    - 理解LLM如何利用上下文进行学习
+    - 理解 LLM 如何利用上下文进行学习
 
 ### 技术文档与规范
 
-#### Anthropic官方文档
+#### Anthropic 官方文档
 
 14. **Claude API Documentation**
 
     - Anthropic, 2026
     - https://platform.claude.com/docs/en/home | [archive.org](https://web.archive.org/web/*/platform.claude.com/docs/en/home)
-    - Claude模型的API使用、限制、最佳实践
+    - Claude 模型的 API 使用、限制、最佳实践
 
 15. **Model Context Protocol (MCP) Specification**
 
@@ -110,7 +110,7 @@
 
     - Anthropic, 2026
     - https://code.claude.com/docs/en/overview 和 https://code.claude.com/docs/en/permissions
-    - Harness框架特定文档，含权限、路径校验、护栏细节
+    - Harness 框架特定文档，含权限、路径校验、护栏细节
 
 #### 国际标准
 

@@ -1,27 +1,27 @@
 ## 本章小结
 
-本章介绍了MCP协议的架构、设计原理和工程实践，以下是核心知识点的总结。
+本章介绍了 MCP 协议的架构、设计原理和工程实践，以下是核心知识点的总结。
 
 ### 核心知识点回顾
 
-#### 9.1 Harness中的MCP集成设计
+#### 9.1 Harness 中的 MCP 集成设计
 
 （MCP 协议基础已移交《Claude 技术指南》第四章，本节仅回顾理解集成设计所需的要点。）
 
-**MCP的核心定义**：
+**MCP 的核心定义**：
 
-- Host/Client/Server模型：Agent/LLM 运行在 Host 内；MCP Client 是 Host 管理的协议组件，并与单个 Server 建立隔离连接
-- JSON-RPC 2.0：所有消息基于标准JSON-RPC
+- Host/Client/Server 模型：Agent/LLM 运行在 Host 内；MCP Client 是 Host 管理的协议组件，并与单个 Server 建立隔离连接
+- JSON-RPC 2.0：所有消息基于标准 JSON-RPC
 - 三种原语：Tools、Resources、Prompts
 - 无状态：协议没有 `initialize` 握手，每个请求在 `params._meta` 中自带 `io.modelcontextprotocol/protocolVersion` 与 `io.modelcontextprotocol/clientCapabilities`；Server 不得从同一连接上的历史请求推断状态，跨请求的状态必须是客户端每次显式传入的标识符
 - 一次性发现：`server/discover` 用一次调用返回 `supportedVersions`、`capabilities`、`ttlMs`、`cacheScope` 以及可选的 `instructions`，Server 必须实现，客户端可选调用
 
-**为什么MCP成为行业标准**：
+**为什么 MCP 成为行业标准**：
 
 1. 解决工具集成的碎片化（一个工具一套集成）
 2. 降低成本：工具开发者写一次，所有框架都能用
-3. 支持分布式：localhost和远程都支持
-4. 双向通信：Server可以向Client采样(sampling)
+3. 支持分布式：localhost 和远程都支持
+4. 双向通信：Server 可以向 Client 采样(sampling)
 
 **三种原语详解**：
 
@@ -33,8 +33,8 @@
 
 **设计哲学**：
 
-- 极简主义：只有三个原语，覆盖99%的用例
-- Schema为中心：所有定义都是JSON Schema
+- 极简主义：只有三个原语，覆盖 99%的用例
+- Schema 为中心：所有定义都是 JSON Schema
 - 标准边界：stdio 与 Streamable HTTP 是规范化传输；HTTP 授权按 MCP 授权规范，stdio 凭据由宿主进程/环境提供
 - 流式能力：支持大型数据的分块传输
 
@@ -47,22 +47,22 @@
 | 架构 | 本地进程 | 单端点 POST，响应可为 JSON 或按请求范围的 SSE |
 | 延迟 | <1ms | <100ms |
 | 部署 | 本地 | 网络 |
-| 扩展性 | 单C单S | 单S多C |
+| 扩展性 | 单 C 单 S | 单 S 多 C |
 | 复杂度 | 最低 | 中等 |
 
 **选择决策**：
 
 - 本地开发/单机 → **stdio**
-- 网络部署/多Client → **Streamable HTTP** （标准MCP传输方式）
+- 网络部署/多 Client → **Streamable HTTP** （标准 MCP 传输方式）
 
 **连接管理**：
 
 - stdio：使用进程池避免重复启动
-- HTTP：使用aiohttp的连接池和限制
+- HTTP：使用 aiohttp 的连接池和限制
 - 请求头：每个 POST 必须带 `MCP-Protocol-Version`（须与 `_meta` 中的版本一致，否则返回 `-32020` 并 HTTP 400）与 `Mcp-Method`；`tools/call`、`resources/read`、`prompts/get` 还必须带 `Mcp-Name`；`Accept` 必须同时列出 `application/json` 与 `text/event-stream`
 - 无会话、无续传：协议层不再有 GET 常驻流、`Mcp-Session-Id` 及其 DELETE 终止，也不再支持 `Last-Event-ID` 续传；关闭 SSE 响应流即表示取消
 - 长期通知：客户端 POST `subscriptions/listen` 换取一条长期 SSE 流，只承载订阅的通知类型，其通知的 `_meta` 带 `io.modelcontextprotocol/subscriptionId`；进度、消息（message）等请求范围内的通知不走这条流
-- HTTP授权：按 MCP 授权规范使用 OAuth 2.1、受保护资源元数据、PKCE 等机制；stdio 传输从宿主环境获取凭据
+- HTTP 授权：按 MCP 授权规范使用 OAuth 2.1、受保护资源元数据、PKCE 等机制；stdio 传输从宿主环境获取凭据
 
 **关键代码**：
 
@@ -80,7 +80,7 @@ await client.initialize()
 response = await client.send_request("tools/list")
 ```
 
-#### 9.3 MCP服务端开发
+#### 9.3 MCP 服务端开发
 
 **开发步骤**：
 
@@ -102,59 +102,59 @@ class MCPServerBase:
 
 **工具定义的最佳实践**：
 
-- inputSchema必须是完整的JSON Schema
-- description应该清晰且可被LLM理解
+- inputSchema 必须是完整的 JSON Schema
+- description 应该清晰且可被 LLM 理解
 - 支持可选参数提高灵活性
 
 **资源定义的最佳实践**：
 
-- URI应该结构化：`scheme://path/to/resource`
+- URI 应该结构化：`scheme://path/to/resource`
 - 支持列表和读取操作
 - 大文件应该支持流式传输
 
 **错误处理**：
 
-- 所有错误都应该返回JSON-RPC 2.0错误格式
+- 所有错误都应该返回 JSON-RPC 2.0 错误格式
 - 提供有意义的错误消息
-- 记录Server端的错误日志
+- 记录 Server 端的错误日志
 - 请求缺少必填的 `_meta` 字段：返回 `-32602`（Streamable HTTP 下同时返回 HTTP 400）
 - 需要客户端未声明的能力：返回 `MissingRequiredClientCapabilityError`（`-32021`，HTTP 400），并在 `data.requiredCapabilities` 中列出所需能力
 - 未知方法：返回 `-32601`（HTTP 404）；不支持的协议版本：返回 `UnsupportedProtocolVersionError`（`-32022`，HTTP 400），并列出 Server 支持的版本
 - 资源不存在：返回 `-32602`；客户端仍应接受旧 Server 返回的 `-32002`
 
-#### 9.4 Harness中的MCP集成模式
+#### 9.4 Harness 中的 MCP 集成模式
 
 **系统级集成的五大问题**：
 
 1. **动态发现**：MCPToolRegistry
 
-   - 自动发现所有Server的工具
-   - 构建tool → servers的映射
+   - 自动发现所有 Server 的工具
+   - 构建 tool → servers 的映射
    - 支持定期重新发现
 
-2. **Schema缓存**：多层缓存
+2. **Schema 缓存**：多层缓存
 
    - L1：内存缓存（热工具）
    - L2：磁盘缓存（所有工具）
    - L3：远程缓存(Redis)
-   - 可减少重复工具描述带来的Token消耗
+   - 可减少重复工具描述带来的 Token 消耗
 
 3. **权限隔离**：PermissionGateway
 
-   - 为Agent注册权限
-   - 检查Tool调用权限
+   - 为 Agent 注册权限
+   - 检查 Tool 调用权限
    - 高风险操作需要人工审批
 
 4. **审计追踪**：完整的调用日志
 
-   - 记录所有Tool调用
-   - 包含Agent ID、参数、结果
+   - 记录所有 Tool 调用
+   - 包含 Agent ID、参数、结果
    - 支持导出用于合规性
 
 5. **错误降级**：FallbackHandler
 
-   - Server故障时使用备选方案
-   - 灰度发布和AB测试
+   - Server 故障时使用备选方案
+   - 灰度发布和 AB 测试
    - 金丝雀部署支持
 
 **关键代码**：
@@ -173,7 +173,7 @@ success, result = await registry.call_tool(
 )
 ```
 
-#### 9.5 MiniHarness的MCP集成实现
+#### 9.5 MiniHarness 的 MCP 集成实现
 
 **架构设计**：
 
@@ -193,28 +193,28 @@ flowchart LR
 
 **核心组件**：
 
-1. **ToolSchemaCache**：管理Schema的缓存
+1. **ToolSchemaCache**：管理 Schema 的缓存
 
    - 支持内存和磁盘存储
-   - TTL自动过期
+   - TTL 自动过期
    - 缓存命中率统计
 
 2. **MCPToolRegistry**：工具注册和发现
 
-   - 维护Server配置和Client
-   - 映射tool → servers
+   - 维护 Server 配置和 Client
+   - 映射 tool → servers
    - 路由工具调用
 
-3. **MCPToolAdapter**：LLM适配层
+3. **MCPToolAdapter**：LLM 适配层
 
-   - 将MCP工具转换为LLM格式
+   - 将 MCP 工具转换为 LLM 格式
    - 处理输入解析
    - 错误处理
 
 4. **MiniHarnessWithMCP**：集成入口
 
    - 初始化所有组件
-   - 提供统一的API
+   - 提供统一的 API
    - 统计和监控
 
 **关键方法**：
@@ -232,7 +232,7 @@ result = await harness.process_tool_call(
 )
 ```
 
-### 本章在Harness中的地位
+### 本章在 Harness 中的地位
 
 #### 架构地位
 
@@ -252,10 +252,10 @@ L5: 应用 (MiniHarness / Agent)
 
 #### 与其他章节的关联
 
-- **←第8章**：任务编排为MCP工具提供执行框架
-- **第9章**：MCP提供工具生态
-- **→第10章**：Schema缓存、权限等是生产级需求
-- **→第11章**：MCP故障时的容错和降级
+- **←第 8 章**：任务编排为 MCP 工具提供执行框架
+- **第 9 章**：MCP 提供工具生态
+- **→第 10 章**：Schema 缓存、权限等是生产级需求
+- **→第 11 章**：MCP 故障时的容错和降级
 
 ### 重要数据指标
 
@@ -265,45 +265,45 @@ L5: 应用 (MiniHarness / Agent)
 
 | 指标 | 示例量级 | 备注 |
 |------|-----|------|
-| Schema缓存命中率 | 95%+ | 热工具快速发现 |
+| Schema 缓存命中率 | 95%+ | 热工具快速发现 |
 | 工具发现延迟（缓存） | <5ms | vs 无缓存 200-500ms |
-| Token节省 | 取决于负载 | Schema缓存减少重复发送 |
-| 连接复用率 | 90%+ | 减少TCP握手 |
+| Token 节省 | 取决于负载 | Schema 缓存减少重复发送 |
+| 连接复用率 | 90%+ | 减少 TCP 握手 |
 
 #### 可靠性指标
 
 | 指标 | 目标 | 说明 |
 |------|------|------|
-| Tool调用成功率 | 99.9% | 第一次成功 |
-| 降级成功率 | 98%+ | Server故障时 |
+| Tool 调用成功率 | 99.9% | 第一次成功 |
+| 降级成功率 | 98%+ | Server 故障时 |
 | 审计日志覆盖 | 100% | 所有调用都被记录 |
 | 权限检查覆盖 | 100% | 无权限调用被拦截 |
 
 ### 常见问题与最佳实践
 
-#### Q1: Schema缓存多久失效？
+#### Q1: Schema 缓存多久失效？
 
-**答**：MCP 2026-07-28 修订版要求 Server 在 `tools/list` 等结果中返回 `ttlMs` 与 `cacheScope`，客户端应优先采用这两个值；`cacheScope` 为 `"private"` 的结果不能跨用户共享。面对 2025-11-25 及更早的 Server（不返回这两个字段）时，建议设置为3600秒（1小时），可以根据工具变更频率调整。如果工具频繁更新，可以缩短到600秒，如果很少更新可以延长到86400秒（1天）。
+**答**：MCP 2026-07-28 修订版要求 Server 在 `tools/list` 等结果中返回 `ttlMs` 与 `cacheScope`，客户端应优先采用这两个值；`cacheScope` 为 `"private"` 的结果不能跨用户共享。面对 2025-11-25 及更早的 Server（不返回这两个字段）时，建议设置为 3600 秒（1 小时），可以根据工具变更频率调整。如果工具频繁更新，可以缩短到 600 秒，如果很少更新可以延长到 86400 秒（1 天）。
 
-#### Q2: 如何处理MCP Server的认证？
+#### Q2: 如何处理 MCP Server 的认证？
 
 **答**：
 
-1. **API Key**：在HTTP头中传递 `Authorization: Bearer <key>`
+1. **API Key**：在 HTTP 头中传递 `Authorization: Bearer <key>`
 2. **OAuth**：HTTP Server 应按 MCP 授权规范暴露 Protected Resource Metadata；客户端从 `WWW-Authenticate` challenge 发现授权服务器，并在 token 请求中带 `resource`；OAuth 2.0 动态客户端注册（DCR）已标记废弃，新实现优先使用 Client ID Metadata Documents
-3. **mTLS**：在HTTP Client中配置证书
-4. **Custom**：Server可以定义任何认证方式
+3. **mTLS**：在 HTTP Client 中配置证书
+4. **Custom**：Server 可以定义任何认证方式
 
-#### Q3: 如何优化Schema缓存的命中率？
+#### Q3: 如何优化 Schema 缓存的命中率？
 
 **答**：
 
-1. 预热热工具Schema（应用启动时）
-2. 根据访问频率调整TTL
+1. 预热热工具 Schema（应用启动时）
+2. 根据访问频率调整 TTL
 3. 使用多层缓存（内存→磁盘→远程）
 4. 定期分析缓存统计并优化
 
-#### Q4: 权限如何与SSO系统集成？
+#### Q4: 权限如何与 SSO 系统集成？
 
 **答**：
 
@@ -314,7 +314,7 @@ async def load_permissions_from_sso(agent_id: str):
     gateway.register_permission(agent_id, sso_response['tools'])
 ```
 
-#### Q5: 如何处理Server版本升级时的兼容性？
+#### Q5: 如何处理 Server 版本升级时的兼容性？
 
 **答**：
 
@@ -323,7 +323,7 @@ async def load_permissions_from_sso(agent_id: str):
 3. 兼容旧 Server：结果缺 `resultType` 时按 `"complete"` 处理，资源不存在的 `-32002` 仍需接受
 4. 只支持新版的 Server 收到旧流量时：对端点上的 GET/DELETE 返回 `405 Method Not Allowed`，忽略 `Mcp-Session-Id` 与 `Last-Event-ID`
 5. Roots、Sampling、Logging 以及 HTTP+SSE 传输已标记废弃，但至少 12 个月内仍然可用，迁移期内两条路径都要能跑通
-6. 缓存Schema的哈希值检测变更，版本变更时重新发现工具，并支持多版本Server并行运行
+6. 缓存 Schema 的哈希值检测变更，版本变更时重新发现工具，并支持多版本 Server 并行运行
 
 ### 关键代码片段速查
 
@@ -346,7 +346,7 @@ request = {
 }
 ```
 
-#### 处理input_required（MRTR）
+#### 处理 input_required（MRTR）
 
 代码如下：
 
@@ -365,7 +365,7 @@ if result.get("resultType") == "input_required":
     result = await send({**request, "id": 2, "params": params})
 ```
 
-#### 添加MCP Server
+#### 添加 MCP Server
 
 示例如下：
 
@@ -418,25 +418,25 @@ print(f"Cache hit rate: {stats['schema_cache']}")
 
 #### 长期规划
 
-1. 分布式Schema缓存(Redis)
+1. 分布式 Schema 缓存(Redis)
 2. 智能体间工具共享
 3. 工具市场和推荐系统
 4. 自动工具优化（基于使用模式）
-5. 多语言MCP SDK
+5. 多语言 MCP SDK
 
 ### 本章总结
 
-第九章系统地介绍了MCP生态的设计、实现和集成。从协议的设计哲学（三个原语）到不同的传输方式选择，从Server的实现到Harness级别的集成模式，再到MiniHarness中的完整代码实现，形成了一套完整的工具生态管理体系。
+第九章系统地介绍了 MCP 生态的设计、实现和集成。从协议的设计哲学（三个原语）到不同的传输方式选择，从 Server 的实现到 Harness 级别的集成模式，再到 MiniHarness 中的完整代码实现，形成了一套完整的工具生态管理体系。
 
 **关键成果**：
 
-- 理解MCP为什么成为行业标准
+- 理解 MCP 为什么成为行业标准
 - 掌握三种原语的设计和使用
 - 理解无状态协议模型：每个请求在 `_meta` 中自带协议版本与客户端能力、`server/discover` 一次性获取 Server 信息、MRTR（Server 返回 `input_required` 结果，客户端补齐输入后以新的请求 id 重试）承载需要客户端输入的场景
 - 学会选择合适的传输方式，并能与仍在使用 `initialize` 握手模型的旧 Server 互通
-- 实现完整的MCP Server
-- 在Harness中集成多个Server
-- Schema缓存可以显著提升性能
+- 实现完整的 MCP Server
+- 在 Harness 中集成多个 Server
+- Schema 缓存可以显著提升性能
 - 权限和审计确保企业级安全
 
-这些知识为后续章节的性能优化（第10章）和可靠性保障（第11章）奠定了坚实的基础。MCP的标准化特性使得智能体系统能够轻松扩展和集成来自任何供应商的工具。
+这些知识为后续章节的性能优化（第 10 章）和可靠性保障（第 11 章）奠定了坚实的基础。MCP 的标准化特性使得智能体系统能够轻松扩展和集成来自任何供应商的工具。
