@@ -179,7 +179,7 @@ class TestOpenAIProvider:
     def test_non_reasoning_openai_compatible_uses_max_tokens(self):
         config = ModelConfig(
             provider=ModelProviderType.OPENAI,
-            model_id="deepseek-chat",
+            model_id="deepseek-flash",
             api_key="test",
             max_tokens=456,
         )

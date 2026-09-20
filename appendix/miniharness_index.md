@@ -401,7 +401,7 @@ cp .env.example .env
 read -rsp "LLM_API_KEY: " LLM_API_KEY; echo; export LLM_API_KEY
 export LLM_BASE_URL="https://api.openai.com/v1" LLM_MODEL="gpt-5.4-mini"
 # DeepSeek
-export LLM_API_KEY="<LLM_API_KEY>" LLM_BASE_URL="https://api.deepseek.com" LLM_MODEL="deepseek-chat"
+export LLM_API_KEY="<LLM_API_KEY>" LLM_BASE_URL="https://api.deepseek.com" LLM_MODEL="deepseek-flash"
 # Ollama 本地模型(无需付费 API Key)
 export LLM_API_KEY="ollama" LLM_BASE_URL="http://localhost:11434/v1" LLM_MODEL="qwen2.5:7b"
 ```
@@ -451,7 +451,7 @@ registry.register(FileWriteTool())
 # 2. 创建 LLM Provider
 config = ModelConfig(
     provider=ModelProviderType.OPENAI,
-    model_id="deepseek-chat",
+    model_id="deepseek-flash",
     api_key="<LLM_API_KEY>",
     base_url="https://api.deepseek.com",
 )

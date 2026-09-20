@@ -20,7 +20,7 @@ MiniHarness 最小智能体示例
   # DeepSeek
   read -rsp "LLM_API_KEY: " LLM_API_KEY; echo; export LLM_API_KEY
   export LLM_BASE_URL="https://api.deepseek.com"
-  export LLM_MODEL="deepseek-chat"
+  export LLM_MODEL="deepseek-flash"
   python examples/simple_agent.py "读取 pyproject.toml 并总结依赖"
 
   # Ollama 本地模型（无需 API Key）
@@ -318,7 +318,7 @@ async def main():
         print("示例（DeepSeek）：")
         print('  read -rsp "LLM_API_KEY: " LLM_API_KEY; echo; export LLM_API_KEY')
         print('  export LLM_BASE_URL="https://api.deepseek.com"')
-        print('  export LLM_MODEL="deepseek-chat"')
+        print('  export LLM_MODEL="deepseek-flash"')
         print()
         print("示例（Ollama 本地）：")
         print('  export LLM_API_KEY="ollama"')

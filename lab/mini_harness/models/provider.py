@@ -49,7 +49,7 @@ class ModelConfig:
 
     Args:
         provider: 模型提供者类型（CLAUDE 或 OPENAI）
-        model_id: 模型名称（如 "gpt-4o", "deepseek-chat", "qwen-plus"）
+        model_id: 模型名称（如 "gpt-4o", "deepseek-flash", "qwen-plus"）
         api_key: API 密钥
         base_url: API base URL（用于兼容服务，如 "https://api.deepseek.com"）
         timeout: 请求超时（秒）
@@ -262,7 +262,7 @@ class OpenAIProvider(BaseProvider):
 
     适用于所有兼容 OpenAI Chat Completion API 的服务：
     - OpenAI (GPT-4o, GPT-4o-mini, o3-mini ...)
-    - DeepSeek (deepseek-chat, deepseek-reasoner)
+    - DeepSeek (deepseek-flash, deepseek-v4-pro)
     - 阿里通义千问 Qwen (qwen-plus, qwen-max)
     - Ollama 本地模型 (llama3, qwen2 ...)
     - vLLM / LiteLLM / LocalAI 等自部署服务
@@ -270,7 +270,7 @@ class OpenAIProvider(BaseProvider):
     使用方式：
         config = ModelConfig(
             provider=ModelProviderType.OPENAI,
-            model_id="deepseek-chat",
+            model_id="deepseek-flash",
             api_key="<LLM_API_KEY>",
             base_url="https://api.deepseek.com",  # 关键：指定 base_url
         )
