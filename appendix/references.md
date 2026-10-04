@@ -186,6 +186,18 @@
     - https://www.anthropic.com/engineering/harness-design-long-running-apps
     - 长程智能体应用的 Harness 设计实践；定义“上下文焦虑”(context anxiety)，主张以上下文重置等手段支撑长时自主任务（本书 2.2、4.5、8.3.4、14.3 引用）
 
+28. **Code execution with MCP: Building more efficient agents**
+
+    - Anthropic Engineering，2025-11-04
+    - https://www.anthropic.com/engineering/code-execution-with-mcp
+    - 让智能体写代码调用 MCP 工具、按需加载工具定义，中间结果留在执行环境内；示例中 token 用量从约 15 万降到约 2000（本书 8.2.8 引用）
+
+29. **12-Factor Agents: Principles for building reliable LLM applications**
+
+    - Dex Horthy（HumanLayer），2025
+    - https://github.com/humanlayer/12-factor-agents
+    - 仿照 12 Factor App 的生产级 LLM 应用原则：工具即结构化输出、掌握自己的控制流、智能体即无状态 reducer 等（本书 1.4.4 引用）
+
 ---
 
 **获取方法**：大多数论文可通过 arXiv、Google Scholar、官方网站免费获取。开源项目均可通过 GitHub 访问。商业工具通常提供免费试用。
