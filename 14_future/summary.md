@@ -128,7 +128,7 @@ Harness 工程的未来不是单一方向，而是三条相互交织的道路：
 
 《智能体 Harness 工程指南》记录的是 Harness 工程刚刚站稳为一门独立工程学科的这个阶段。它的特征是：
 
-- 大模型已经足够强大（Claude Opus 5 / Sonnet 5、GPT-5.6、Llama 4 等当代旗舰）
+- 大模型已经足够强大（Claude Opus 5.5 / Sonnet 5.5、GPT-6、Llama 4 等当代旗舰）
 - Harness 框架已有可复用的早期成熟形态
 - 生产应用已经足够支撑工程实践总结
 - NIST 已正式启动 AI Agent 标准化，但标准仍在制定中
