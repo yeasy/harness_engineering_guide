@@ -28,7 +28,7 @@ dependencies = [
 dev = [
     "pytest==9.1.1",
     "pytest-asyncio==1.4.0",
-    "black==26.5.1",
+    "black==26.10.1",
     "pylint==4.0.6",
     "mypy==2.2.0",
     "isort==8.0.1",
