@@ -190,7 +190,7 @@ async def verify_tool_call(tool_name, arguments, result):
 - 最多 3-5 次重试
 - 指数退避：1、2、4、8 秒
 - 某些错误（无效参数）不应重试
-- 添加随机抖动避免雷鸣群问题
+- 添加随机抖动避免惊群效应
 
 ### 扩展方向
 

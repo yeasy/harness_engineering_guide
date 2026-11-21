@@ -21,7 +21,7 @@
 1. 解决工具集成的碎片化（一个工具一套集成）
 2. 降低成本：工具开发者写一次，所有框架都能用
 3. 支持分布式：localhost 和远程都支持
-4. 双向通信：Server 可以向 Client 采样(sampling)
+4. 服务端可向客户端索取输入：2026-07-28 起通过 MRTR 返回 `input_required` 结果，Server 主动发起的采样(sampling)已弃用
 
 **三种原语详解**：
 
@@ -322,7 +322,7 @@ async def load_permissions_from_sso(agent_id: str):
 2. stdio 传输下用 `server/discover` 探测：能正常返回说明 Server 支持新版，否则回退到握手
 3. 兼容旧 Server：结果缺 `resultType` 时按 `"complete"` 处理，资源不存在的 `-32002` 仍需接受
 4. 只支持新版的 Server 收到旧流量时：对端点上的 GET/DELETE 返回 `405 Method Not Allowed`，忽略 `Mcp-Session-Id` 与 `Last-Event-ID`
-5. Roots、Sampling、Logging 以及 HTTP+SSE 传输已标记废弃，但至少 12 个月内仍然可用，迁移期内两条路径都要能跑通
+5. Roots、Sampling、Logging 已标记弃用，至少 12 个月内仍然可用；HTTP+SSE 传输的最早移除时间是 SEP-2596 定稿后三个月，应优先迁移。弃用期内新旧两条路径都要能跑通
 6. 缓存 Schema 的哈希值检测变更，版本变更时重新发现工具，并支持多版本 Server 并行运行
 
 ### 关键代码片段速查

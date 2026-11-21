@@ -40,7 +40,7 @@ Harness 一词意为“驾驭”，原指骑手驾驭烈马所用的缰绳和鞍
 | 安全模型 | execpolicy 策略引擎(allow/prompt/forbidden) | 分模式权限控制 + 规则配置 | 工具 allow/deny + exec 审批策略 |
 | 沙箱实现 | 平台原生沙箱（Bubblewrap + seccomp，自带 bwrap 兜底）| 权限模式 + 可选 dev container/VM 隔离 | main 默认主机执行，non-main 可启用 Docker/SSH/OpenShell 沙箱 |
 | 多智能体 | 分层 Agent 消息协议 | Coordinator 模式 + 子智能体 | Lobster 工作流引擎 |
-| 可观测性 | OpenTelemetry 原生集成 | 内置结构化日志 | 每日记忆日志 |
+| 可观测性 | OpenTelemetry 原生集成 | OpenTelemetry 导出指标与事件（traces 为 beta） | 每日记忆日志 |
 
 ## 实战项目：MiniHarness
 

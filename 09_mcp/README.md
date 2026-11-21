@@ -2,7 +2,7 @@
 
 Model Context Protocol(MCP)是 Anthropic 在 2024 年 11 月推出的标准化工具调用协议，现已被 OpenAI 和 Google 采纳，成为行业标准。MCP 把智能体与外部服务的集成从点对点的定制开发转变为标准化协议，大幅降低了工具接入的复杂度。
 
-> 💡 **协议版本说明**：MCP 当前修订版是 **2026-07-28**，它把协议改成了无状态：`initialize` / `notifications/initialized` 握手与协议级会话被移除，协议版本和客户端能力改为随每个请求在 `_meta` 中传递，新增 Server 必须实现的 `server/discover`，服务端也不再主动向客户端发起请求（改用 MRTR）。**[9.1 协议设计](9.1_protocol_design.md) 按当前修订版讲解协商与发现，并给出与旧版互通的探测顺序**；9.2–9.4 的完整实现示例仍按 **2025-11-25** 修订版编写并已就地标注。现网大量服务端仍使用这一版，这些代码照样能运行，阅读时请留意各节开头的版本边界说明。另注意 Roots、Sampling、Logging 属于**弃用**（至少 12 个月过渡期，仍然可用），不是移除。
+> 💡 **协议版本说明**：MCP 当前修订版是 **2026-07-28**，它把协议改成了无状态：`initialize` / `notifications/initialized` 握手与协议级会话被移除，协议版本和客户端能力改为随每个请求在 `_meta` 中传递，新增 Server 必须实现的 `server/discover`，服务端也不再主动向客户端发起请求（改用 MRTR）。**[9.1 协议设计](9.1_protocol_design.md) 按当前修订版讲解协商与发现，并给出与旧版互通的探测顺序**；9.2–9.4 的实现示例也按当前修订版编写；现网大量服务端仍使用 **2025-11-25** 修订版，与旧端互通的方法见各节开头的版本说明。另注意 Roots、Sampling、Logging 属于**弃用**（至少 12 个月过渡期，仍然可用），不是移除。
 
 ## MCP 解决的问题
 
@@ -18,7 +18,7 @@ MCP 用统一的协议规范解决了这些问题：一个 MCP Server 可以为�
 
 - **Anthropic Claude**：率先推出 MCP 支持
 - **OpenAI ChatGPT**：随后跟进支持 MCP
-- **Google Gemini**：开始试用 MCP 集成
+- **Google Gemini**：Gemini API 支持[连接远程 MCP Server](https://ai.google.dev/gemini-api/docs/function-calling)，Google 也为自家服务提供[官方 MCP Server](https://cloud.google.com/blog/products/ai-machine-learning/announcing-official-mcp-support-for-google-services)
 - **开源社区**：200+社区维护的 MCP Server 实现
 - **企业应用**：Slack、Notion、GitHub 等已提供官方 MCP Server
 
