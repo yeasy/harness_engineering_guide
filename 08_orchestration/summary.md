@@ -1,6 +1,6 @@
 ## 本章小结
 
-本章系统地介绍了 AI Agent 系统中的任务编排和工作流引擎设计，从单 Agent 内的 Task 分解到多智能体协调和通信机制。以下是核心知识点的总结。
+本章讨论了任务编排与工作流引擎，要点如下。
 
 ### 核心知识点回顾
 
@@ -256,8 +256,6 @@
 
 #### 构建 DAG
 
-示例代码：
-
 ```python
 dag = TaskDAG()
 dag.add_task(task_def)
@@ -267,8 +265,6 @@ groups = dag.get_parallelizable_groups()
 
 #### 定义工作流
 
-代码如下：
-
 ```python
 states = [StateDefinition(...), ...]
 transitions = [TransitionDefinition(...), ...]
@@ -277,8 +273,6 @@ executor.initialize("start_state", context)
 
 #### 创建子智能体
 
-以下是示例：
-
 ```python
 factory = SubAgentFactory("parent")
 subagent = factory.create_subagent("sub1", TaskType.LOCAL_AGENT)
@@ -286,8 +280,6 @@ result = await subagent.execute(task, parent_context)
 ```
 
 #### 发送通知
-
-具体实现如下：
 
 ```python
 notification = TaskNotification(
@@ -316,7 +308,7 @@ notification = TaskNotification(
 
 ### 本章总结
 
-第八章系统地介绍了 AI Agent 系统中的任务编排和工作流引擎设计。从单 Agent 内的 Task 分解开始，逐步深入到 FSM 工作流定义、多智能体协调、通信机制，最后在 MiniHarness 中实现了一个功能完整的编排引擎。
+本章围绕 AI Agent 系统的任务编排和工作流引擎，从单 Agent 内的 Task 分解开始，依次讨论了 FSM 工作流定义、多智能体协调和通信机制，最后在 MiniHarness 中实现了一个功能完整的编排引擎。
 
 关键要点：
 
@@ -326,4 +318,4 @@ notification = TaskNotification(
 - **可靠的通信** 是多智能体系统的核心
 - **实战实现** 展示了各个概念如何整合成完整系统
 
-这些知识为后续章节的 MCP 工具集成、生产级优化和可靠性保障做了充分准备。
+这些内容是后续章节讨论 MCP 工具集成、生产级优化和可靠性保障的基础。

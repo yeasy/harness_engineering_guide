@@ -1,15 +1,15 @@
 # 第八章：任务编排与工作流引擎
 
-AI Agent 的核心竞争力不仅在于单个决策能力，更在于协调多个任务有序执行的能力。一个复杂的业务问题往往需要分解为多个相互依赖的子任务，这些任务需要按照特定的顺序执行，并在出现错误时能够自动恢复或人工干预。
+AI Agent 的核心竞争力不只在单步决策，更在于协调多个任务有序执行。复杂的业务问题往往需要分解为多个相互依赖的子任务，按特定顺序执行，并在出错时自动恢复或交由人工干预。
 
-本章深入探讨任务编排(Task Orchestration)与工作流引擎(Workflow Engine)的设计与实现。我们将从单 Agent 内的任务分解开始，逐步过渡到有限状态机的工作流定义，再到多智能体的协调模式，最后讨论智能体之间的通信机制。
+本章讨论任务编排(Task Orchestration)与工作流引擎(Workflow Engine)的设计与实现：从单 Agent 内的任务分解开始，依次讨论有限状态机的工作流定义、多智能体的协调模式和智能体之间的通信机制。
 
 ## 核心问题
 
 1. **单 Agent 如何处理多个不可原子的任务？** Claude Code 提供的 7 种 Task 类型（local_bash、local_agent、remote_agent 等）为分解任务提供了基础。
 2. **如何定义复杂的工作流逻辑？** Claude Code 的 Coordinator 模式采用 Research→Synthesis→Implementation→Verification 的四阶段方式；OpenClaw 的 Lobster 引擎使用 YAML 工作流定义，支持条件分支、循环和错误处理；LangChain Deep Agents 则用 Interpreter Skills 将确定性流程封装为可导入的代码模块（详见 8.2.7）。
 3. **多智能体如何高效协作？** Claude Code 提供了 Task 协调机制，OpenClaw 支持多层级 Agent 组织。
-4. **智能体间如何可靠通信？** 我们需要设计消息传递协议和共享状态管理机制。
+4. **智能体间如何可靠通信？** 需要设计消息传递协议和共享状态管理机制。
 
 ## 本章地位
 

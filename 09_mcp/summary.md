@@ -1,6 +1,6 @@
 ## 本章小结
 
-本章介绍了 MCP 协议的架构、设计原理和工程实践，以下是核心知识点的总结。
+本章讨论了 MCP 协议的架构、设计原理和工程实践，核心知识点总结如下。
 
 ### 核心知识点回顾
 
@@ -236,7 +236,7 @@ result = await harness.process_tool_call(
 
 #### 架构地位
 
-结构如下：
+MCP 在 Harness 架构中的位置如下：
 
 ```yaml
 L1: 协议 (MCP规范)
@@ -329,8 +329,6 @@ async def load_permissions_from_sso(agent_id: str):
 
 #### 构造带元数据的请求
 
-示例如下：
-
 ```python
 META = {
     "io.modelcontextprotocol/protocolVersion": "2026-07-28",
@@ -347,8 +345,6 @@ request = {
 ```
 
 #### 处理 input_required（MRTR）
-
-代码如下：
 
 ```python
 result = await send(request)
@@ -367,8 +363,6 @@ if result.get("resultType") == "input_required":
 
 #### 添加 MCP Server
 
-示例如下：
-
 ```python
 await registry.add_server(MCPServerConfig(
     server_id="my_server",
@@ -380,8 +374,6 @@ await registry.add_server(MCPServerConfig(
 
 #### 发现和获取工具
 
-代码片段如下：
-
 ```python
 await registry.discover_tools()
 schema = await registry.get_tool_schema("my_tool")
@@ -390,8 +382,6 @@ tools = await adapter.get_available_tools()
 
 #### 调用工具
 
-具体实现如下：
-
 ```python
 success, result, error = await registry.call_tool(
     "my_tool", {"param": "value"}, agent_id="agent1"
@@ -399,8 +389,6 @@ success, result, error = await registry.call_tool(
 ```
 
 #### 检查缓存统计
-
-代码如下：
 
 ```python
 stats = harness.get_stats()
@@ -426,7 +414,7 @@ print(f"Cache hit rate: {stats['schema_cache']}")
 
 ### 本章总结
 
-第九章系统地介绍了 MCP 生态的设计、实现和集成。从协议的设计哲学（三个原语）到不同的传输方式选择，从 Server 的实现到 Harness 级别的集成模式，再到 MiniHarness 中的完整代码实现，形成了一套完整的工具生态管理体系。
+本章从协议的设计哲学（三个原语）、传输方式的选择、Server 的实现、Harness 级别的集成模式，一直讲到 MiniHarness 中的完整代码实现，构成一套完整的工具生态管理方法。
 
 **关键成果**：
 
@@ -439,4 +427,4 @@ print(f"Cache hit rate: {stats['schema_cache']}")
 - Schema 缓存可以显著提升性能
 - 权限和审计确保企业级安全
 
-这些知识为后续章节的性能优化（第 10 章）和可靠性保障（第 11 章）奠定了坚实的基础。MCP 的标准化特性使得智能体系统能够轻松扩展和集成来自任何供应商的工具。
+这些内容是后续章节讨论性能优化（第 10 章）和可靠性保障（第 11 章）的基础。MCP 的标准化使智能体系统能够方便地集成来自任何供应商的工具。
