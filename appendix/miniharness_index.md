@@ -89,6 +89,7 @@ graph TD
     B3 --> C6["<b>orchestration/</b><br/>编排层第8章"]
     C6 --> C6a["__init__.py"]
     C6 --> C6b["engine.py"]
+    C6 --> C6c["planner.py"]
 
     B3 --> C7["<b>mcp/</b><br/>MCP集成第9章"]
     C7 --> C7a["__init__.py"]
@@ -126,6 +127,7 @@ graph TD
     E2 --> E2c["test_memory.py"]
     E2 --> E2d["test_models.py"]
     E2 --> E2e["test_orchestration.py"]
+    E2 --> E2m["test_planner.py"]
     E2 --> E2f["test_mcp.py"]
     E2 --> E2g["test_reliability.py"]
     E2 --> E2h["test_security.py"]
@@ -259,14 +261,15 @@ graph TD
 
 #### 8. 编排引擎
 
-`mini_harness/orchestration/engine.py`
+`mini_harness/orchestration/engine.py`、`mini_harness/orchestration/planner.py`
 
-**关键类**：`OrchestrationEngine`
+**关键类**：`OrchestrationEngine`、`LLMPlanner`、`PlanValidator`
 
 **主要方法**：
 
 - 复杂工作流编排
 - 多智能体协调
+- 由模型生成任务图并校验、修复、重规划（8.1.5）
 
 **代码位置**：第 8 章完整实现
 
@@ -536,6 +539,7 @@ graph TD
 | models/parser.py | 7 | 输出解析 |
 | models/quality.py | 7 | 质量评估 |
 | orchestration/engine.py | 8 | 编排引擎 |
+| orchestration/planner.py | 8.1 | 模型生成任务图的规划、校验与重规划 |
 | mcp/integration.py | 9 | MCP 集成 |
 | utils/config.py | 10 | 生产化加固 |
 | reliability/tracing.py | 11 | 链路追踪 |
