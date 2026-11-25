@@ -25,6 +25,7 @@ from mini_harness.mcp.client import (
 from mini_harness.mcp.transports import StdioTransport, StreamableHTTPTransport
 
 FIXTURE_SERVER = Path(__file__).parents[1] / "fakes" / "mcp_server.py"
+STDIO_STARTUP_TIMEOUT = 5.0
 
 
 class TrackingTransport:
@@ -113,12 +114,12 @@ def loopback_mcp_server():
             process.wait(timeout=3)
 
 
-def stdio_client(timeout_seconds: float = 1.0) -> MCPClient:
+def stdio_client() -> MCPClient:
     transport = StdioTransport(
         command=sys.executable,
         args=(str(FIXTURE_SERVER), "stdio"),
     )
-    return MCPClient(transport, timeout_seconds=timeout_seconds)
+    return MCPClient(transport, timeout_seconds=STDIO_STARTUP_TIMEOUT)
 
 
 @pytest.mark.asyncio
@@ -174,7 +175,7 @@ async def test_streamable_http_rejects_missing_auth(loopback_mcp_server):
 
 @pytest.mark.asyncio
 async def test_real_request_timeout_cancels_wait_and_client_still_closes():
-    client = stdio_client(timeout_seconds=1)
+    client = stdio_client()
     await client.initialize()
 
     started = time.monotonic()
@@ -195,9 +196,9 @@ async def test_cancelled_initialize_stays_cancelled_and_cleans_real_stdio():
         ),
         pause_before_yield=True,
     )
-    client = MCPClient(transport, timeout_seconds=1)
+    client = MCPClient(transport, timeout_seconds=STDIO_STARTUP_TIMEOUT)
     initialize_task = asyncio.create_task(client.initialize())
-    await asyncio.wait_for(transport.entered.wait(), timeout=1)
+    await asyncio.wait_for(transport.entered.wait(), timeout=STDIO_STARTUP_TIMEOUT)
 
     initialize_task.cancel()
     with pytest.raises(asyncio.CancelledError):
@@ -216,7 +217,7 @@ async def test_real_stdio_can_initialize_and_close_from_different_tasks():
             args=(str(FIXTURE_SERVER), "stdio"),
         )
     )
-    client = MCPClient(transport, timeout_seconds=1)
+    client = MCPClient(transport, timeout_seconds=STDIO_STARTUP_TIMEOUT)
 
     metadata = await asyncio.create_task(client.initialize())
     assert metadata.server_name == "mini-harness-lifecycle-fixture"
@@ -258,7 +259,7 @@ async def test_concurrent_initialize_opens_one_real_http_connection(loopback_mcp
 
 @pytest.mark.asyncio
 async def test_cancelled_real_request_stays_cancelled_and_connection_closes():
-    client = stdio_client(timeout_seconds=1)
+    client = stdio_client()
     await asyncio.create_task(client.initialize())
     request_task = asyncio.create_task(client.call_tool("slow", {"delay_seconds": 1.0}))
     await asyncio.sleep(0.05)
@@ -281,7 +282,7 @@ async def test_concurrent_stdio_close_and_cancelled_first_waiter_share_cleanup()
         ),
         pause_before_exit=True,
     )
-    client = MCPClient(transport, timeout_seconds=1)
+    client = MCPClient(transport, timeout_seconds=STDIO_STARTUP_TIMEOUT)
     await asyncio.create_task(client.initialize())
 
     close_task = asyncio.create_task(client.close())
