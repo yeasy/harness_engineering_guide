@@ -59,12 +59,13 @@ jobs:
           tar xzf "$archive" -C /tmp mdpress
           sudo install -m 0755 /tmp/mdpress /usr/local/bin/mdpress
           mdpress --version
-      - name: Install pinned test and Mermaid dependencies
+      - name: Install pinned test and locked Mermaid dependencies
         env:
           PUPPETEER_SKIP_DOWNLOAD: "true"
         run: |
           python -m pip install -e "./lab[dev]"
-          npm install --global @mermaid-js/mermaid-cli@11.16.0
+          npm ci --prefix tools/mermaid --ignore-scripts
+          echo "$GITHUB_WORKSPACE/tools/mermaid/node_modules/.bin" >> "$GITHUB_PATH"
       - name: Validate release inputs
         run: |
           python check_project_rules.py

@@ -6,6 +6,7 @@ import os
 import re
 import subprocess
 import tomllib
+from importlib.metadata import version
 from pathlib import Path
 
 import yaml
@@ -28,9 +29,18 @@ def test_runtime_and_dev_dependencies_are_exactly_pinned():
     assert all("==" in requirement for requirement in build_requirements)
     assert all("==" in requirement for requirement in runtime)
     assert all("==" in requirement for requirement in development)
-    assert "mcp==2.0.0" in runtime
-    assert "build==1.5.1" in development
+    installed_build = version("build")
+    assert re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", installed_build)
+    assert f"build=={installed_build}" in development
     assert "types-PyYAML==6.0.12.20260518" in development
+
+    runtime_versions = dict(requirement.split("==", 1) for requirement in runtime)
+    # First releases containing the fixes for GHSA-qx49-fqc8-xw99 and GHSA-8xx6-hgc6-gc2m.
+    for package, minimum in (("mcp", (2, 2, 0)), ("httpx2", (2, 12, 0))):
+        pinned = runtime_versions[package]
+        assert re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", pinned), package
+        assert tuple(map(int, pinned.split("."))) >= minimum, package
+        assert version(package) == pinned, package
 
 
 def test_ci_matrix_covers_supported_and_current_python_with_all_quality_gates():
@@ -82,8 +92,30 @@ def test_artifact_toolchain_versions_and_download_digest_are_pinned():
     assert "checksums.txt" in workflows
     assert 'test -n "$expected"' in workflows
     assert "sha256sum -c -" in workflows
-    assert "@mermaid-js/mermaid-cli@11.16.0" in workflows
     assert "version: 3.10" in workflows
+
+
+def test_publication_workflows_use_the_locked_mermaid_cli():
+    for workflow_name, job in (("ci.yaml", "artifacts"), ("auto-release.yml", "release")):
+        with (WORKFLOWS / workflow_name).open(encoding="utf-8") as workflow_file:
+            workflow = yaml.safe_load(workflow_file)
+        steps = workflow["jobs"][job]["steps"]
+        renderer = next(
+            index for index, step in enumerate(steps)
+            if "tools/render_mermaid.py" in step.get("run", "")
+        )
+        installers = [
+            step for step in steps[:renderer]
+            if "npm ci --prefix tools/mermaid --ignore-scripts" in step.get("run", "")
+        ]
+        assert len(installers) == 1, workflow_name
+        assert installers[0]["env"]["PUPPETEER_SKIP_DOWNLOAD"] == "true", workflow_name
+        path_export = 'echo "$GITHUB_WORKSPACE/tools/mermaid/node_modules/.bin" >> "$GITHUB_PATH"'
+        assert path_export in installers[0]["run"], workflow_name
+        for step in steps:
+            assert not re.search(
+                r"npm install\s+(?:--global|-g)\s+@mermaid-js/mermaid-cli\b", step.get("run", "")
+            ), workflow_name
 
 
 def test_release_artifacts_are_smoke_checked_and_hashed_before_handoff():

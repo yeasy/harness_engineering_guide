@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
-# mcp 2.0.0 依赖 httpx2，交给 streamable_http_client 的客户端必须是
+# MCP SDK 依赖 httpx2，交给 streamable_http_client 的客户端必须是
 # httpx2.AsyncClient；混用 httpx 只是运行时侥幸可行，类型上并不兼容。
 import httpx2
 from mcp import StdioServerParameters

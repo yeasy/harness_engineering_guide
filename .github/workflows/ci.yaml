@@ -101,10 +101,12 @@ jobs:
           tar xzf "$archive" -C /tmp mdpress
           sudo install -m 0755 /tmp/mdpress /usr/local/bin/mdpress
           mdpress --version
-      - name: Install pinned Mermaid CLI
+      - name: Install locked Mermaid CLI
         env:
           PUPPETEER_SKIP_DOWNLOAD: "true"
-        run: npm install --global @mermaid-js/mermaid-cli@11.16.0
+        run: |
+          npm ci --prefix tools/mermaid --ignore-scripts
+          echo "$GITHUB_WORKSPACE/tools/mermaid/node_modules/.bin" >> "$GITHUB_PATH"
       - name: Build publication artifacts
         run: |
           # mdPress PDF generation drives headless Chrome, which intermittently dies with

@@ -26,6 +26,7 @@ below keeps the value — catching a half-applied upgrade — without the lock.
 
 from __future__ import annotations
 
+import json
 import re
 import unittest
 from pathlib import Path
@@ -64,6 +65,32 @@ class WorkflowPinTests(unittest.TestCase):
                 "preview-pdf.yml",
             },
             "a workflow was added or removed; decide whether it belongs in these guards",
+        )
+
+    def test_mermaid_dependency_is_exact_and_lockfile_backed(self) -> None:
+        package_path = ROOT / "tools" / "mermaid" / "package.json"
+        lock_path = ROOT / "tools" / "mermaid" / "package-lock.json"
+        self.assertTrue(package_path.is_file(), package_path)
+        self.assertTrue(lock_path.is_file(), lock_path)
+
+        package = json.loads(package_path.read_text(encoding="utf-8"))
+        lock = json.loads(lock_path.read_text(encoding="utf-8"))
+        dependency = "@mermaid-js/mermaid-cli"
+        pinned = package["dependencies"][dependency]
+        self.assertIsNotNone(
+            re.fullmatch(r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)", pinned),
+            "mermaid-cli must be pinned to an exact version",
+        )
+        self.assertGreaterEqual(lock["lockfileVersion"], 3)
+        self.assertEqual(
+            lock["packages"][""]["dependencies"][dependency],
+            pinned,
+            "lockfile root dependency must match package.json",
+        )
+        self.assertEqual(
+            lock["packages"][f"node_modules/{dependency}"]["version"],
+            pinned,
+            "resolved mermaid-cli version must match package.json",
         )
 
     def test_every_action_is_sha_pinned_with_a_full_version_comment(self) -> None:

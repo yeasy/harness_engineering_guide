@@ -1,6 +1,7 @@
 # Build output
 _book/
 _book.old/
+/tools/mermaid/node_modules/
 
 # Python
 __pycache__/
