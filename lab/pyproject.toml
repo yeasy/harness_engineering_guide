@@ -29,7 +29,7 @@ dev = [
     "pytest==9.1.1",
     "pytest-asyncio==1.4.0",
     "black==26.5.1",
-    "pylint==4.0.6",
+    "pylint==4.0.9",
     "mypy==2.2.0",
     "isort==8.0.1",
     "pytest-cov==7.1.0",
