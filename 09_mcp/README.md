@@ -67,7 +67,7 @@ Level 5: 实现 - MiniHarness中的完整代码
 - **无状态请求**（2026-07-28 起）：没有握手，协议版本与客户端能力随每个请求在 `params._meta` 中传递；Server 不得从同一连接上的历史请求推断状态
 - **输入请求（MRTR）**：2026-07-28 起 Server 不再发起 JSON-RPC 请求，而是返回 `resultType: "input_required"` 与 `inputRequests`，由 Client 收集输入后带 `inputResponses` 重试原请求；面对 2025-11-25 及更早的 Server，仍需保留 Server 主动发起 sampling/elicitation 请求的兼容路径
 - **流式传输**：支持大型数据的分块传输
-- **Schema 缓存**：减少重复的 Schema 定义和 Token 消耗；`tools/list` 等列表结果用 `ttlMs`、`cacheScope` 给出新鲜度提示
+- **Schema 缓存**：减少客户端重复发现工具的网络开销；`tools/list` 等列表结果用 `ttlMs`、`cacheScope` 给出新鲜度提示
 - **权限网关**：在 Agent 和 Server 间的访问控制和审计
 
 ## 章节关键术语
